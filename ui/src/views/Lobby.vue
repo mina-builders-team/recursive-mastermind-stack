@@ -6,8 +6,8 @@
       <el-table-column label="Game ID" width="180">
         <template #default="scope">
           <div class="d-flex align-items-center gap-2">
-            <span>{{ formatAddress(scope.row.id) }}</span>
-            <CopyToClipBoard :text="scope.row.id || ''" />
+            <span>{{ formatAddress(scope.row._id) }}</span>
+            <CopyToClipBoard :text="scope.row._id || ''" />
           </div>
         </template>
       </el-table-column>
@@ -33,7 +33,7 @@
               size="large"
               type="primary"
               class="me-3"
-              @click="handleJoinGame(scope.row.id)"
+              @click="handleJoinGame(scope.row._id)"
               >JOIN</el-button
             >
             <el-button
@@ -41,12 +41,14 @@
                 scope.row.codeMaster === publicKeyBase58 &&
                 scope.row.status === 'ACTIVE'
               "
+              :disabled="isCancelBtnLoading"
+              :loading="isCancelBtnLoading"
               color="#9d2c2c"
               size="large"
               type="primary"
               class="me-3"
-              @click="handleCancelGame(scope.row.id)"
-              >Cancel</el-button
+              @click="handleCancelGame(scope.row._id)"
+              >{{ compiled ? "Cancel" : "Compiling"}}</el-button
             >
           </div>
         </template>
@@ -58,12 +60,15 @@
 import { Game } from '@/types';
 import { dateToDayHourMin, formatAddress } from '@/utils';
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-const { publicKeyBase58 } = storeToRefs(useZkAppStore());
+import { ElMessage, ElNotification } from 'element-plus';
+
+const { publicKeyBase58, loading, error, currentTransactionLink, compiled } =
+  storeToRefs(useZkAppStore());
 const { cancelGame } = useZkAppStore();
 
 const router = useRouter();
@@ -76,7 +81,7 @@ const getActiveGames = async () => {
   const res = await axios.get(SERVER_URL + '/games/active-games');
   games.value = res?.data?.map((game: Game) => {
     return {
-      id: game?._id,
+      _id: game?._id,
       gameRewardAmount: game?.rewardAmount,
       codeMaster: game?.codeMaster,
       status: game.status,
@@ -86,7 +91,21 @@ const getActiveGames = async () => {
 };
 const handleCancelGame = async (gameId: string) => {
   await cancelGame(gameId);
+  if (error.value) {
+    ElMessage.error({ message: error.value, duration: 6000 });
+  } else {
+    ElNotification({
+      title: 'Success',
+      message: `Transaction Hash :  ${currentTransactionLink.value}`,
+      type: 'success',
+      duration: 5000,
+    });
+    games.value = games.value.filter((game: Game) => game._id !== gameId);
+  }
 };
+const isCancelBtnLoading = computed(()=> {
+  return loading.value || !compiled.value
+})
 onMounted(async () => {
   await getActiveGames();
 });

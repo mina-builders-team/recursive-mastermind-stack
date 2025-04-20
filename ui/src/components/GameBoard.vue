@@ -87,7 +87,7 @@
           </div>
         </div>
       </div>
-      <div class="color-picker__container d-flex w-100 gap-2 p-2 mt-4">
+      <div class="color-picker__container d-flex justify-content-between w-100 gap-2 p-2 mt-4">
         <RoundedColor
           height="40px"
           width="40px"
@@ -200,6 +200,7 @@ onMounted(async () => {
 .color-picker__container {
   border-radius: 10px;
   box-shadow: 0 0 10px #00ffcc55;
+  min-width: 467px;
 }
 
 :deep(.el-popper) {

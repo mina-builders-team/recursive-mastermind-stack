@@ -1,6 +1,6 @@
 <template>
   <div class="h-100 w-100 d-flex flex-column align-items-center">
-    <p class="m-3 w-100 game-title fs-1">Mina Mastermind</p>
+    <div class="m-3 mb-0 w-100 game-title fs-1">Mina Mastermind</div>
     <router-view />
   </div>
 </template>

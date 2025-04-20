@@ -47,6 +47,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     webSocketInstance: null as null | WebSocketService,
     userRole: null as null | string,
     game: null as any,
+    menuStep: "RULES"
   }),
   getters: {},
   actions: {
@@ -158,7 +159,10 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           throw new Error("You don't have enough funds!");
         }
         this.stepDisplay = 'Creating a transaction...';
-        const signedData = await this.signFields([...separatedSecretCombination, salt]);
+        const signedData = await this.signFields([
+          ...separatedSecretCombination,
+          salt,
+        ]);
 
         this.zkAppAddress =
           await this.zkappWorkerClient!.createInitGameTransaction(
@@ -436,6 +440,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           },
         });
         this.currentTransactionLink = hash;
+        await axios.get(SERVER_URL + `/games/cancel/${gameId}`);
         this.stepDisplay = '';
         this.error = null;
       } catch (err: any) {
@@ -445,5 +450,16 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.loading = false;
       }
     },
+    async clearGame() {
+      this.game = null;
+      this.userRole = null;
+      this.webSocketInstance = null;
+      this.zkAppAddress = null;
+      this.zkProofStates = null;
+      this.zkAppStates = null;
+    },
+    setMenuStep(step: string) {
+      this.menuStep = step
+    } 
   },
 });
