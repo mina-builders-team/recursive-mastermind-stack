@@ -207,6 +207,12 @@ export async function handlePenalize(
 async function checkForPenalization(gameId: string, proofQueue: Queue) {
   const now = Date.now();
   const game = await getGameById(gameId);
+  if(game?.status !== GameStatus.IN_PROGRESS){
+    return {
+      isPenalized: false,
+      game,
+    };
+  }
   const lastTurnTimestamp = game?.timestamp || Date.now();
   const TURN_DURATION = 1000 * 60 * 2;
 

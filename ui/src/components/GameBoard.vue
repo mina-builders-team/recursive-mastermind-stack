@@ -12,7 +12,7 @@
       </div>
     </div>
     <div
-      class="gameplay__container d-flex flex-column align-items-center w-100 h-100 mt-2"
+      class="gameplay__container d-flex flex-column align-items-center w-100 h-100 mt-2 mb-4"
     >
       <div class="w-100 d-flex justify-content-start w-100">
         <div class="d-flex flex-start gap-2 py-3">
@@ -129,7 +129,7 @@ const clues = computed<Array<AvailableColor[]>>(
   () => zkProofStates.value?.cluesHistory
 );
 const handleTurnEnded = () => {
-  if (game.value?.status !== 'PENALIZED') {
+  if (game.value?.status === 'IN_PROGRESS') {
     penalizePlayer();
   }
 };
