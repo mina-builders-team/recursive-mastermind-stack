@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
+import { Poseidon, PublicKey } from 'o1js';
 
 export interface SignedData {
   publicKey: string;
@@ -47,7 +48,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     webSocketInstance: null as null | WebSocketService,
     userRole: null as null | string,
     game: null as any,
-    menuStep: "RULES"
+    menuStep: 'RULES',
   }),
   getters: {},
   actions: {
@@ -422,27 +423,34 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async cancelGame(gameId: string) {
       try {
         this.loading = true;
-        this.stepDisplay = 'Creating a transaction...';
-        await this.zkappWorkerClient!.createCancelGameTransaction(
-          this.publicKeyBase58,
-          gameId
-        );
-        this.stepDisplay = 'Generating proof...';
-        await this.zkappWorkerClient!.proveTransaction();
-        this.stepDisplay = 'Getting transaction JSON...';
-        const transactionJSON =
-          await this.zkappWorkerClient!.getTransactionJSON();
-        this.stepDisplay = 'Requesting send transaction...';
-        const { hash } = await (window as any).mina.sendTransaction({
-          transaction: transactionJSON,
-          feePayer: {
-            memo: '',
-          },
-        });
-        this.currentTransactionLink = hash;
-        await axios.get(SERVER_URL + `/games/cancel/${gameId}`);
-        this.stepDisplay = '';
-        this.error = null;
+        const signedData = await this.signFields([
+          Poseidon.hash(PublicKey.fromBase58(gameId).toFields()).toString(),
+        ]);
+        if (signedData) {
+          this.stepDisplay = 'Creating a transaction...';
+          await this.zkappWorkerClient!.createCancelGameTransaction(
+            this.publicKeyBase58,
+            gameId
+          );
+          this.stepDisplay = 'Generating proof...';
+          await this.zkappWorkerClient!.proveTransaction();
+          this.stepDisplay = 'Getting transaction JSON...';
+          const transactionJSON =
+            await this.zkappWorkerClient!.getTransactionJSON();
+          this.stepDisplay = 'Requesting send transaction...';
+          const { hash } = await (window as any).mina.sendTransaction({
+            transaction: transactionJSON,
+            feePayer: {
+              memo: '',
+            },
+          });
+          this.currentTransactionLink = hash;
+          await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
+            signedData,
+          });
+          this.stepDisplay = '';
+          this.error = null;
+        }
       } catch (err: any) {
         this.error = err?.message || err;
         console.log('error ', err);
@@ -459,7 +467,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.zkAppStates = null;
     },
     setMenuStep(step: string) {
-      this.menuStep = step
-    } 
+      this.menuStep = step;
+    },
   },
 });

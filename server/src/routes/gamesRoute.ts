@@ -5,7 +5,10 @@ import {
   getUserGames,
 } from '../repositories/game.js';
 import { GameStatus } from '../models/Game.js';
+import { Field, PublicKey, Signature } from 'o1js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const router = Router();
 
 router.get('/active-games', async (req: Request, res: Response) => {
@@ -13,8 +16,8 @@ router.get('/active-games', async (req: Request, res: Response) => {
     const games = await getActiveGames();
     res.status(200).json(games);
   } catch (error) {
-    console.error('Error fetching answer  list:', error);
-    res.status(500).json({ message: 'Failed to find answer list' });
+    console.error('Error fetching game  list:', error);
+    res.status(500).json({ message: 'Failed to find game list' });
   }
 });
 router.post('/accept/:id', async (req: Request, res: Response) => {
@@ -36,18 +39,31 @@ router.get('/user/:id', async (req: Request, res: Response) => {
     const games = await getUserGames(userId);
     res.status(200).json({ games });
   } catch (error) {
-    console.error('Error fetching answer  list:', error);
-    res.status(500).json({ message: 'Failed to find answer list' });
+    console.error('Error fetching game  list:', error);
+    res.status(500).json({ message: 'Failed to find game list' });
   }
 });
-router.get('/cancel/:id', async (req: Request, res: Response) => {
+router.post('/cancel/:id', async (req: Request, res: Response) => {
   try {
     const gameId = req.params.id;
-    const game = await createOrUpdateGame({_id:gameId, status:GameStatus.CANCELLED});
-    res.status(200).json({ game });
+    const { signedData } = req.body;
+    const signature = Signature.fromBase58(signedData.signature);
+    const isVerifiedSignature = signature.verify(
+      PublicKey.fromBase58(signedData.publicKey),
+      [Field(signedData.data[0])]
+    );
+    if (isVerifiedSignature.toBoolean()) {
+      const game = await createOrUpdateGame({
+        _id: gameId,
+        status: GameStatus.CANCELLED,
+      });
+      res.status(200).json({ game });
+    } else {
+      res.status(403).json({ error: 'Invalid Signature' });
+    }
   } catch (error) {
-    console.error('Error fetching answer  list:', error);
-    res.status(500).json({ message: 'Failed to find answer list' });
+    console.error('Error canceling game:', error);
+    res.status(500).json({ error: 'Failed to cancel game' });
   }
 });
 

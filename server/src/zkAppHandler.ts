@@ -4,7 +4,6 @@ import {
   checkIfSolved,
   deserializeClue,
   MastermindZkApp,
-  GameState,
   StepProgram,
   StepProgramProof,
 } from '@navigators-exploration-team/mina-mastermind';
