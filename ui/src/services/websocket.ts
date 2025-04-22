@@ -24,10 +24,12 @@ export class WebSocketService {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
           if (data.zkProof) {
+            const { setTurnPlayed } = useZkAppStore();
             const receivedProof = await StepProgramProof.fromJSON(
               JSON.parse(data.zkProof)
             );
             receivedProof.verify();
+            setTurnPlayed(false);
             if (this.onMessageCallback) this.onMessageCallback(data);
           }
           if (data.game) {

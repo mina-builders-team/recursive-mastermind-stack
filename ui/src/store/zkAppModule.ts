@@ -49,6 +49,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     userRole: null as null | string,
     game: null as any,
     menuStep: 'RULES',
+    isTurnPlayed: false
   }),
   getters: {},
   actions: {
@@ -222,6 +223,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.zkProofStates.turnCount,
         ]);
         if (signedData) {
+          this.isTurnPlayed = true
           this.stepDisplay = 'Generating proof...';
           const res = await this.zkappWorkerClient!.createGuessProof(
             signedData,
@@ -238,6 +240,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
 
         this.error = null;
       } catch (err: any) {
+        this.isTurnPlayed = false
         this.error = err?.message || err;
         console.log('error ', err);
       } finally {
@@ -256,6 +259,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.zkProofStates.turnCount,
         ]);
         if (signedData) {
+          this.isTurnPlayed = true
           this.stepDisplay = 'Generating proof...';
           const res = await this.zkappWorkerClient!.createGiveClueProof(
             signedData,
@@ -272,6 +276,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         }
         this.error = null;
       } catch (err: any) {
+        this.isTurnPlayed = false
         this.error = err?.message || err;
         console.log('error ', err);
       } finally {
@@ -469,5 +474,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setMenuStep(step: string) {
       this.menuStep = step;
     },
+    setTurnPlayed(isTurnPlayed:boolean) {
+      this.isTurnPlayed = isTurnPlayed
+    }
   },
 });

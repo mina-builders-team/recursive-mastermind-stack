@@ -113,9 +113,7 @@ export const handleProof = async (
 
   const players = activePlayers.get(gameId) || new Set();
   players.forEach((player: WebSocket) => {
-    if (player !== ws) {
       player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
-    }
   });
 };
 
@@ -214,7 +212,7 @@ async function checkForPenalization(gameId: string, proofQueue: Queue) {
     };
   }
   const lastTurnTimestamp = game?.timestamp || Date.now();
-  const TURN_DURATION = 1000 * 60 * 2;
+  const TURN_DURATION = 1000 * 60 * 2.5;
 
   if (game?.turnCount && now - lastTurnTimestamp > TURN_DURATION) {
     const winnerPublicKeyBase58 =
