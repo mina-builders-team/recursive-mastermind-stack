@@ -12,7 +12,7 @@
       </div>
     </div>
     <div
-      class="gameplay__container d-flex flex-column align-items-center w-100 h-100 mt-2"
+      class="gameplay__container d-flex flex-column align-items-center w-100 h-100 mt-2 mb-4"
     >
       <div class="w-100 d-flex justify-content-start w-100">
         <div class="d-flex flex-start gap-2 py-3">
@@ -74,7 +74,7 @@
             </div>
 
             <div
-              v-for="(guess, row) in guesses?.slice(0, zkAppStates.maxAttempts)"
+              v-for="(guess, row) in guesses"
             >
               <Guess
                 :attemptNo="row"
@@ -87,7 +87,7 @@
           </div>
         </div>
       </div>
-      <div class="color-picker__container d-flex w-100 gap-2 p-2 mt-4">
+      <div class="color-picker__container d-flex justify-content-between w-100 gap-2 p-2 mt-4">
         <RoundedColor
           height="40px"
           width="40px"
@@ -113,6 +113,7 @@ import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
 import { cluesColors } from '@/constants/colors';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
 import Timer from '@/components/shared/Timer.vue';
+import { MAX_ATTEMPTS } from '@/constants/config';
 
 const { getRole, getZkAppStates, penalizePlayer } = useZkAppStore();
 const { zkAppAddress, zkProofStates, zkAppStates, publicKeyBase58, game } =
@@ -128,7 +129,7 @@ const clues = computed<Array<AvailableColor[]>>(
   () => zkProofStates.value?.cluesHistory
 );
 const handleTurnEnded = () => {
-  if (game.value?.status !== 'PENALIZED') {
+  if (game.value?.status === 'IN_PROGRESS') {
     penalizePlayer();
   }
 };
@@ -153,13 +154,13 @@ const isWinner = computed(() => {
 const isGameEnded = computed(() => {
   return (
     isGameSolved.value ||
-    zkProofStates?.value?.turnCount > zkAppStates?.value?.maxAttempts * 2 ||
+    zkProofStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
     game.value?.status === 'PENALIZED'
   );
 });
 const showRewardButton = computed(() => {
   return (
-    zkAppStates.value?.turnCount > zkAppStates.value?.maxAttempts * 2 ||
+    zkAppStates.value?.turnCount > MAX_ATTEMPTS * 2 ||
     zkAppStates.value?.isSolved === '1'
   );
 });
@@ -175,7 +176,7 @@ watch(
   () => {
     guesses.value = zkProofStates.value.guessesHistory;
     if (
-      zkProofStates.value?.turnCount > zkAppStates.value?.maxAttempts * 2 ||
+      zkProofStates.value?.turnCount > MAX_ATTEMPTS * 2 ||
       isGameSolved.value
     ) {
       intervalId.value = setInterval(async () => {
@@ -199,6 +200,7 @@ onMounted(async () => {
 .color-picker__container {
   border-radius: 10px;
   box-shadow: 0 0 10px #00ffcc55;
+  min-width: 467px;
 }
 
 :deep(.el-popper) {
