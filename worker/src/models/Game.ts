@@ -23,6 +23,9 @@ export interface IGame extends Document {
   lastAcceptTimestamp: number;
   penalizationTransactionHash?: string;
   turnCount: number;
+  cancelTransactionHash?: string;
+  lastCancelTimestamp: number;
+
 }
 
 const gameSchema: Schema = new Schema(
@@ -44,6 +47,9 @@ const gameSchema: Schema = new Schema(
     lastAcceptTimestamp: { type: Number, required: false },
     penalizationTransactionHash: { type: String, required: false },
     turnCount: { type: Number, required: false },
+    cancelTransactionHash: { type: String, required: false },
+    lastCancelTimestamp: { type: Number, required: false },
+
   },
   { timestamps: true }
 );

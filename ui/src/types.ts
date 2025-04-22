@@ -29,4 +29,6 @@ export interface Game {
   codeMaster: string;
   status: string;
   lastAcceptTimestamp: number;
+  cancelTransactionHash: string;
+  lastCancelTimestamp: number;
 }
