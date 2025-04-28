@@ -18,10 +18,10 @@
         ></el-input>
       </el-form-item>
       <el-form-item prop="refereePubKeyBase58">
-        <label>Refree Public Key</label>
+        <label>Referee Public Key</label>
         <PasteFromClipBoard
-          placeholder="Insert refree public key"
-          @change="handleRefreeChange"
+          placeholder="Insert referee public key"
+          @change="handleRefereeChange"
           :inputValue="game.refereePubKeyBase58"
         />
       </el-form-item>
@@ -79,7 +79,7 @@ const rules = ref({
   refereePubKeyBase58: [
     {
       required: true,
-      message: `The refree public key is required!`,
+      message: `The referee public key is required!`,
       trigger: 'change',
     },
     {
@@ -142,7 +142,7 @@ const handleInitGame = async (formData: CodePicker) => {
     }
   });
 };
-const handleRefreeChange = (input: string) => {
+const handleRefereeChange = (input: string) => {
   game.value.refereePubKeyBase58 = input;
 };
 </script>

@@ -8,7 +8,7 @@ import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
 import { PublicKey, UInt32, VerificationKey, verify } from 'o1js';
 import { GameStatus } from './models/Game.js';
-import { MAX_ATTEMPTS } from './constants.js';
+import { MAX_ATTEMPTS, VERIFIED_REFREES } from './constants.js';
 
 export const handleJoinGame = async (
   gameId: string,
@@ -32,6 +32,7 @@ export const handleProof = async (
   zkProof: string,
   receivedRewardAmount: number,
   playerPubKeyBase58: string,
+  refereePubKeyBase58: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
   proofQueue: Queue,
@@ -109,11 +110,16 @@ export const handleProof = async (
       ? winnerPublicKeyBase58
       : undefined,
     status: winnerPublicKeyBase58 ? GameStatus.ENDED : undefined,
+    refereePubKeyBase58: lastTurnCount === null ? refereePubKeyBase58 : undefined,
+    isRefereeVerified:
+      lastTurnCount === null
+        ? VERIFIED_REFREES.includes(refereePubKeyBase58)
+        : undefined,
   });
 
   const players = activePlayers.get(gameId) || new Set();
   players.forEach((player: WebSocket) => {
-      player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
+    player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
   });
 };
 
@@ -205,7 +211,7 @@ export async function handlePenalize(
 async function checkForPenalization(gameId: string, proofQueue: Queue) {
   const now = Date.now();
   const game = await getGameById(gameId);
-  if(game?.status !== GameStatus.IN_PROGRESS){
+  if (game?.status !== GameStatus.IN_PROGRESS) {
     return {
       isPenalized: false,
       game,

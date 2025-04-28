@@ -65,6 +65,7 @@ wss.on('connection', (ws) => {
         zkProof,
         rewardAmount,
         playerPubKeyBase58,
+        refereePubKeyBase58
       } = data;
       console.log('action : ', action);
       if (!gameId || !action) {
@@ -82,6 +83,7 @@ wss.on('connection', (ws) => {
           zkProof,
           rewardAmount,
           playerPubKeyBase58,
+          refereePubKeyBase58,
           activePlayers,
           ws,
           proofQueue,

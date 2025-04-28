@@ -31,4 +31,6 @@ export interface Game {
   lastAcceptTimestamp: number;
   cancelTransactionHash: string;
   lastCancelTimestamp: number;
+  isRefereeVerified: boolean;
+  refereePubKeyBase58: string;
 }

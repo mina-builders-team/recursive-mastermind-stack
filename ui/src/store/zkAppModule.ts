@@ -202,6 +202,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           gameId: this.zkAppAddress,
           zkProof: JSON.stringify(res),
           rewardAmount,
+          refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
         });
         this.stepDisplay = '';

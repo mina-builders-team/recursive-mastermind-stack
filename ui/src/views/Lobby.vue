@@ -25,6 +25,23 @@
         width="180"
       >
       </el-table-column>
+      <el-table-column label="Referee" prop="refereePubKeyBase58" width="180">
+        <template #default="scope">
+          <div class="d-flex align-items-center gap-2">
+            <span>{{ formatAddress(scope.row.refereePubKeyBase58) }}</span>
+            <CopyToClipBoard :text="scope.row.refereePubKeyBase58 || ''" />
+          </div>
+          <div >
+            <span class="d-flex align-items-center gap-2" v-if="scope.row.isRefereeVerified">
+              (Verified) <el-icon class="check-icon"><CircleCheckFilled /></el-icon>
+            </span>
+            <span v-else class="d-flex align-items-center gap-2">
+              (Not verified) <el-icon class="close-icon"><CircleCloseFilled /></el-icon>
+            </span>
+          </div>
+        </template>
+      </el-table-column>
+
       <el-table-column label="Action" width="250">
         <template #default="scope">
           <div class="d-flex">
@@ -48,7 +65,7 @@
               type="primary"
               class="me-3"
               @click="handleCancelGame(scope.row._id)"
-              >{{ compiled ? "Cancel" : "Compiling"}}</el-button
+              >{{ compiled ? 'Cancel' : 'Compiling' }}</el-button
             >
           </div>
         </template>
@@ -86,6 +103,8 @@ const getActiveGames = async () => {
       codeMaster: game?.codeMaster,
       status: game.status,
       lastAcceptanceDate: dateToDayHourMin(game?.lastAcceptTimestamp),
+      refereePubKeyBase58: game?.refereePubKeyBase58,
+      isRefereeVerified: game?.isRefereeVerified,
     };
   });
 };
@@ -103,9 +122,9 @@ const handleCancelGame = async (gameId: string) => {
     games.value = games.value.filter((game: Game) => game._id !== gameId);
   }
 };
-const isCancelBtnLoading = computed(()=> {
-  return loading.value || !compiled.value
-})
+const isCancelBtnLoading = computed(() => {
+  return loading.value || !compiled.value;
+});
 onMounted(async () => {
   await getActiveGames();
 });
@@ -128,5 +147,11 @@ onMounted(async () => {
   position: absolute;
   left: 0%;
   width: 100vw;
+}
+.check-icon {
+  color: rgb(31, 250, 31);
+}
+.close-icon {
+  color: rgb(213, 72, 72);
 }
 </style>
