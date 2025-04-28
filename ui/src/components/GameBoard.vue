@@ -8,6 +8,7 @@
           :title="el.title"
           width="24px"
           height="24px"
+          :showValue="false"
         />
       </div>
     </div>

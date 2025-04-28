@@ -34,7 +34,7 @@ export class WebSocketService {
           }
           if (data.game) {
             const { setGame } = useZkAppStore();
-            setGame(data.game);
+            await setGame(data.game);
           }
         } catch (e) {
           console.log('Error handling message:', e);

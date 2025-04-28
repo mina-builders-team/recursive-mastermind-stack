@@ -48,7 +48,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     zkAppAddress: null as null | string,
     webSocketInstance: null as null | WebSocketService,
     userRole: null as null | string,
-    game: null as any,
+    game: null as null | Game,
     menuStep: 'RULES',
     isTurnPlayed: false,
   }),
@@ -412,7 +412,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.publicKeyBase58
       );
     },
-    setGame(game: any) {
+    async setGame(game: Game) {
+      if (
+        this.game?.status !== 'IN_PROGRESS' &&
+        game.status === 'IN_PROGRESS'
+      ) {
+        await this.getZkAppStates()
+      }
       this.game = game;
     },
     startGame() {
@@ -457,7 +463,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             hash,
           });
           if (res?.data?.game) {
-            this.updateCurrentGame(res?.data?.game);
+            this.setGame(res?.data?.game);
           }
           this.stepDisplay = '';
           this.error = null;
@@ -482,9 +488,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     setTurnPlayed(isTurnPlayed: boolean) {
       this.isTurnPlayed = isTurnPlayed;
-    },
-    updateCurrentGame(data: Partial<Game>) {
-      this.game = { ...this.game, ...data };
     },
   },
 });

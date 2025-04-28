@@ -25,6 +25,7 @@
           width="18px"
           :value="el.value"
           height="18px"
+          :showValue="false"
         />
       </div>
     </div>

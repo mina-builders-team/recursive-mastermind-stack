@@ -150,7 +150,8 @@ const isAcceptGameTimeElapsed = ref(
 );
 
 const isCancelGameTimeElapsed = ref(
-  Date.now() - game.value?.lastCancelTimestamp > 25 * 1000
+  game.value?.lastCancelTimestamp &&
+    Date.now() - game.value?.lastCancelTimestamp > 25 * 1000
 );
 const isGameCancelled = computed(() => {
   return zkAppStates.value?.rewardAmount === 0;
