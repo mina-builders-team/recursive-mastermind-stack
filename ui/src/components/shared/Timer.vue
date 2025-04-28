@@ -13,7 +13,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const emit = defineEmits(['turnEnded']);
+const emit = defineEmits(['timeEnded']);
 
 const props = defineProps({
   startTimestamp: {
@@ -45,7 +45,7 @@ const updateCountdown = () => {
   const elapsed = now - props.startTimestamp;
 
   if (elapsed >= props.duration) {
-    emit('turnEnded');
+    emit('timeEnded');
     clearInterval(interval);
     minutes.value = '00';
     seconds.value = '00';

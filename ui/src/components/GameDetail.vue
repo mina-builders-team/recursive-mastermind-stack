@@ -4,7 +4,7 @@
     <div class="d-flex flex-column gap-4 align-items-start w-100" v-else>
       <div class="d-flex align-items-center gap-2">
         Game ID : {{ formatAddress(zkAppAddress as string) }}
-        <CopyToClipBoard :text="zkAppAddress as string" />
+        <CopyToClipBoard :text="zkAppAddress || ''" />
       </div>
       <div>Reward Amount : {{ zkAppStates.rewardAmount / 1e9 }} MINA</div>
       <div>
@@ -13,45 +13,104 @@
       <div>
         Last Cancel Attempt : {{ dateToDayHourMin(game?.lastCancelTimestamp) }}
       </div>
-      <div v-if="game?.status === 'CANCELLED'" class="d-flex align-items-center gap-2">
+      <div
+        v-if="game?.status === 'CANCELLED'"
+        class="d-flex align-items-center gap-2"
+      >
         Last Cancel Transaction Hash :
         {{ formatAddress(game?.cancelTransactionHash) }}
         <CopyToClipBoard :text="game?.cancelTransactionHash" />
       </div>
       <div
         v-if="userRole === 'CODE_MASTER'"
-        class="d-flex flex-column align-content-start gap-5"
+        class="d-flex flex-column align-content-start gap-4"
       >
-        <div class="d-flex align-items-end gap-2">
-          Waiting for code breaker to accept the game
-          <DotsLoader />
+        <div v-if="game?.cancelTransactionHash">
+          Please check this
+          <a
+            :href="`https://minascan.io/devnet/tx/${game?.cancelTransactionHash}?type=zk-tx`"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            transaction</a
+          >
+
+          before cancelling the game again.
+        </div>
+        <div
+          v-if="!isCancelGameTimeElapsed && game.lastCancelTimestamp"
+          class="d-flex align-items-end gap-2"
+        >
+          Game should be cancelled anytime before
+          <Timer
+            :duration="25 * 1000"
+            :startTimestamp="game.lastCancelTimestamp"
+            :showIcon="false"
+            @timeEnded="handleCancelTimeElapsed"
+          />
+        </div>
+        <div v-else class="d-flex flex-column align-content-start gap-4">
+          <div class="d-flex align-items-end gap-2">
+            Waiting for code breaker to accept the game
+            <DotsLoader />
+          </div>
+          <el-button
+            :disabled="loading"
+            :loading="loading"
+            color="#9d2c2c"
+            size="large"
+            type="primary"
+            class="me-3"
+            @click="handleCancelGame(game?._id)"
+            >Cancel Game</el-button
+          >
+        </div>
+      </div>
+      <div v-else class="w-100">
+        <div
+          v-if="acceptedGame?.transactionHash"
+          class="d-flex flex-column gap-4 w-100"
+        >
+          <div class="d-flex align-items-center gap-2">
+            Last Accept Game Transaction Hash :
+            {{ formatAddress(acceptedGame?.transactionHash) }}
+            <CopyToClipBoard :text="acceptedGame?.transactionHash" />
+          </div>
+          <div>
+            Please check this
+            <a
+              :href="`https://minascan.io/devnet/tx/${acceptedGame?.transactionHash}?type=zk-tx`"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              transaction</a
+            >
+
+            before accepting the game again.
+          </div>
         </div>
         <el-button
-          v-if="['ACTIVE', 'PENDING'].includes(game?.status)"
+          v-if="isAcceptGameTimeElapsed || !acceptedGame?.timestamp"
+          size="large"
+          color="#00ADB5"
           :disabled="loading"
           :loading="loading"
-          color="#9d2c2c"
-          size="large"
           type="primary"
-          class="me-3"
-          @click="handleCancelGame(game?._id)"
-          >Cancel Game</el-button
+          class="w-100 mt-4"
+          @click="handleAcceptGame"
+          >Accept game</el-button
         >
-      </div>
-      <el-button
-        v-else-if="!isLastAcceptedGame"
-        size="large"
-        color="#00ADB5"
-        :disabled="loading"
-        :loading="loading"
-        type="primary"
-        class="w-100"
-        @click="handleAcceptGame"
-        >Accept game</el-button
-      >
-      <div class="d-flex align-items-end gap-2" v-else>
-        Waiting for the game to start
-        <DotsLoader />
+        <div v-else class="d-flex flex-column align-content-start mt-4">
+          <div class="d-flex align-items-end gap-2">
+            Game should start anytime before
+            <Timer
+              :duration="25 * 1000"
+              :startTimestamp="acceptedGame.timestamp"
+              :showIcon="false"
+              @timeEnded="handleAcceptTimeElapsed"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -66,6 +125,7 @@ import { computed, onMounted, ref } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useRoute } from 'vue-router';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
+import Timer from './shared/Timer.vue';
 
 const {
   zkAppStates,
@@ -76,19 +136,40 @@ const {
   currentTransactionLink,
   game,
 } = storeToRefs(useZkAppStore());
-const { acceptGame, getRole, cancelGame } = useZkAppStore();
-const acceptedGameId = ref();
+const { acceptGame, getRole, cancelGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();
+let storedAcceptedGames = localStorage.getItem('acceptedGames')
+  ? JSON.parse(localStorage.getItem('acceptedGames')!)
+  : {};
+const acceptedGame = ref(
+  storedAcceptedGames[route?.params?.id as string] || null
+);
+
+const isAcceptGameTimeElapsed = ref(
+  Date.now() - acceptedGame.value?.timestamp > 25 * 1000
+);
+
+const isCancelGameTimeElapsed = ref(
+  Date.now() - game.value?.lastCancelTimestamp > 25 * 1000
+);
 const isGameCancelled = computed(() => {
-  return zkAppStates.value?.rewardAmount === '0';
+  return zkAppStates.value?.rewardAmount === 0;
 });
 const handleAcceptGame = async () => {
   await acceptGame();
   if (error.value) {
     ElMessage.error({ message: error.value, duration: 6000 });
   } else {
-    acceptedGameId.value = route?.params?.id;
-    localStorage.setItem('lastAcceptedGame', acceptedGameId.value);
+    acceptedGame.value = {
+      transactionHash: currentTransactionLink.value,
+      timestamp: Date.now(),
+    };
+    storedAcceptedGames = {
+      ...storedAcceptedGames,
+      [zkAppAddress.value as string]: { ...acceptedGame.value },
+    };
+    localStorage.setItem('acceptedGames', JSON.stringify(storedAcceptedGames));
+    isAcceptGameTimeElapsed.value = false;
     ElNotification({
       title: 'Success',
       message: `Transaction Hash :  ${currentTransactionLink.value}`,
@@ -108,15 +189,18 @@ const handleCancelGame = async (gameId: string) => {
       type: 'success',
       duration: 5000,
     });
+    isCancelGameTimeElapsed.value = false;
   }
 };
-const isLastAcceptedGame = computed(() => {
-  return acceptedGameId.value === route?.params?.id;
-});
+const handleAcceptTimeElapsed = async () => {
+  await getZkAppStates();
+  isAcceptGameTimeElapsed.value = true;
+};
+const handleCancelTimeElapsed = async () => {
+  await getZkAppStates();
+  isCancelGameTimeElapsed.value = true;
+};
 onMounted(async () => {
   await getRole();
-  acceptedGameId.value = localStorage.getItem('lastAcceptedGame');
-  if (zkAppStates.value?.rewardAmount === '0') {
-  }
 });
 </script>

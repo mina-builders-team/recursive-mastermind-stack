@@ -70,7 +70,7 @@
                       isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5
                     "
                     :startTimestamp="game.timestamp"
-                    @turnEnded="handleTurnEnded"
+                    @timeEnded="handleTurnEnded"
                   />
                 </div>
               </div>

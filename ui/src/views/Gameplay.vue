@@ -66,7 +66,7 @@ watch(
   () => zkAppStates.value?.codeBreakerId,
   () => {
     if (
-      ['ACTIVE', 'PENDING'].includes(game.value.status) &&
+      ['ACTIVE', 'PENDING','CANCELLED'].includes(game.value?.status) &&
       zkAppStates.value?.codeBreakerId &&
       zkAppStates.value?.codeBreakerId !== '0'
     ) {

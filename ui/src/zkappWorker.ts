@@ -194,7 +194,7 @@ const functions = {
       GameState.unpack(compressedState);
 
     return {
-      rewardAmount: rewardAmount.toString(),
+      rewardAmount: Number(rewardAmount.toString()),
       finalizeSlot: finalizeSlot.toString(),
       codeBreakerId: codeBreakerId.toString(),
       codeMasterId: codeMasterId.toString(),

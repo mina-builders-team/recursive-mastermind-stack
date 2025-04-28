@@ -455,8 +455,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             signedData,
             hash,
           });
-          if(res?.data?.game)
-          this.updateCurrentGame(res?.data?.game);
+          if (res?.data?.game) {
+            this.updateCurrentGame(res?.data?.game);
+          }
           this.stepDisplay = '';
           this.error = null;
         }
