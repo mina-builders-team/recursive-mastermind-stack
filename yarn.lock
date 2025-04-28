@@ -781,15 +781,10 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.3.tgz#0aa5502d547b57abfc4ac492de68e2006e417242"
   integrity sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==
 
-"@navigators-exploration-team/mina-mastermind@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-1.2.0.tgz#757bcb4485f94f635b7aa40ae2e6a2ced271637e"
-  integrity sha512-Bs1XYthmpJklo9XWdaj875A5skXObx7JB//JfV214wVTgBGftuoOpnCcd1/dKUkp1/nt8l1YeiOMn3MHK7IZjQ==
-
-"@navigators-exploration-team/mina-mastermind@^0.4.4":
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-0.4.4.tgz#a95db7673d130a0d44940916c2ae0bd8fd14aad4"
-  integrity sha512-55kxqHsR4V4vh0OrhsmWOdbBcxC10QG9UAHhB/KSV9niZ1DH8YuBR9ytcmka1M5+qmYCT4x61okckns8CBkdxA==
+"@navigators-exploration-team/mina-mastermind@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-1.3.0.tgz#0c4d0b6d1367c309d63e4df8e9327e00db06672b"
+  integrity sha512-/rjeXOIRVodOluqBLrhesIBW0OudM1pPJWc2G57Z1TcwbJPm/BSC5Nu+DfCR6l8X8G0CK+6HLKTbPadEvoShbg==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
