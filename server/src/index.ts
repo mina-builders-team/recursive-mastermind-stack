@@ -142,7 +142,7 @@ wss.on('connection', (ws) => {
     console.error('WebSocket error:', err);
   });
 });
-cron.schedule('/20 * * * *', async () => {
+cron.schedule('*/20 * * * *', async () => {
   const isQueuePaused = await gameLifecycleQueue.isPaused();
   const gameLifecycleQueuePausedAt = await redisClient.get(
     'gameLifecycleQueue:paused'
