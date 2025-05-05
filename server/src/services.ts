@@ -35,10 +35,10 @@ export const handleProof = async (
   refereePubKeyBase58: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue,
+  gameLifecycleQueue: Queue,
   vk: VerificationKey
 ) => {
-  let { game, isPenalized } = await checkForPenalization(gameId, proofQueue);
+  let { game, isPenalized } = await checkForPenalization(gameId, gameLifecycleQueue);
   if (isPenalized) {
     const players = activePlayers.get(gameId) || new Set();
     players.forEach((player: WebSocket) => {
@@ -89,7 +89,7 @@ export const handleProof = async (
   let winnerPublicKeyBase58 = null;
   if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
     winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
-    await proofQueue.add('sendFinalProof', {
+    await gameLifecycleQueue.add('sendFinalProof', {
       gameId,
       zkProof,
       winnerPublicKeyBase58,
@@ -127,7 +127,7 @@ export async function handleGameStart(
   gameId: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue
+  gameLifecycleQueue: Queue
 ) {
   const game = await getGameById(gameId);
   if (!game?.codeBreaker) {
@@ -165,7 +165,7 @@ export async function handleGameStart(
     let winnerPublicKeyBase58 = null;
 
     if (currentSlot - startGameSlot > 4) {
-      await proofQueue.add('forfeitWin', {
+      await gameLifecycleQueue.add('forfeitWin', {
         gameId,
         winnerPublicKeyBase58: game?.codeMaster,
       });
@@ -193,9 +193,9 @@ export async function handlePenalize(
   gameId: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue
+  gameLifecycleQueue: Queue
 ) {
-  const { isPenalized, game } = await checkForPenalization(gameId, proofQueue);
+  const { isPenalized, game } = await checkForPenalization(gameId, gameLifecycleQueue);
   if (isPenalized) {
     const players = activePlayers.get(gameId) || new Set();
     players.forEach((player: WebSocket) => {
@@ -208,7 +208,7 @@ export async function handlePenalize(
   }
 }
 
-async function checkForPenalization(gameId: string, proofQueue: Queue) {
+async function checkForPenalization(gameId: string, gameLifecycleQueue: Queue) {
   const now = Date.now();
   const game = await getGameById(gameId);
   if (game?.status !== GameStatus.IN_PROGRESS) {
@@ -228,7 +228,8 @@ async function checkForPenalization(gameId: string, proofQueue: Queue) {
       status: GameStatus.PENALIZED,
       winnerPublicKeyBase58,
     });
-    await proofQueue.add('forfeitWin', {
+    console.log("Penalizing game : ",gameId)
+    await gameLifecycleQueue.add('forfeitWin', {
       gameId,
       winnerPublicKeyBase58,
     });

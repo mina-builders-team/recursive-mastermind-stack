@@ -58,8 +58,14 @@ services:
     restart: always
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-    
-  worker:
+  redis-insight:
+    profiles: ['dev']
+    image: redis/redisinsight:latest
+    ports:
+      - '5540:5540'
+    restart: unless-stopped
+
+  worker-1:
     profiles: ['prod', 'dev']
     build:
       context: .
@@ -68,6 +74,23 @@ services:
       - ./worker/src:/app/src
     env_file:
       - worker/.env
+    environment:
+      - name=worker_1
+    depends_on:
+      - redis
+      - db
+    restart: always
+  worker-2:
+    profiles: ['prod', 'dev']
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.dev
+    volumes:
+      - ./worker/src:/app/src
+    env_file:
+      - worker/.env
+    environment:
+      - name=worker_2
     depends_on:
       - redis
       - db
