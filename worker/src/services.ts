@@ -1,15 +1,6 @@
 import { Job } from 'bullmq';
+import { fetchAccount, Field, Mina, PrivateKey, PublicKey } from 'o1js';
 import {
-  AccountUpdate,
-  fetchAccount,
-  Field,
-  Mina,
-  PrivateKey,
-  PublicKey,
-  UInt64,
-} from 'o1js';
-import {
-  Combination,
   MastermindZkApp,
   StepProgramProof,
 } from '@navigators-exploration-team/mina-mastermind';
@@ -20,6 +11,7 @@ import {
   updateManyGames,
 } from './repositories/game.js';
 import redisClient from './redisClient.js';
+import { GameStatus } from './models/Game.js';
 
 dotenv.config();
 
@@ -64,9 +56,11 @@ export const sendFinalProof = async (job: Job) => {
   return game;
 };
 
-export const checkGameCreation = async () => {
+export const checkGameCreation = async (verificationKeyHash: Field) => {
   let pendingGames: { _id: string }[] = [];
   let activeGames: string[] = [];
+  let fakeGames: string[] = [];
+
   try {
     pendingGames = await getPendingGames();
   } catch (error) {
@@ -77,7 +71,12 @@ export const checkGameCreation = async () => {
       const zkAppPublicKey = PublicKey.fromBase58(game._id);
       let response = await fetchAccount({ publicKey: zkAppPublicKey });
       if (response.account !== undefined) {
-        activeGames.push(game._id);
+        const vk = response.account?.zkapp?.verificationKey?.hash;
+        if (vk?.toString() === verificationKeyHash.toString()) {
+          activeGames.push(game._id);
+        } else {
+          fakeGames.push(game._id);
+        }
       }
     } catch (err) {
       console.error(`Error on game ${game._id}: `, err);
@@ -85,7 +84,10 @@ export const checkGameCreation = async () => {
   });
   await Promise.all(promises);
   if (activeGames.length) {
-    await updateManyGames(activeGames);
+    await updateManyGames(activeGames, GameStatus.ACTIVE);
+  }
+  if (fakeGames.length) {
+    await updateManyGames(activeGames, GameStatus.FAKE);
   }
 };
 
@@ -121,46 +123,7 @@ export const forfeitWin = async (job: Job) => {
   });
   return game;
 };
-export const createGame = async (job: Job) => {
-  console.log(
-    'processing job +++++++++++ ',
-    job.id,
-    'in worker ',
-    process.env.name
-  );
-  const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
-  const senderPrivateKey = PrivateKey.fromBase58(SERVER_PRIVATE_KEY);
-  const senderPublicKey = senderPrivateKey.toPublicKey();
-  const zkAppPrivateKey = PrivateKey.random();
-  const zkAppPublicKey = zkAppPrivateKey.toPublicKey();
-  const zkApp = new MastermindZkApp(zkAppPublicKey);
-  const tx1 = await Mina.transaction(
-    {
-      sender: senderPublicKey,
-      fee: 1e8,
-      nonce,
-    },
-    async () => {
-      AccountUpdate.fundNewAccount(senderPublicKey);
-      await zkApp!.deploy();
-      await zkApp.initGame(
-        Combination.from([1, 2, 3, 4]),
-        Field.random(),
-        PublicKey.fromBase58(
-          'B62qiaUDjv6eeRrwVCy68WVb6W2cYe1Bev8vjcoKzr3QNkXFoxFutf5'
-        ),
-        UInt64.from(10000000000)
-      );
-    }
-  );
-  console.log('proving transaction..., Used nonce in tx : ', nonce);
-  await tx1.prove();
-  console.log('sending transaction...');
-  tx1.sign([senderPrivateKey, zkAppPrivateKey]);
-  const pendingTx = await tx1.send();
-  await redisClient.incr(`${SERVER_PUBLIC_KEY}:lastNonce`);
-  console.log(`Tx 1: hash : ${pendingTx.hash}`);
-};
+
 export const initializeServerNonce = async () => {
   await setNonceToRedis('nonce');
   await setNonceToRedis('lastNonce');

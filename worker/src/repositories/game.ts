@@ -43,11 +43,11 @@ export const getUserGames = async (userId: string) => {
   }
 };
 
-export const updateManyGames = async (activeGames: string[]) => {
+export const updateManyGames = async (gamesIds: string[],status: GameStatus) => {
   try {
      await Game.updateMany(
-      { _id: { $in: activeGames } },
-      { $set: { status: GameStatus.ACTIVE } }
+      { _id: { $in: gamesIds } },
+      { $set: { status } }
     );
    } catch (err) {
     throw new Error('Error updating games : ' + err);

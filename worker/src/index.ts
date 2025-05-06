@@ -1,5 +1,5 @@
 import { Worker, Job, Queue } from 'bullmq';
-import { fetchAccount, Mina, PublicKey } from 'o1js';
+import { fetchAccount, Field, Mina, PublicKey } from 'o1js';
 import {
   MastermindZkApp,
   StepProgram,
@@ -7,7 +7,6 @@ import {
 import dotenv from 'dotenv';
 import {
   checkGameCreation,
-  createGame,
   forfeitWin,
   initializeServerNonce,
   sendFinalProof,
@@ -39,10 +38,12 @@ const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
     },
   },
 });
+let verificationKeyHash:Field;
 async function initialize() {
   console.time('compiling');
   await StepProgram.compile();
-  await MastermindZkApp.compile();
+  const { verificationKey } = await MastermindZkApp.compile();
+  verificationKeyHash = verificationKey.hash
   console.timeEnd('compiling');
   connectDatabase();
   await initializeServerNonce();
@@ -54,13 +55,11 @@ initialize()
       'gameLifecycleQueue',
       async (job: Job) => {
         if (job.name === 'checkGameCreation') {
-          await checkGameCreation();
+          await checkGameCreation(verificationKeyHash);
         } else if (job.name === 'sendFinalProof') {
           return await sendFinalProof(job);
         } else if (job.name === 'forfeitWin') {
           return await forfeitWin(job);
-        } else if (job.name === 'createGame') {
-          return await createGame(job);
         }
       },
       {
@@ -98,7 +97,7 @@ initialize()
           await redisClient.get(`${SERVER_PUBLIC_KEY}:lastNonce`)
         );
         if (accountNonce - 1 > Number(lastNonce)) {
-          lastNonce = accountNonce;
+          lastNonce = accountNonce - 1;
         }
         await redisClient.set(`${SERVER_PUBLIC_KEY}:nonce`, lastNonce || 0);
 
