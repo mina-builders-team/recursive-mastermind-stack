@@ -43,7 +43,7 @@
         >
           Game should be cancelled anytime before
           <Timer
-            :duration="25 * 1000"
+            :duration="MINA_APPROX_SLOT_DURATION"
             :startTimestamp="game.lastCancelTimestamp"
             :showIcon="false"
             @timeEnded="handleCancelTimeElapsed"
@@ -111,7 +111,7 @@
           <div class="d-flex align-items-end gap-2">
             Game should start anytime before
             <Timer
-              :duration="25 * 1000"
+              :duration="MINA_APPROX_SLOT_DURATION"
               :startTimestamp="acceptedGame.timestamp"
               :showIcon="false"
               @timeEnded="handleAcceptTimeElapsed"
@@ -145,6 +145,7 @@ const {
 } = storeToRefs(useZkAppStore());
 const { acceptGame, cancelGame, getZkAppStates, getRole } = useZkAppStore();
 const route = useRoute();
+const MINA_APPROX_SLOT_DURATION = Number(import.meta.env.VITE_MINA_APPROX_SLOT_DURATION) 
 let storedAcceptedGames = localStorage.getItem('acceptedGames')
   ? JSON.parse(localStorage.getItem('acceptedGames')!)
   : {};
@@ -153,12 +154,12 @@ const acceptedGame = ref(
 );
 
 const isAcceptGameTimeElapsed = ref(
-  Date.now() - acceptedGame.value?.timestamp > 25 * 1000
+  Date.now() - acceptedGame.value?.timestamp > MINA_APPROX_SLOT_DURATION 
 );
 
 const isCancelGameTimeElapsed = ref(
   game.value?.lastCancelTimestamp &&
-    Date.now() - game.value?.lastCancelTimestamp > 25 * 1000
+    Date.now() - game.value?.lastCancelTimestamp > MINA_APPROX_SLOT_DURATION 
 );
 const isGameCancelled = computed(() => {
   return zkAppStates.value?.rewardAmount === 0;
