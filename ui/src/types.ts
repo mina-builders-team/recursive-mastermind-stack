@@ -33,11 +33,11 @@ export interface Game {
   winnerPublicKeyBase58?: string;
   status: string;
   settlementTransactionHash?: string;
-  lastAcceptTimestamp: number;
+  lastAcceptTimestamp?: number;
   penalizationTransactionHash?: string;
   turnCount: number;
   cancelTransactionHash?: string;
-  lastCancelTimestamp: number;
+  lastCancelTimestamp?: number;
   refereePubKeyBase58: string;
   isRefereeVerified: boolean;
 }

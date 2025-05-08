@@ -14,7 +14,7 @@
         Last Cancel Attempt : {{ dateToDayHourMin(game?.lastCancelTimestamp) }}
       </div>
       <div
-        v-if="game?.status === 'CANCELLED'"
+        v-if="game?.status === 'CANCELLED' && game?.cancelTransactionHash"
         class="d-flex align-items-center gap-2"
       >
         Last Cancel Transaction Hash :
@@ -38,7 +38,7 @@
           before cancelling the game again.
         </div>
         <div
-          v-if="!isCancelGameTimeElapsed && game.lastCancelTimestamp"
+          v-if="!isCancelGameTimeElapsed && game?.lastCancelTimestamp"
           class="d-flex align-items-end gap-2"
         >
           Game should be cancelled anytime before
@@ -61,7 +61,7 @@
             size="large"
             type="primary"
             class="me-3"
-            @click="handleCancelGame(game?._id)"
+            @click="handleCancelGame(game?._id!)"
             >Cancel Game</el-button
           >
         </div>
@@ -89,17 +89,24 @@
             before accepting the game again.
           </div>
         </div>
-        <el-button
-          v-if="isAcceptGameTimeElapsed || !acceptedGame?.timestamp"
-          size="large"
-          color="#00ADB5"
-          :disabled="loading"
-          :loading="loading"
-          type="primary"
-          class="w-100 mt-4"
-          @click="handleAcceptGame"
-          >Accept game</el-button
-        >
+        <div v-if="isAcceptGameTimeElapsed || !acceptedGame?.timestamp">
+          <el-button
+            v-if="game?.status === 'ACTIVE'"
+            size="large"
+            color="#00ADB5"
+            :disabled="loading"
+            :loading="loading"
+            type="primary"
+            class="w-100 mt-4"
+            @click="handleAcceptGame"
+            >Accept game</el-button
+          >
+          <div v-else class="text-start">
+            The game hasn't been verified by our server yet.<br />Please try
+            rejoining in a minute.
+          </div>
+        </div>
+
         <div v-else class="d-flex flex-column align-content-start mt-4">
           <div class="d-flex align-items-end gap-2">
             Game should start anytime before
@@ -121,7 +128,7 @@ import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
 import { formatAddress, dateToDayHourMin } from '@/utils';
 import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useRoute } from 'vue-router';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
@@ -136,7 +143,7 @@ const {
   currentTransactionLink,
   game,
 } = storeToRefs(useZkAppStore());
-const { acceptGame, getRole, cancelGame, getZkAppStates } = useZkAppStore();
+const { acceptGame, cancelGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();
 let storedAcceptedGames = localStorage.getItem('acceptedGames')
   ? JSON.parse(localStorage.getItem('acceptedGames')!)
@@ -201,7 +208,4 @@ const handleCancelTimeElapsed = async () => {
   await getZkAppStates();
   isCancelGameTimeElapsed.value = true;
 };
-onMounted(async () => {
-  await getRole();
-});
 </script>

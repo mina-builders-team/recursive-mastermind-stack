@@ -11,7 +11,7 @@
       <GameDetail
         v-if="
           zkAppStates.codeBreakerId === '0' ||
-          ['ACTIVE', 'PENDING'].includes(game.status)
+          ['ACTIVE', 'PENDING'].includes(game?.status || '')
         "
       />
       <GameBoard v-else />
@@ -33,12 +33,19 @@ import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
 const route = useRoute();
 const router = useRouter();
 const { compiled, zkAppStates, game } = storeToRefs(useZkAppStore());
-const { initZkappInstance, joinGame, getZkAppStates, startGame, clearGame } =
-  useZkAppStore();
+const {
+  initZkappInstance,
+  joinGame,
+  getZkAppStates,
+  startGame,
+  clearGame,
+  getRole,
+} = useZkAppStore();
 const gameId = route?.params?.id as string;
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
+    await getRole();
     await joinGame(gameId);
     intervalId.value = setInterval(async () => {
       await getZkAppStates();

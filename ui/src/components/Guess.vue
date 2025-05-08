@@ -81,15 +81,11 @@ import { storeToRefs } from 'pinia';
 import CodePickerForm from './forms/CodePickerForm.vue';
 import { validateColorCombination } from '../utils';
 import { ElMessage } from 'element-plus';
-const { createGuessProof, createGiveClueProof, getRole } = useZkAppStore();
+const { createGuessProof, createGiveClueProof } = useZkAppStore();
 const { error, zkProofStates, loading, userRole, stepDisplay } =
   storeToRefs(useZkAppStore());
 
 const inputRefs = ref<(InstanceType<typeof RoundedColor> | null)[]>([]);
-
-onMounted(async () => {
-  await getRole();
-});
 
 const focusNextInput = (index: number) => {
   if (index < inputRefs.value.length - 1) {

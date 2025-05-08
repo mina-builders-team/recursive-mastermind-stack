@@ -53,3 +53,10 @@ export const updateManyGames = async (gamesIds: string[],status: GameStatus) => 
     throw new Error('Error updating games : ' + err);
   }
 };
+export const deleteManyGames = async (gamesIds: string[]) => {
+  try {
+    return await Game.deleteMany( { _id: { $in: gamesIds } });
+  } catch (err) {
+    throw new Error('Error deleting game: ' + err);
+  }
+};

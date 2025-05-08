@@ -70,18 +70,22 @@
                     :duration="
                       isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5
                     "
-                    :startTimestamp="game.timestamp"
+                    :startTimestamp="game?.timestamp"
                     @timeEnded="handleTurnEnded"
                   />
                 </div>
               </div>
-              <div v-else-if="!isGameEnded && isTurnTimeExceeded" class="d-flex align-items-end gap-2 my-3">
-               Proof must reach server in
+              <div
+                v-else-if="!isGameEnded && isTurnTimeExceeded"
+                class="d-flex align-items-end gap-2 my-3"
+              >
+                Proof must reach server in
                 <Timer
                   :duration="60 * 1000 * 2.5"
-                  :startTimestamp="game.timestamp"
+                  :startTimestamp="game?.timestamp"
                   :notifyOnCritical="false"
-                  :showIcon="false"                />
+                  :showIcon="false"
+                />
                 to avoid penalty!
               </div>
             </div>

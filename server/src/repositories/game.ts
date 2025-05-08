@@ -42,3 +42,11 @@ export const getUserGames = async (userId: string) => {
     throw new Error('Error retrieving user games: ' + err);
   }
 };
+
+export const deleteGame = async (_id: string) => {
+  try {
+    return await Game.deleteOne({ _id });
+  } catch (err) {
+    throw new Error('Error deleting game: ' + err);
+  }
+};

@@ -117,7 +117,7 @@ wss.on('connection', (ws) => {
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');
-        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue);
+        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue,vk.hash);
       } else if (action === 'penalize') {
         await handlePenalize(gameId, activePlayers, ws, gameLifecycleQueue);
       } else {

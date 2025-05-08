@@ -7,6 +7,7 @@ import {
 import dotenv from 'dotenv';
 import {
   createOrUpdateGame,
+  deleteManyGames,
   getPendingGames,
   updateManyGames,
 } from './repositories/game.js';
@@ -87,7 +88,7 @@ export const checkGameCreation = async (verificationKeyHash: Field) => {
     await updateManyGames(activeGames, GameStatus.ACTIVE);
   }
   if (fakeGames.length) {
-    await updateManyGames(activeGames, GameStatus.FAKE);
+    await deleteManyGames(fakeGames);
   }
 };
 
