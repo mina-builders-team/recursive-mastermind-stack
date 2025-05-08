@@ -492,5 +492,11 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async verifyProof(zkProof: string): Promise<boolean> {
       return (await this.zkappWorkerClient?.verifyProof(zkProof)) ?? false;
     },
+    setLoading(loading:boolean) {
+      this.loading = loading
+    },
+    setStepDisplay(step:string) {
+      this.stepDisplay = step
+    }
   },
 });

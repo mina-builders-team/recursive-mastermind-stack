@@ -128,7 +128,7 @@ import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
 import { formatAddress, dateToDayHourMin } from '@/utils';
 import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useRoute } from 'vue-router';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
@@ -143,7 +143,7 @@ const {
   currentTransactionLink,
   game,
 } = storeToRefs(useZkAppStore());
-const { acceptGame, cancelGame, getZkAppStates } = useZkAppStore();
+const { acceptGame, cancelGame, getZkAppStates, getRole } = useZkAppStore();
 const route = useRoute();
 let storedAcceptedGames = localStorage.getItem('acceptedGames')
   ? JSON.parse(localStorage.getItem('acceptedGames')!)
@@ -208,4 +208,7 @@ const handleCancelTimeElapsed = async () => {
   await getZkAppStates();
   isCancelGameTimeElapsed.value = true;
 };
+onMounted(async () => {
+  await getRole();
+});
 </script>

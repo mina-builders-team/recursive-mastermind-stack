@@ -132,7 +132,8 @@ import DotsLoader from '@/components/shared/DotsLoader.vue';
 import Timer from '@/components/shared/Timer.vue';
 import { MAX_ATTEMPTS } from '@/constants/config';
 
-const { getRole, getZkAppStates, penalizePlayer } = useZkAppStore();
+const { getRole, getZkAppStates, penalizePlayer, setLoading, setStepDisplay } =
+  useZkAppStore();
 const {
   zkAppAddress,
   zkProofStates,
@@ -227,6 +228,8 @@ watch(
 );
 onMounted(async () => {
   await getRole();
+  setLoading(false);
+  setStepDisplay('');
 });
 </script>
 <style scoped>

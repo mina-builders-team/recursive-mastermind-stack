@@ -26,7 +26,7 @@ const PORT = process.env.SERVER_PORT || 3000;
 const REDIS_PORT = parseInt(process.env.REDIS_PORT as string) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'redis';
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
-const vk = await setupContract();
+const verificationKeys = await setupContract();
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -113,11 +113,11 @@ wss.on('connection', (ws) => {
           activePlayers,
           ws,
           gameLifecycleQueue,
-          vk
+          verificationKeys.stepProgramVerificationKey
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');
-        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue,vk.hash);
+        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue,verificationKeys.contractVerificationKey.hash);
       } else if (action === 'penalize') {
         await handlePenalize(gameId, activePlayers, ws, gameLifecycleQueue);
       } else {

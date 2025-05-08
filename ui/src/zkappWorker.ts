@@ -230,19 +230,23 @@ const functions = {
     return null;
   },
   getUserRole: async (args: { playerPubKeyBase58: string }) => {
-    const publicKey = PublicKey.fromBase58(args.playerPubKeyBase58 as string);
-    await fetchAccount({ publicKey });
-    const playerId = Poseidon.hash(publicKey.toFields());
-    const [codeMasterId, codeBreakerId] = await Promise.all([
-      state.zkappInstance!.codeMasterId.get(),
-      state.zkappInstance!.codeBreakerId.get(),
-    ]);
-
-    return playerId.toString() === codeMasterId.toString()
-      ? 'CODE_MASTER'
-      : playerId.toString() === codeBreakerId.toString()
-        ? 'CODE_BREAKER'
-        : 'UNKNOWN';
+    try{
+      const publicKey = PublicKey.fromBase58(args.playerPubKeyBase58 as string);
+      await fetchAccount({ publicKey });
+      const playerId = Poseidon.hash(publicKey.toFields());
+      const [codeMasterId, codeBreakerId] = await Promise.all([
+        state.zkappInstance!.codeMasterId.get(),
+        state.zkappInstance!.codeBreakerId.get(),
+      ]);
+  
+      return playerId.toString() === codeMasterId.toString()
+        ? 'CODE_MASTER'
+        : playerId.toString() === codeBreakerId.toString()
+          ? 'CODE_BREAKER'
+          : 'UNKNOWN';  
+    }catch(e) {
+      console.log("Error getting user role: ",e)
+    }
   },
   setLastProof: async (args: { zkProof: any }) => {
     state.lastProof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));

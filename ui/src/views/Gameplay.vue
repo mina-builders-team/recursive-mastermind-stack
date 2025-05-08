@@ -39,13 +39,11 @@ const {
   getZkAppStates,
   startGame,
   clearGame,
-  getRole,
 } = useZkAppStore();
 const gameId = route?.params?.id as string;
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
-    await getRole();
     await joinGame(gameId);
     intervalId.value = setInterval(async () => {
       await getZkAppStates();
