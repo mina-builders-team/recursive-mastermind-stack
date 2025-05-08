@@ -130,6 +130,12 @@ export default class ZkappWorkerClient {
     });
     return result as Promise<string>;
   }
+  async verifyProof(zkProof: string) {
+    const result = this._call('verifyProof', {
+      zkProof,
+    });
+    return result as Promise<boolean>;
+  }
 
   // worker initialization
 

@@ -80,7 +80,10 @@ export const handleProof = async (
   let receivedTurnCount;
   try {
     receivedProof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
-    await verify(receivedProof, vk);
+    const validProof = await verify(receivedProof, vk);
+    if (!validProof) {
+      throw new Error('Invalid zkProof!');
+    }
     receivedTurnCount = Number(receivedProof.publicOutput.turnCount.toString());
 
     if (lastTurnCount && receivedTurnCount <= lastTurnCount) {

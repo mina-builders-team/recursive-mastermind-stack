@@ -24,11 +24,11 @@ export class WebSocketService {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
           if (data.zkProof) {
-            const { setTurnPlayed } = useZkAppStore();
-            const receivedProof = await StepProgramProof.fromJSON(
-              JSON.parse(data.zkProof)
-            );
-            receivedProof.verify();
+            const { setTurnPlayed, verifyProof } = useZkAppStore();
+            const isValidProof = await verifyProof(data.zkProof);
+            if (!isValidProof) {
+              throw new Error('Invalid zkProof!');
+            }
             setTurnPlayed(false);
             if (this.onMessageCallback) this.onMessageCallback(data);
           }

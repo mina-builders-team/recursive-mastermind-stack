@@ -417,7 +417,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.game?.status !== 'IN_PROGRESS' &&
         game.status === 'IN_PROGRESS'
       ) {
-        await this.getZkAppStates()
+        await this.getZkAppStates();
       }
       this.game = game;
     },
@@ -488,6 +488,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     setTurnPlayed(isTurnPlayed: boolean) {
       this.isTurnPlayed = isTurnPlayed;
+    },
+    async verifyProof(zkProof: string): Promise<boolean> {
+      return (await this.zkappWorkerClient?.verifyProof(zkProof)) ?? false;
     },
   },
 });

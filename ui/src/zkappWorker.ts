@@ -9,6 +9,7 @@ import {
   Cache,
   UInt64,
   Poseidon,
+  verify,
 } from 'o1js';
 import {
   Combination,
@@ -62,8 +63,10 @@ const functions = {
       const zkAppCache = MinaFileSystem(zkAppCacheFiles) as Cache;
       const zkProgramCache = MinaFileSystem(zkProgramCacheFiles) as Cache;
       console.time('compiling');
-      await StepProgram.compile({ cache: zkProgramCache });
-      const { verificationKey } = await state.MastermindContract!.compile({
+      const { verificationKey } = await StepProgram.compile({
+        cache: zkProgramCache,
+      });
+      await state.MastermindContract!.compile({
         cache: zkAppCache,
       });
       console.timeEnd('compiling');
@@ -94,7 +97,7 @@ const functions = {
     state.zkappInstance = new state.MastermindContract!(zkAppAddress);
     const feePayerPublickKey = PublicKey.fromBase58(args.feePayer);
     const refereePubKey = PublicKey.fromBase58(args.refereePubKeyBase58);
-    const combination = Combination.from(args.separatedSecretCombination)
+    const combination = Combination.from(args.separatedSecretCombination);
     const transaction = await Mina.transaction(feePayerPublickKey, async () => {
       AccountUpdate.fundNewAccount(feePayerPublickKey);
       state.zkappInstance!.deploy();
@@ -118,7 +121,7 @@ const functions = {
     try {
       const signature = Signature.fromBase58(args.signedData.signature);
       const codeMasterPubKey = PublicKey.fromBase58(args.signedData.publicKey);
-      const combination = Combination.from(args.separatedSecretCombination)
+      const combination = Combination.from(args.separatedSecretCombination);
       const stepProof = await StepProgram.createGame(
         {
           authPubKey: codeMasterPubKey,
@@ -279,6 +282,17 @@ const functions = {
       await zkApp!.claimReward();
     });
     state.transaction = transaction;
+  },
+  verifyProof: async (args: { zkProof: string }) => {
+    try {
+      const receivedProof = await StepProgramProof.fromJSON(
+        JSON.parse(args.zkProof)
+      );
+      return await verify(receivedProof, state.verificationKey);
+    } catch (e) {
+      console.log('Error verifying proof: ', e);
+      return false;
+    }
   },
 };
 
