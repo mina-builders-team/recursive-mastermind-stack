@@ -37,7 +37,6 @@ jobs:
         run: |
           cat <<EOF > server/.env
           MINA_NETWORK_URL=http://host.docker.internal:8080/graphql
-          CLOUDFLARE_WORKER_URL=https://cloudflare-worker.ghassen-loukil-it.workers.dev
           SERVER_PORT=3000
           REDIS_PORT=6379
           REDIS_HOST=redis
