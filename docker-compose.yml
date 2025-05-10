@@ -95,6 +95,22 @@ services:
       - redis
       - db
     restart: always
+  
+  client-worker-1:
+    profiles: ['dev']
+    build:
+      context: .
+      dockerfile: integration-test/docker/dockerfile.dev
+    volumes:
+      - ./integration-test/src:/app/src
+    env_file:
+      - integration-test/.env
+    environment:
+      - name=worker_1
+    depends_on:
+      - redis
+      - db
+    restart: always
   db:
     profiles: ["prod","dev"]
     image: mongo:8.0.6

@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import WebSocket from 'ws';
-import { PlayerRole } from '.';
+import { PlayerRole } from './MastermindGame.js';
 
 type Message = Record<string, any>;
 
@@ -8,16 +9,17 @@ export class WebSocketService {
   private gameId: string;
   private url: string;
   private role: PlayerRole;
-  public messageHandler?: (data: Message, role: PlayerRole) => Promise<void>;
-
+  public messageHandler?: (_data: Message, role: PlayerRole) => Promise<void>;
+  private isClosed: boolean;
   constructor(
     gameId: string,
     role: PlayerRole,
-    url: string = process.env.WEB_SOCKET_URL || 'ws://localhost:3000'
+    url: string = process.env.WEB_SOCKET_URL || 'ws://host.docker.internal:3000'
   ) {
     this.gameId = gameId;
     this.url = url;
     this.role = role;
+    this.isClosed = false;
     this.socket = this.connect();
   }
 
@@ -40,10 +42,12 @@ export class WebSocketService {
     });
 
     socket.on('close', () => {
-      console.warn('WebSocket Connection closed. Attempting reconnect...');
-      setTimeout(() => {
-        this.socket = this.connect();
-      }, 1000);
+      if (!this.isClosed) {
+        console.warn('WebSocket Connection closed. Attempting reconnect...');
+        setTimeout(() => {
+          this.socket = this.connect();
+        }, 1000);
+      }
     });
 
     socket.on('error', (err) => {
@@ -73,5 +77,6 @@ export class WebSocketService {
 
   close() {
     this.socket.close();
+    this.isClosed = true;
   }
 }
