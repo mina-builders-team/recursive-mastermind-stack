@@ -7,6 +7,7 @@ import {
   PublicKey,
   Signature,
   UInt64,
+  Poseidon,
 } from 'o1js';
 import {
   Combination,
@@ -20,7 +21,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 const SALT = Field.random();
 const SOLUTION = Combination.from([1, 2, 3, 4]);
-const REFEREE = PublicKey.fromBase58(process.env.SERVER_PUBLIC_KEY as string);
+export const REFEREE = PublicKey.fromBase58(
+  process.env.SERVER_PUBLIC_KEY as string
+);
 const REWARD_AMOUNT = 1e10;
 const SERVER_URL = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 export enum PlayerRole {
@@ -33,57 +36,45 @@ export class MastermindGame {
   zkAppKey: PrivateKey;
   zkApp: MastermindZkApp;
   gameId: string;
-  codeMasterWebSocket: WebSocketService;
-  codeBreakerWebSocket: WebSocketService;
+  codeMasterWebSocket?: WebSocketService;
+  codeBreakerWebSocket?: WebSocketService;
   lastReceivedProof?: StepProgramProof;
   attempts: number;
   penalizedPlayer?: PlayerRole;
   lastPlayedTimestamp: number;
   relayingTotalTime: number;
-  selfPlay?: boolean = false;
-  constructor(
-    codeMasterPrivateKeyBase58: string,
-    codeBreakerPrivateKeyBase58: string,
-    attempts: number,
-    options?: {
-      penalizedPlayer?: PlayerRole;
-      selfPlay?: boolean;
-    }
-  ) {
-    this.attempts = attempts;
+  autoPlay?: boolean = false;
+  constructor(options: {
+    codeMasterPrivateKeyBase58: string;
+    codeBreakerPrivateKeyBase58: string;
+    attempts?: number;
+    penalizedPlayer?: PlayerRole;
+    autoPlay?: boolean;
+  }) {
+    this.attempts = options?.attempts || 8;
     this.lastPlayedTimestamp = 0;
     this.relayingTotalTime = 0;
     this.penalizedPlayer = options?.penalizedPlayer;
-    this.selfPlay = options?.selfPlay ?? true;
-    this.codeMasterKey = PrivateKey.fromBase58(codeMasterPrivateKeyBase58);
-    this.codeBreakerKey = PrivateKey.fromBase58(codeBreakerPrivateKeyBase58);
+    this.autoPlay = options?.autoPlay ?? true;
+    this.codeMasterKey = PrivateKey.fromBase58(
+      options.codeMasterPrivateKeyBase58
+    );
+    this.codeBreakerKey = PrivateKey.fromBase58(
+      options.codeBreakerPrivateKeyBase58
+    );
     this.zkAppKey = PrivateKey.random();
     const zkAppPubKey = this.zkAppKey.toPublicKey();
     this.gameId = zkAppPubKey.toBase58();
     this.zkApp = new MastermindZkApp(zkAppPubKey);
-    this.codeMasterWebSocket = new WebSocketService(
-      this.gameId,
-      PlayerRole.CODE_MASTER
-    );
-    this.codeBreakerWebSocket = new WebSocketService(
-      this.gameId,
-      PlayerRole.CODE_BREAKER
-    );
-    this.setupWebSocket();
-    if (this.selfPlay) {
+    if (this.autoPlay) {
       this.play();
     }
-  }
-
-  setupWebSocket() {
-    this.codeMasterWebSocket.messageHandler = this.webSocketMessageHandler;
-    this.codeBreakerWebSocket.messageHandler = this.webSocketMessageHandler;
   }
   async play() {
     await this.createGame();
     await this.acceptGame();
+    this.startGame();
   }
-
   async createGame() {
     console.log('Creating Game: ', this.gameId);
 
@@ -114,7 +105,7 @@ export class MastermindGame {
         .toString()
         .padStart(2, '0')} `
     );
-
+    this.joinGame(PlayerRole.CODE_MASTER);
     const { proof } = await StepProgram.createGame(
       {
         authPubKey: this.codeMasterKey.toPublicKey(),
@@ -127,7 +118,7 @@ export class MastermindGame {
       SALT
     );
 
-    this.codeMasterWebSocket.send({
+    this.codeMasterWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
       zkProof: JSON.stringify(proof),
@@ -136,8 +127,8 @@ export class MastermindGame {
       playerPubKeyBase58: this.codeMasterKey.toPublicKey().toBase58(),
     });
   }
-
   async acceptGame() {
+    this.joinGame(PlayerRole.CODE_BREAKER);
     while (true) {
       console.log('Accepting Game: ', this.gameId);
       try {
@@ -148,7 +139,6 @@ export class MastermindGame {
             await this.zkApp.acceptGame();
           }
         );
-
         await tx.prove();
         tx.sign([this.codeBreakerKey]);
         const sentAt = Date.now();
@@ -161,6 +151,7 @@ export class MastermindGame {
             body: JSON.stringify({ gameId: this.gameId }),
           }
         );
+
         const res = await sentTx.wait();
         const waitingTime = Date.now() - sentAt;
         console.log(
@@ -176,12 +167,7 @@ export class MastermindGame {
         console.log('Re-accepting the game ');
       }
     }
-    this.codeBreakerWebSocket.send({
-      action: 'startGame',
-      gameId: this.gameId,
-    });
   }
-
   async makeGuess(correct = false) {
     const guess = correct
       ? Combination.from([1, 2, 3, 4])
@@ -197,14 +183,13 @@ export class MastermindGame {
       this.lastReceivedProof!,
       guess
     );
-    this.codeBreakerWebSocket.send({
+    this.codeBreakerWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
       zkProof: JSON.stringify(proof),
     });
     this.lastPlayedTimestamp = Date.now();
   }
-
   async giveClue() {
     const { proof } = await StepProgram.giveClue(
       {
@@ -219,14 +204,76 @@ export class MastermindGame {
       SOLUTION,
       SALT
     );
-    this.codeMasterWebSocket.send({
+    this.codeMasterWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
       zkProof: JSON.stringify(proof),
     });
     this.lastPlayedTimestamp = Date.now();
   }
+  startGame() {
+    this.codeBreakerWebSocket?.send({
+      action: 'startGame',
+      gameId: this.gameId,
+    });
+  }
+  joinGame(role: PlayerRole) {
+    if (
+      role === PlayerRole.CODE_BREAKER &&
+      this.codeBreakerWebSocket?.isClosed !== false
+    ) {
+      this.codeBreakerWebSocket = new WebSocketService(
+        this.gameId,
+        PlayerRole.CODE_BREAKER
+      );
+      this.codeBreakerWebSocket.messageHandler = this.webSocketMessageHandler;
+    } else if (
+      role === PlayerRole.CODE_MASTER &&
+      this.codeMasterWebSocket?.isClosed !== false
+    ) {
+      this.codeMasterWebSocket = new WebSocketService(
+        this.gameId,
+        PlayerRole.CODE_MASTER
+      );
+      this.codeMasterWebSocket.messageHandler = this.webSocketMessageHandler;
+    }
+  }
+  async cancelGame() {
+    try {
+      const codeMasterPubKey = this.codeMasterKey.toPublicKey();
+      const tx = await Mina.transaction(
+        { sender: codeMasterPubKey, fee: 1e8 },
+        async () => {
+          await this.zkApp.claimReward();
+        }
+      );
+      await tx.prove();
+      tx.sign([this.codeBreakerKey]);
+      const sentAt = Date.now();
+      const sentTx = await tx.send();
+      const signature = Signature.create(this.codeMasterKey, [
+        Poseidon.hash(PublicKey.fromBase58(this.gameId).toFields()),
+      ]).toBase58();
+      await fetch(`${SERVER_URL}/games/cancel/${this.gameId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signedData: { signature } }),
+      });
 
+      const awaitedTx = await sentTx.wait();
+      const waitingTime = Date.now() - sentAt;
+      console.log(
+        `${awaitedTx.status} after ${Math.floor(waitingTime / 60000)
+          .toString()
+          .padStart(2, '0')}:${Math.floor((waitingTime % 60000) / 1000)
+          .toString()
+          .padStart(2, '0')} `
+      );
+    } catch (e) {
+      console.log('Error : ', e);
+      console.log('Re-accepting the game ');
+    }
+  }
   private webSocketMessageHandler = async (data: any, role: PlayerRole) => {
     try {
       const recivedAt = Date.now();
@@ -252,16 +299,16 @@ export class MastermindGame {
             this.relayingTotalTime / 1000 / (this.attempts * 2)
           );
         }
-        this.codeBreakerWebSocket?.close();
-        this.codeMasterWebSocket?.close();
+        if (this.autoPlay) {
+          this.codeBreakerWebSocket?.close();
+          this.codeMasterWebSocket?.close();
+        }
         return;
       }
       if (data.zkProof) {
         this.lastReceivedProof = await StepProgramProof.fromJSON(
           JSON.parse(data.zkProof)
         );
-      }
-      if (this.lastReceivedProof) {
         const turnCount = Number(
           this.lastReceivedProof.publicOutput.turnCount.value
         );
@@ -293,9 +340,11 @@ export class MastermindGame {
                 : 0,
               's'
             );
-            const generateCorrectAnswer = turnCount === this.attempts * 2 - 1;
             this.updateRelayingTotalTime(recivedAt);
-            await this.makeGuess(generateCorrectAnswer);
+            if (this.autoPlay) {
+              const generateCorrectAnswer = turnCount === this.attempts * 2 - 1;
+              await this.makeGuess(generateCorrectAnswer);
+            }
           } else if (turnCount % 2 === 0 && role === PlayerRole.CODE_MASTER) {
             console.log(
               'Giving clue... (since last action) ',
@@ -306,7 +355,9 @@ export class MastermindGame {
             );
 
             this.updateRelayingTotalTime(recivedAt);
-            await this.giveClue();
+            if (this.autoPlay) {
+              await this.giveClue();
+            }
           }
         }
       }

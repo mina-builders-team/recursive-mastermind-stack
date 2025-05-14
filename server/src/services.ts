@@ -59,6 +59,9 @@ export const handleProof = async (
       player.send(JSON.stringify({ game }));
     });
     return;
+  } else if (game && game.status !== GameStatus.IN_PROGRESS) {
+    ws.send(JSON.stringify({ error: 'Not allowed to send a proof!' }));
+    return;
   }
   let lastProof = game?.lastProof || null;
 
@@ -86,11 +89,10 @@ export const handleProof = async (
     }
     receivedTurnCount = Number(receivedProof.publicOutput.turnCount.toString());
 
-    if (lastTurnCount && receivedTurnCount <= lastTurnCount) {
+    if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
       ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
       return;
     }
-
     if (receivedTurnCount % 2 !== 0) {
       const { turnCount: turnCount_, isSolved: isSolved_ } =
         await checkGameStatus(gameId, receivedProof);
@@ -134,9 +136,8 @@ export const handleProof = async (
         ? VERIFIED_REFREES.includes(refereePubKeyBase58)
         : undefined,
   });
-
-  const players = activePlayers.get(gameId) || new Set();
-  players.forEach((player: WebSocket) => {
+  const players = activePlayers.get(gameId);
+  players?.forEach((player: WebSocket) => {
     player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
   });
 };
@@ -153,17 +154,22 @@ export async function handleGameStart(
     const zkApp = new MastermindZkApp(zkAppPublicKey);
     let res = await fetchAccount({ publicKey: zkAppPublicKey });
     if (!res.account) {
-      throw new Error('Game has not been accepted!');
+      ws.send(JSON.stringify({ error: 'Game has not been accepted!' }));
+      return;
     }
     const vk = res.account?.zkapp?.verificationKey?.hash;
     if (vk?.toString() !== verificationKeyHash.toString()) {
       await deleteGame(gameId);
-      throw new Error('Game is not using the official contract!');
+      ws.send(
+        JSON.stringify({ error: 'Game is not using the verified contract!' })
+      );
+      return;
     }
     const zkAppEvents = await zkApp.fetchEvents(UInt32.from(0));
     const acceptGameEvent = zkAppEvents.find((e) => e.type === 'gameAccepted');
     if (!acceptGameEvent) {
-      throw new Error('Game has not been accepted!');
+      ws.send(JSON.stringify({ error: 'Game has not been accepted!' }));
+      return;
     }
     const acceptedGame = JSON.parse(JSON.stringify(acceptGameEvent.event.data));
     const response = await fetch(process.env.MINA_NETWORK_URL as string, {
@@ -232,6 +238,8 @@ export async function handlePenalize(
     players.forEach((player: WebSocket) => {
       player.send(JSON.stringify({ game }));
     });
+  } else if (!isPenalized && game?.status === GameStatus.PENALIZED) {
+    ws.send(JSON.stringify({ error: 'Player is already penalized!' }));
   } else {
     ws.send(
       JSON.stringify({ error: 'Player did not exceeded the allowed time!' })

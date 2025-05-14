@@ -41,7 +41,7 @@ initialize().then(() => {
           job.data.attempts,
           {
             penalizedPlayer: job.data?.options?.penalizedPlayer,
-            selfPlay: job.data?.options?.selfPlay,
+            autoPlay: job.data?.options?.autoPlay,
           }
         );
       } catch (e) {

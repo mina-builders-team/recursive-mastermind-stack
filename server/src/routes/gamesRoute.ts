@@ -6,7 +6,7 @@ import {
   getUserGames,
 } from '../repositories/game.js';
 import { GameStatus } from '../models/Game.js';
-import { Field, PublicKey, Signature } from 'o1js';
+import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -57,8 +57,8 @@ router.post('/cancel/:id', async (req: Request, res: Response) => {
     ) {
       const signature = Signature.fromBase58(signedData.signature);
       const isVerifiedSignature = signature.verify(
-        PublicKey.fromBase58(signedData.publicKey),
-        [Field(signedData.data[0])]
+        PublicKey.fromBase58(game.codeMaster),
+        Poseidon.hash(PublicKey.fromBase58(gameId).toFields()).toFields()
       );
       if (isVerifiedSignature.toBoolean()) {
         const game = await createOrUpdateGame({
@@ -69,7 +69,7 @@ router.post('/cancel/:id', async (req: Request, res: Response) => {
         });
         res.status(200).json({ game });
       } else {
-        res.status(403).json({ error: 'Invalid Signature!' });
+        res.status(401).json({ error: 'Invalid Signature!' });
       }
     } else {
       res.status(403).json({ error: 'You can not cancel this game!' });

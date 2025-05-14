@@ -10,7 +10,8 @@ export class WebSocketService {
   private url: string;
   private role: PlayerRole;
   public messageHandler?: (_data: Message, role: PlayerRole) => Promise<void>;
-  private isClosed: boolean;
+  public lastReceivedMessage: any;
+  public isClosed: boolean;
   constructor(
     gameId: string,
     role: PlayerRole,
@@ -35,6 +36,7 @@ export class WebSocketService {
       try {
         const message = isBinary ? data : data.toString();
         const parsed = JSON.parse(message.toString());
+        this.lastReceivedMessage = parsed;
         await this.onMessage({ data: parsed });
       } catch (err) {
         console.error('WebSocket Failed to handle message:', err);

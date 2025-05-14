@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
-console.log("Running tests")
+console.log('Running tests');
 const jsonGames = readFileSync('games.json', 'utf-8');
 const gameList = JSON.parse(jsonGames);
 
@@ -14,7 +14,7 @@ const gameTestQueue = new Queue('gameTestQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
 });
 const MINA_NETWORK = process.env.MINA_NETWORK;
-const games = gameList?.[MINA_NETWORK!]?.slice(1, 2) as Array<{
+const games = gameList?.[MINA_NETWORK!]?.slice(0, 1) as Array<{
   codeMaster: string;
   codeBreaker: string;
   attempts: number;
