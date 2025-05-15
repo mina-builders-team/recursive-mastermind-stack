@@ -74,7 +74,7 @@
 </template>
 <script setup lang="ts">
 import RoundedColor from '@/components/RoundedColor.vue';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { AvailableColor, CodePicker } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';

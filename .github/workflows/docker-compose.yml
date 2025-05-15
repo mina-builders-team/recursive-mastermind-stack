@@ -35,24 +35,13 @@ jobs:
 
       - name: Create .env files
         run: |
-          cat <<EOF > server/.env
-          MINA_NETWORK_URL=http://host.docker.internal:8080/graphql
-          SERVER_PORT=3000
-          REDIS_PORT=6379
-          REDIS_HOST=redis
-          EOF
+          cat server/.env.lightnet.example > server/.env
 
-          cat <<EOF > ui/.env
-          VITE_MINA_NETWORK_URL=http://localhost:8080/graphql
-          VITE_WEB_SOCKET_URL=ws://localhost:3000
-          EOF
+          cat ui/.env.lightnet.example > ui/.env
 
-          cat <<EOF > worker/.env
-          SERVER_PRIVATE_KEY=EKEJ467CaN7s6jsQCVYSAzBdwDgNwmDM1f8vCP9xtzWyszAENwDR
-          MINA_NETWORK_URL=http://host.docker.internal:8080/graphql
-          REDIS_HOST=redis
-          REDIS_PORT=6379
-          EOF
+          cat worker/.env.lightnet.example > worker/.env
+
+          cat integration-test/.env.lightnet.example > integration-test/.env
 
       - name: Build & start dev profile
         run: |

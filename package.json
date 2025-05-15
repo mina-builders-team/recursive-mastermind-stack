@@ -5,7 +5,8 @@
     "ui",
     "server",
     "worker",
-    "cache"
+    "cache",
+    "integration-test"
   ],
   "scripts": {
     "clean": "turbo run clean && rimraf node_modules yarn.lock",

@@ -1,5 +1,4 @@
 import { useWebSocket } from '@vueuse/core';
-import { StepProgramProof } from '@navigators-exploration-team/mina-mastermind';
 import { useZkAppStore } from '@/store/zkAppModule';
 
 export class WebSocketService {
