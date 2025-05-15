@@ -35,15 +35,13 @@ initialize().then(() => {
     'gameTestQueue',
     async (job: Job) => {
       try {
-        new MastermindGame(
-          job.data.codeMaster,
-          job.data.codeBreaker,
-          job.data.attempts,
-          {
-            penalizedPlayer: job.data?.options?.penalizedPlayer,
-            autoPlay: job.data?.options?.autoPlay,
-          }
-        );
+        new MastermindGame({
+          codeMasterPrivateKeyBase58: job.data.codeMaster,
+          codeBreakerPrivateKeyBase58: job.data.codeBreaker,
+          attempts: job.data.attempts,
+          penalizedPlayer: job.data?.options?.penalizedPlayer,
+          autoPlay: job.data?.options?.autoPlay,
+        });
       } catch (e) {
         console.log(e);
       }
