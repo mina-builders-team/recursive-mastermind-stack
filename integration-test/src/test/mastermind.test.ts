@@ -21,7 +21,7 @@ const jsonMockGames = readFileSync('games.json', 'utf-8');
 const gameList = JSON.parse(jsonMockGames);
 const SERVER_URL = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 
-const mockGame = gameList?.[MINA_NETWORK!][0] as {
+const mockGame = gameList?.[MINA_NETWORK!][2] as {
   codeMaster: string;
   codeBreaker: string;
   attempts?: number;

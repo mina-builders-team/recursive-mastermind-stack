@@ -15,6 +15,14 @@ jobs:
         image: redis
         ports:
           - 6379:6379
+        command: [
+          "redis-server",
+          "--requirepass", "${REDIS_PASSWORD}",
+          "--appendonly", "yes"
+        ]
+        restart: always
+        environment:
+          REDIS_PASSWORD: ${REDIS_PASSWORD}
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -35,13 +43,10 @@ jobs:
 
       - name: Create .env files
         run: |
-          cat server/.env.lightnet.example > server/.env
-
-          cat ui/.env.lightnet.example > ui/.env
-
-          cat worker/.env.lightnet.example > worker/.env
-
-          cat integration-test/.env.lightnet.example > integration-test/.env
+          cat server/.env.devnet.example > server/.env
+          cat ui/.env.devnet.example > ui/.env
+          cat worker/.env.devnet.example > worker/.env
+          cat integration-test/.env.devnet.example > integration-test/.env
 
       - name: Build & start dev profile
         run: |
