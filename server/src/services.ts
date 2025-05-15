@@ -1,14 +1,25 @@
 import WebSocket from 'ws';
-import { getGameById, createOrUpdateGame } from './repositories/game.js';
+import {
+  getGameById,
+  createOrUpdateGame,
+  deleteGame,
+} from './repositories/game.js';
 import {
   MastermindZkApp,
   StepProgramProof,
 } from '@navigators-exploration-team/mina-mastermind';
 import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
-import { PublicKey, UInt32, VerificationKey, verify } from 'o1js';
+import {
+  fetchAccount,
+  Field,
+  PublicKey,
+  UInt32,
+  VerificationKey,
+  verify,
+} from 'o1js';
 import { GameStatus } from './models/Game.js';
-import { MAX_ATTEMPTS } from './constants.js';
+import { MAX_ATTEMPTS, VERIFIED_REFREES } from './constants.js';
 
 export const handleJoinGame = async (
   gameId: string,
@@ -32,17 +43,24 @@ export const handleProof = async (
   zkProof: string,
   receivedRewardAmount: number,
   playerPubKeyBase58: string,
+  refereePubKeyBase58: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue,
+  gameLifecycleQueue: Queue,
   vk: VerificationKey
 ) => {
-  let { game, isPenalized } = await checkForPenalization(gameId, proofQueue);
+  let { game, isPenalized } = await checkForPenalization(
+    gameId,
+    gameLifecycleQueue
+  );
   if (isPenalized) {
     const players = activePlayers.get(gameId) || new Set();
     players.forEach((player: WebSocket) => {
       player.send(JSON.stringify({ game }));
     });
+    return;
+  } else if (game && game.status !== GameStatus.IN_PROGRESS) {
+    ws.send(JSON.stringify({ error: 'Not allowed to send a proof!' }));
     return;
   }
   let lastProof = game?.lastProof || null;
@@ -65,14 +83,16 @@ export const handleProof = async (
   let receivedTurnCount;
   try {
     receivedProof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
-    await verify(receivedProof, vk);
+    const validProof = await verify(receivedProof, vk);
+    if (!validProof) {
+      throw new Error('Invalid zkProof!');
+    }
     receivedTurnCount = Number(receivedProof.publicOutput.turnCount.toString());
 
-    if (lastTurnCount && receivedTurnCount <= lastTurnCount) {
+    if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
       ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
       return;
     }
-
     if (receivedTurnCount % 2 !== 0) {
       const { turnCount: turnCount_, isSolved: isSolved_ } =
         await checkGameStatus(gameId, receivedProof);
@@ -88,7 +108,7 @@ export const handleProof = async (
   let winnerPublicKeyBase58 = null;
   if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
     winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
-    await proofQueue.add('sendFinalProof', {
+    await gameLifecycleQueue.add('sendFinalProof', {
       gameId,
       zkProof,
       winnerPublicKeyBase58,
@@ -109,29 +129,47 @@ export const handleProof = async (
       ? winnerPublicKeyBase58
       : undefined,
     status: winnerPublicKeyBase58 ? GameStatus.ENDED : undefined,
+    refereePubKeyBase58:
+      lastTurnCount === null ? refereePubKeyBase58 : undefined,
+    isRefereeVerified:
+      lastTurnCount === null
+        ? VERIFIED_REFREES.includes(refereePubKeyBase58)
+        : undefined,
   });
-
-  const players = activePlayers.get(gameId) || new Set();
-  players.forEach((player: WebSocket) => {
-    if (player !== ws) {
-      player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
-    }
+  const players = activePlayers.get(gameId);
+  players?.forEach((player: WebSocket) => {
+    player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
   });
 };
-
 export async function handleGameStart(
   gameId: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue
+  gameLifecycleQueue: Queue,
+  verificationKeyHash: Field
 ) {
   const game = await getGameById(gameId);
   if (!game?.codeBreaker) {
-    const zkApp = new MastermindZkApp(PublicKey.fromBase58(gameId));
+    const zkAppPublicKey = PublicKey.fromBase58(gameId);
+    const zkApp = new MastermindZkApp(zkAppPublicKey);
+    let res = await fetchAccount({ publicKey: zkAppPublicKey });
+    if (!res.account) {
+      ws.send(JSON.stringify({ error: 'Game has not been accepted!' }));
+      return;
+    }
+    const vk = res.account?.zkapp?.verificationKey?.hash;
+    if (vk?.toString() !== verificationKeyHash.toString()) {
+      await deleteGame(gameId);
+      ws.send(
+        JSON.stringify({ error: 'Game is not using the verified contract!' })
+      );
+      return;
+    }
     const zkAppEvents = await zkApp.fetchEvents(UInt32.from(0));
     const acceptGameEvent = zkAppEvents.find((e) => e.type === 'gameAccepted');
     if (!acceptGameEvent) {
-      throw new Error('Game has not been accepted!');
+      ws.send(JSON.stringify({ error: 'Game has not been accepted!' }));
+      return;
     }
     const acceptedGame = JSON.parse(JSON.stringify(acceptGameEvent.event.data));
     const response = await fetch(process.env.MINA_NETWORK_URL as string, {
@@ -161,7 +199,7 @@ export async function handleGameStart(
     let winnerPublicKeyBase58 = null;
 
     if (currentSlot - startGameSlot > 4) {
-      await proofQueue.add('forfeitWin', {
+      await gameLifecycleQueue.add('forfeitWin', {
         gameId,
         winnerPublicKeyBase58: game?.codeMaster,
       });
@@ -189,32 +227,36 @@ export async function handlePenalize(
   gameId: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
-  proofQueue: Queue
+  gameLifecycleQueue: Queue
 ) {
-  const { isPenalized, game } = await checkForPenalization(gameId, proofQueue);
+  const { isPenalized, game } = await checkForPenalization(
+    gameId,
+    gameLifecycleQueue
+  );
   if (isPenalized) {
     const players = activePlayers.get(gameId) || new Set();
     players.forEach((player: WebSocket) => {
       player.send(JSON.stringify({ game }));
     });
+  } else if (!isPenalized && game?.status === GameStatus.PENALIZED) {
+    ws.send(JSON.stringify({ error: 'Player is already penalized!' }));
   } else {
     ws.send(
       JSON.stringify({ error: 'Player did not exceeded the allowed time!' })
     );
   }
 }
-
-async function checkForPenalization(gameId: string, proofQueue: Queue) {
+async function checkForPenalization(gameId: string, gameLifecycleQueue: Queue) {
   const now = Date.now();
   const game = await getGameById(gameId);
-  if(game?.status !== GameStatus.IN_PROGRESS){
+  if (game?.status !== GameStatus.IN_PROGRESS) {
     return {
       isPenalized: false,
       game,
     };
   }
   const lastTurnTimestamp = game?.timestamp || Date.now();
-  const TURN_DURATION = 1000 * 60 * 2;
+  const TURN_DURATION = 1000 * 60 * 2.5;
 
   if (game?.turnCount && now - lastTurnTimestamp > TURN_DURATION) {
     const winnerPublicKeyBase58 =
@@ -224,7 +266,8 @@ async function checkForPenalization(gameId: string, proofQueue: Queue) {
       status: GameStatus.PENALIZED,
       winnerPublicKeyBase58,
     });
-    await proofQueue.add('forfeitWin', {
+    console.log('Penalizing game : ', gameId);
+    await gameLifecycleQueue.add('forfeitWin', {
       gameId,
       winnerPublicKeyBase58,
     });

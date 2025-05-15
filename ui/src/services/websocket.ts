@@ -1,5 +1,4 @@
 import { useWebSocket } from '@vueuse/core';
-import { StepProgramProof } from '@navigators-exploration-team/mina-mastermind';
 import { useZkAppStore } from '@/store/zkAppModule';
 
 export class WebSocketService {
@@ -24,15 +23,17 @@ export class WebSocketService {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
           if (data.zkProof) {
-            const receivedProof = await StepProgramProof.fromJSON(
-              JSON.parse(data.zkProof)
-            );
-            receivedProof.verify();
+            const { setTurnPlayed, verifyProof } = useZkAppStore();
+            const isValidProof = await verifyProof(data.zkProof);
+            if (!isValidProof) {
+              throw new Error('Invalid zkProof!');
+            }
+            setTurnPlayed(false);
             if (this.onMessageCallback) this.onMessageCallback(data);
           }
           if (data.game) {
             const { setGame } = useZkAppStore();
-            setGame(data.game);
+            await setGame(data.game);
           }
         } catch (e) {
           console.log('Error handling message:', e);

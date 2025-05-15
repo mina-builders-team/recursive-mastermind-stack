@@ -1,8 +1,7 @@
-import { Bool, fetchAccount, Mina, PublicKey } from 'o1js';
+import { fetchAccount, Mina, PublicKey } from 'o1js';
 import dotenv from 'dotenv';
 import {
-  checkIfSolved,
-  deserializeClue,
+  Clue,
   MastermindZkApp,
   StepProgram,
   StepProgramProof,
@@ -17,15 +16,17 @@ export const setupContract = async () => {
   Mina.setActiveInstance(network);
   console.log('Compiling StepProgram...');
   console.time('StepProgram compilation');
-  await StepProgram.compile();
+  const { verificationKey: stepProgramVerificationKey } =
+    await StepProgram.compile();
   console.log('StepProgram compiled');
   console.timeEnd('StepProgram compilation');
   console.log('Compiling MastermindZkApp...');
   console.time('zkApp compilation');
-  const { verificationKey } = await MastermindZkApp.compile();
+  const { verificationKey: contractVerificationKey } =
+    await MastermindZkApp.compile();
   console.log('MastermindZkApp compiled');
   console.timeEnd('zkApp compilation');
-  return verificationKey;
+  return { stepProgramVerificationKey, contractVerificationKey };
 };
 
 export async function checkGameStatus(
@@ -38,11 +39,10 @@ export async function checkGameStatus(
     let accountExists = response.account !== undefined;
     if (accountExists) {
       const turnCount = zkProof.publicOutput.turnCount.toString();
-      const deserializedClue = deserializeClue(
-        zkProof.publicOutput.serializedClue
+      const deserializedClue = Clue.decompress(
+        zkProof.publicOutput.lastcompressedClue
       );
-      const isGameSolved = checkIfSolved(deserializedClue) as Bool;
-
+      const isGameSolved = deserializedClue.isSolved();
       return {
         turnCount: Number(turnCount),
         isSolved: isGameSolved.toBoolean(),

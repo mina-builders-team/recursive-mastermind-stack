@@ -25,6 +25,7 @@
           width="18px"
           :value="el.value"
           height="18px"
+          :showValue="false"
         />
       </div>
     </div>
@@ -73,22 +74,18 @@
 </template>
 <script setup lang="ts">
 import RoundedColor from '@/components/RoundedColor.vue';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { AvailableColor, CodePicker } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import CodePickerForm from './forms/CodePickerForm.vue';
 import { validateColorCombination } from '../utils';
 import { ElMessage } from 'element-plus';
-const { createGuessProof, createGiveClueProof, getRole } = useZkAppStore();
+const { createGuessProof, createGiveClueProof } = useZkAppStore();
 const { error, zkProofStates, loading, userRole, stepDisplay } =
   storeToRefs(useZkAppStore());
 
 const inputRefs = ref<(InstanceType<typeof RoundedColor> | null)[]>([]);
-
-onMounted(async () => {
-  await getRole();
-});
 
 const focusNextInput = (index: number) => {
   if (index < inputRefs.value.length - 1) {

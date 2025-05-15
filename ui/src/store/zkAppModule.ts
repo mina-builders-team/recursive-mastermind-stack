@@ -3,6 +3,7 @@ import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
 import { Poseidon, PublicKey } from 'o1js';
+import { Game } from '@/types';
 
 export interface SignedData {
   publicKey: string;
@@ -47,8 +48,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     zkAppAddress: null as null | string,
     webSocketInstance: null as null | WebSocketService,
     userRole: null as null | string,
-    game: null as any,
+    game: null as null | Game,
     menuStep: 'RULES',
+    isTurnPlayed: false,
   }),
   getters: {},
   actions: {
@@ -200,6 +202,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           gameId: this.zkAppAddress,
           zkProof: JSON.stringify(res),
           rewardAmount,
+          refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
         });
         this.stepDisplay = '';
@@ -222,6 +225,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.zkProofStates.turnCount,
         ]);
         if (signedData) {
+          this.isTurnPlayed = true;
           this.stepDisplay = 'Generating proof...';
           const res = await this.zkappWorkerClient!.createGuessProof(
             signedData,
@@ -238,6 +242,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
 
         this.error = null;
       } catch (err: any) {
+        this.isTurnPlayed = false;
         this.error = err?.message || err;
         console.log('error ', err);
       } finally {
@@ -256,6 +261,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.zkProofStates.turnCount,
         ]);
         if (signedData) {
+          this.isTurnPlayed = true;
           this.stepDisplay = 'Generating proof...';
           const res = await this.zkappWorkerClient!.createGiveClueProof(
             signedData,
@@ -272,6 +278,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         }
         this.error = null;
       } catch (err: any) {
+        this.isTurnPlayed = false;
         this.error = err?.message || err;
         console.log('error ', err);
       } finally {
@@ -405,7 +412,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.publicKeyBase58
       );
     },
-    setGame(game: any) {
+    async setGame(game: Game) {
+      if (
+        this.game?.status !== 'IN_PROGRESS' &&
+        game.status === 'IN_PROGRESS'
+      ) {
+        await this.getZkAppStates();
+      }
       this.game = game;
     },
     startGame() {
@@ -445,9 +458,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             },
           });
           this.currentTransactionLink = hash;
-          await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
+          const res = await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
             signedData,
+            hash,
           });
+          if (res?.data?.game) {
+            this.setGame(res?.data?.game);
+          }
           this.stepDisplay = '';
           this.error = null;
         }
@@ -469,5 +486,17 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setMenuStep(step: string) {
       this.menuStep = step;
     },
+    setTurnPlayed(isTurnPlayed: boolean) {
+      this.isTurnPlayed = isTurnPlayed;
+    },
+    async verifyProof(zkProof: string): Promise<boolean> {
+      return (await this.zkappWorkerClient?.verifyProof(zkProof)) ?? false;
+    },
+    setLoading(loading:boolean) {
+      this.loading = loading
+    },
+    setStepDisplay(step:string) {
+      this.stepDisplay = step
+    }
   },
 });

@@ -10,15 +10,17 @@ import { MAX_ATTEMPTS } from './constants/config';
 export function formatAddress(address: string) {
   return `${address?.slice(0, 5)}...${address?.slice(-5)}`;
 }
+const decomposeHistory = (serializedHistory: Field, chunkSize: number) => {
+  const historyBits = serializedHistory.toBits(chunkSize * MAX_ATTEMPTS);
+  const historyBitPacks: Bool[][] = [];
+  for (let i = 0; i < historyBits.length; i += chunkSize) {
+    historyBitPacks.push(historyBits.slice(i, i + chunkSize));
+  }
+  return historyBitPacks;
+};
 
 function decompressHistory(compressedHistory: Field) {
-  const historyBits = compressedHistory.toBits(12 * MAX_ATTEMPTS);
-  const historyBitPacks: Bool[][] = [];
-
-  for (let i = 0; i < historyBits.length; i += 12) {
-    historyBitPacks.push(historyBits.slice(i, i + 12));
-  }
-  return historyBitPacks.map((bits) =>
+  return decomposeHistory(compressedHistory, 12).map((bits) =>
     Combination.decompress(Field.fromBits(bits)).digits.toString()
   );
 }
@@ -43,35 +45,36 @@ export function generateColoredGuessHistory(
     return [];
   }
 }
+
 const deserializeClueHistory = (compressedHistory: Field) => {
-  const historyBits = compressedHistory.toBits(6 * MAX_ATTEMPTS);
-  const historyBitPacks: Bool[][] = [];
-  for (let i = 0; i < historyBits.length; i += 6) {
-    historyBitPacks.push(historyBits.slice(i, i + 6));
-  }
-  return historyBitPacks.map((bits) => Clue.decompress(Field.fromBits(bits)));
+  return decomposeHistory(compressedHistory, 6).map((bits) =>
+    Clue.decompress(Field.fromBits(bits))
+  );
 };
+
 export function generateColoredCluesHistory(
   packedClueHistory: Field,
   round: number
 ): Array<AvailableColor[]> {
   const deserializedClueHistory = deserializeClueHistory(packedClueHistory);
 
-  return deserializedClueHistory.map((e:Clue, index:number) => {
-    
+  return deserializedClueHistory.map((e: Clue, index: number) => {
     const hitColor = cluesColors.find((c) => c.value === 2);
     const blowColor = cluesColors.find((c) => c.value === 1);
     const missColor = cluesColors.find((c) => c.value === 0);
-    return index >= Math.floor((round - 1) / 2) ? 
-    Array.from({ length: 4 }, () => ({ color: '#222', value: 0 }))
-    :
-    ([
-      ...Array.from({ length: Number(e.hits) }, () => hitColor!),
-      ...Array.from({ length: Number(e.blows) }, () => blowColor!),
-      ...Array.from({ length: 4 - (Number(e.hits) + Number(e.blows)) }, () => missColor!),
-    ]);
+    return index >= Math.floor((round - 1) / 2)
+      ? Array.from({ length: 4 }, () => ({ color: '#222', value: 0 }))
+      : [
+          ...Array.from({ length: Number(e.hits) }, () => hitColor!),
+          ...Array.from({ length: Number(e.blows) }, () => blowColor!),
+          ...Array.from(
+            { length: 4 - (Number(e.hits) + Number(e.blows)) },
+            () => missColor!
+          ),
+        ];
   });
 }
+
 export function validateColorCombination(combination: AvailableColor[]) {
   const combinationDigits = combination.map(({ value }) => Field(value));
   const comb = new Combination({ digits: combinationDigits });

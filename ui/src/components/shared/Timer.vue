@@ -1,6 +1,7 @@
 <template>
   <div class="d-flex align-items-center gap-1">
     <el-icon
+      v-if="showIcon"
       :size="25"
       :class="['cursor-pointer timer-icon', { critical: isCritical }]"
       ><Timer
@@ -12,16 +13,27 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const emit = defineEmits(['turnEnded']);
+const emit = defineEmits(['timeEnded']);
 
 const props = defineProps({
   startTimestamp: {
     required: true,
     type: Number,
   },
+  duration: {
+    required: true,
+    type: Number,
+  },
+  notifyOnCritical: {
+    type:Boolean,
+    default:true
+  },
+  showIcon:{
+    type:Boolean,
+    default:true
+  },
 });
 
-const TURN_DURATION = 2 * 60 * 1000;
 
 const minutes = ref('00');
 const seconds = ref('00');
@@ -32,8 +44,8 @@ const updateCountdown = () => {
   const now = Date.now();
   const elapsed = now - props.startTimestamp;
 
-  if (elapsed >= TURN_DURATION) {
-    emit('turnEnded');
+  if (elapsed >= props.duration) {
+    emit('timeEnded');
     clearInterval(interval);
     minutes.value = '00';
     seconds.value = '00';
@@ -41,7 +53,7 @@ const updateCountdown = () => {
     return;
   }
 
-  const timeLeft = TURN_DURATION - elapsed;
+  const timeLeft = props.duration - elapsed;
   const m = Math.floor(timeLeft / 60000);
   const s = Math.floor((timeLeft % 60000) / 1000);
 

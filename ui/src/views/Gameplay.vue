@@ -1,6 +1,9 @@
 <template>
   <div class="d-flex flex-column align-items-center">
-    <div class="exit-game cursor-pointer mb-4 d-flex align-items-center gap-2" @click="handleLeaveGame">
+    <div
+      class="exit-game cursor-pointer mb-4 d-flex align-items-center gap-2"
+      @click="handleLeaveGame"
+    >
       <el-icon class="pt-1 fw-bold"><Back /></el-icon>
       Exit game
     </div>
@@ -8,7 +11,7 @@
       <GameDetail
         v-if="
           zkAppStates.codeBreakerId === '0' ||
-          ['ACTIVE', 'PENDING'].includes(game.status)
+          ['ACTIVE', 'PENDING'].includes(game?.status || '')
         "
       />
       <GameBoard v-else />
@@ -28,10 +31,15 @@ import GameBoard from '@/components/GameBoard.vue';
 import GameDetail from '@/components/GameDetail.vue';
 import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
 const route = useRoute();
-const router = useRouter()
+const router = useRouter();
 const { compiled, zkAppStates, game } = storeToRefs(useZkAppStore());
-const { initZkappInstance, joinGame, getZkAppStates, startGame, clearGame } =
-  useZkAppStore();
+const {
+  initZkappInstance,
+  joinGame,
+  getZkAppStates,
+  startGame,
+  clearGame,
+} = useZkAppStore();
 const gameId = route?.params?.id as string;
 const initializeGame = async () => {
   if (compiled.value) {
@@ -48,8 +56,8 @@ const initializeGame = async () => {
   }
 };
 const handleLeaveGame = () => {
-  router.push({name:'home'})
-}
+  router.push({ name: 'home' });
+};
 onMounted(async () => {
   await initializeGame();
 });
@@ -66,7 +74,8 @@ watch(
   () => zkAppStates.value?.codeBreakerId,
   () => {
     if (
-      ['ACTIVE', 'PENDING'].includes(game.value.status) &&
+      game.value?.status &&
+      ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
       zkAppStates.value?.codeBreakerId &&
       zkAppStates.value?.codeBreakerId !== '0'
     ) {

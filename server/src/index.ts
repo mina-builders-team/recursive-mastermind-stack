@@ -13,6 +13,7 @@ import cors from 'cors';
 import gamesRoute from './routes/gamesRoute.js';
 import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
+import redisClient from './redisClient.js';
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ const PORT = process.env.SERVER_PORT || 3000;
 const REDIS_PORT = parseInt(process.env.REDIS_PORT as string) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'redis';
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
-const vk = await setupContract();
+const verificationKeys = await setupContract();
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
@@ -36,13 +37,23 @@ app.use('/games', gamesRoute);
 const wss = new WebSocketServer({ server });
 const activePlayers = new Map<string, Set<WebSocket>>();
 
-const proofQueue = new Queue('proofQueue', {
+const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
+  connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
+  defaultJobOptions: {
+    attempts: 5,
+    backoff: {
+      type: 'exponential',
+      delay: 1000 * 90,
+    },
+    removeOnComplete: true,
+    removeOnFail: {
+      age: 3600 * 24 * 30,
+    },
+  },
+});
+const queueEvents = new QueueEvents('gameLifecycleQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
 });
-const queueEvents = new QueueEvents('proofQueue', {
-  connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
-});
-
 queueEvents.on('completed', ({ returnvalue }: any) => {
   if (returnvalue) {
     const players = activePlayers.get(returnvalue._id) || new Set();
@@ -51,10 +62,25 @@ queueEvents.on('completed', ({ returnvalue }: any) => {
     });
   }
 });
-cron.schedule('* * * * *', async () => {
-  await proofQueue.add('checkGameCreation', {});
+queueEvents.on('failed', async ({ failedReason, jobId }) => {
+  try {
+    const error = JSON.parse(failedReason.substring(failedReason.indexOf('{')));
+    console.log(`Job ${jobId} failed with error : ${error?.statusText}`);
+  } catch (err) {
+    console.log('unknown error : ', err);
+  }
 });
-
+await gameLifecycleQueue.upsertJobScheduler(
+  'lobby-games',
+  { pattern: '* * * * *' },
+  {
+    name: 'checkGameCreation',
+    opts: {
+      removeOnFail: true,
+      removeOnComplete: true,
+    },
+  }
+);
 wss.on('connection', (ws) => {
   ws.on('message', async (message) => {
     try {
@@ -65,6 +91,7 @@ wss.on('connection', (ws) => {
         zkProof,
         rewardAmount,
         playerPubKeyBase58,
+        refereePubKeyBase58,
       } = data;
       console.log('action : ', action);
       if (!gameId || !action) {
@@ -82,16 +109,17 @@ wss.on('connection', (ws) => {
           zkProof,
           rewardAmount,
           playerPubKeyBase58,
+          refereePubKeyBase58,
           activePlayers,
           ws,
-          proofQueue,
-          vk
+          gameLifecycleQueue,
+          verificationKeys.stepProgramVerificationKey
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');
-        await handleGameStart(gameId, activePlayers, ws, proofQueue);
+        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue,verificationKeys.contractVerificationKey.hash);
       } else if (action === 'penalize') {
-        await handlePenalize(gameId, activePlayers, ws, proofQueue);
+        await handlePenalize(gameId, activePlayers, ws, gameLifecycleQueue);
       } else {
         ws.send(JSON.stringify({ error: 'Unknown action!' }));
       }
@@ -113,6 +141,20 @@ wss.on('connection', (ws) => {
   ws.on('error', (err) => {
     console.error('WebSocket error:', err);
   });
+});
+cron.schedule('*/20 * * * *', async () => {
+  const isQueuePaused = await gameLifecycleQueue.isPaused();
+  const gameLifecycleQueuePausedAt = await redisClient.get(
+    'gameLifecycleQueue:paused'
+  );
+  if (
+    isQueuePaused &&
+    gameLifecycleQueuePausedAt &&
+    Date.now() - Number(gameLifecycleQueuePausedAt) > 1000 * 60 * 20
+  ) {
+    console.log('Queue stuck in paused state, resuming...');
+    await gameLifecycleQueue.resume();
+  }
 });
 
 app.get('/health', (req, res) => {

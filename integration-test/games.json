@@ -1,0 +1,51 @@
+{
+  "devnet": [
+    {
+      "codeMaster": "EKFUo7o94PPbeERqmhoWAmzpEohoFZs1uRrRV8DUM9ZsXuyBR7ht",
+      "codeBreaker": "EKEdDA769ZrCiGpW9SC25kaVMnJuJXR8uyMobUEYYom8vvNUYLMo",
+      "attempts": 3
+    },
+    {
+      "codeMaster": "EKFXJgvMEbDskdbVwNKPwvKqeUawhFSau7fkNmPxZ7zRA4xQKwhm",
+      "codeBreaker": "EKE4jHEYSFYDgiqB6PYTAzb5ovSjDqhkomVqYGrC97aUpBdTLs4N",
+      "attempts": 5
+    },
+    {
+      "codeMaster": "EKExuRQh5Aqxm9tEKQKzZfRR4EySw2cnSfasc8j21QAGE1A56LaB",
+      "codeBreaker": "EKFGnKsVdicJkrV7QjUwHUBghbgRgyHfbtacDvXM1TtLko558GJJ",
+      "attempts": 1
+    },
+    {
+      "codeMaster": "EKErzpETJ5Rur5JjVcsGYfYq9NUKQzfiTeM2jHPMUoZuvb2NDJTQ",
+      "codeBreaker": "EKDig16ypstrJiMNvBQAGt8q9LSdap7rRi7p841WwFvy3dV7Xjia",
+      "attempts": 2
+    },
+    {
+      "codeMaster": "EKFVD7p7WGPvzJJDp11vmr7VS9Y8sepoKW6y74r7wHXBs7c6bJbu",
+      "codeBreaker": "EKE8uzQ83dABX1p163vuJNAvNbWeQgh9jwaxb2mvRM97TzUHX47p",
+      "attempts": 8
+    }
+  ],
+  "lightnet": [
+    {
+      "codeMaster": "EKFVC73PXnzqoaCpMCuemHZ3oa9gyFfB6igUD9bNeYb97Saqfqby",
+      "codeBreaker": "EKDoxpgtZnPse2vYqeU9HXXT3XsTzKDUpJhgqHfn6p3TgY3wtH5M",
+      "attempts": 3
+    },
+    {
+      "codeMaster": "EKF7Qqi5QVHw9KbW8PKkchw7EDHLBnqVBB7znx7UQDteZB7Edwgi",
+      "codeBreaker": "EKDzDSs2gSBcg1St4Jsro8DXC4fgHJQRwbXC7ycx8T1tN3SsmGSi",
+      "attempts": 5
+    },
+    {
+      "codeMaster": "EKEipiZ53rj9CzWaKgg44p8y2V3JBtt9ZQgCTnDC527hoVzv514h",
+      "codeBreaker": "EKDn75uH5nEYGnbs5UGQqoro4R1N6kavRsKJWadP2YumBKACyJbK",
+      "attempts": 5
+    },
+    {
+      "codeMaster": "EKFZ2yCn7dSFEDhbikWR1gxYzUub4c3GubCf4L54vHKNayUHYG9a",
+      "codeBreaker": "EKEjsmvobiFDmoGUfSXafQpLh5MJeXfHaLfz8GYLGmVFnr7JmZdR",
+      "attempts": 5
+    }
+  ]
+}

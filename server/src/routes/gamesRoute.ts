@@ -2,10 +2,11 @@ import { Router, Request, Response } from 'express';
 import {
   createOrUpdateGame,
   getActiveGames,
+  getGameById,
   getUserGames,
 } from '../repositories/game.js';
 import { GameStatus } from '../models/Game.js';
-import { Field, PublicKey, Signature } from 'o1js';
+import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -46,20 +47,32 @@ router.get('/user/:id', async (req: Request, res: Response) => {
 router.post('/cancel/:id', async (req: Request, res: Response) => {
   try {
     const gameId = req.params.id;
-    const { signedData } = req.body;
-    const signature = Signature.fromBase58(signedData.signature);
-    const isVerifiedSignature = signature.verify(
-      PublicKey.fromBase58(signedData.publicKey),
-      [Field(signedData.data[0])]
-    );
-    if (isVerifiedSignature.toBoolean()) {
-      const game = await createOrUpdateGame({
-        _id: gameId,
-        status: GameStatus.CANCELLED,
-      });
-      res.status(200).json({ game });
+    const { signedData, hash } = req.body;
+    const game = await getGameById(gameId);
+    if (
+      game &&
+      [GameStatus.ACTIVE, GameStatus.PENDING, GameStatus.CANCELLED].includes(
+        game.status
+      )
+    ) {
+      const signature = Signature.fromBase58(signedData.signature);
+      const isVerifiedSignature = signature.verify(
+        PublicKey.fromBase58(game.codeMaster),
+        Poseidon.hash(PublicKey.fromBase58(gameId).toFields()).toFields()
+      );
+      if (isVerifiedSignature.toBoolean()) {
+        const game = await createOrUpdateGame({
+          _id: gameId,
+          status: GameStatus.CANCELLED,
+          cancelTransactionHash: hash,
+          lastCancelTimestamp: Date.now(),
+        });
+        res.status(200).json({ game });
+      } else {
+        res.status(401).json({ error: 'Invalid Signature!' });
+      }
     } else {
-      res.status(403).json({ error: 'Invalid Signature' });
+      res.status(403).json({ error: 'You can not cancel this game!' });
     }
   } catch (error) {
     console.error('Error canceling game:', error);

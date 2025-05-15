@@ -8,6 +8,7 @@
           :title="el.title"
           width="24px"
           height="24px"
+          :showValue="false"
         />
       </div>
     </div>
@@ -27,7 +28,7 @@
               class="mb-4 w-100 d-flex justify-content-between align-items-center"
             >
               <div>
-                <span v-if="isGameSolved">Code breaker has won!</span>
+                <span v-if="!isCodeMasterWinner">Code breaker has won!</span>
                 <span v-else>Code master has won!</span>
               </div>
               <div v-if="isWinner">
@@ -60,22 +61,36 @@
             >
               <div
                 class="w-100 d-flex justify-content-between p-3 ps-0 gap-2 align-items-center"
-                v-if="!isGameEnded"
+                v-if="!isGameEnded && !isTurnTimeExceeded"
               >
                 <span v-if="isCodeMasterTurn">Code Master Turn</span>
                 <span v-else>Code Breaker Turn</span>
-                <div class="pe-2">
+                <div class="pe-2" v-if="!isTurnPlayed">
                   <Timer
-                    :startTimestamp="game.timestamp"
-                    @turnEnded="handleTurnEnded"
+                    :duration="
+                      isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5
+                    "
+                    :startTimestamp="game?.timestamp"
+                    @timeEnded="handleTurnEnded"
                   />
                 </div>
               </div>
+              <div
+                v-else-if="!isGameEnded && isTurnTimeExceeded"
+                class="d-flex align-items-end gap-2 my-3"
+              >
+                Proof must reach server in
+                <Timer
+                  :duration="60 * 1000 * 2.5"
+                  :startTimestamp="game?.timestamp"
+                  :notifyOnCritical="false"
+                  :showIcon="false"
+                />
+                to avoid penalty!
+              </div>
             </div>
 
-            <div
-              v-for="(guess, row) in guesses"
-            >
+            <div v-for="(guess, row) in guesses">
               <Guess
                 :attemptNo="row"
                 @setColor="handleSetColor($event, row)"
@@ -87,7 +102,9 @@
           </div>
         </div>
       </div>
-      <div class="color-picker__container d-flex justify-content-between w-100 gap-2 p-2 mt-4">
+      <div
+        class="color-picker__container d-flex justify-content-between w-100 gap-2 p-2 mt-4"
+      >
         <RoundedColor
           height="40px"
           width="40px"
@@ -115,12 +132,17 @@ import DotsLoader from '@/components/shared/DotsLoader.vue';
 import Timer from '@/components/shared/Timer.vue';
 import { MAX_ATTEMPTS } from '@/constants/config';
 
-const { getRole, getZkAppStates, penalizePlayer } = useZkAppStore();
-const { zkAppAddress, zkProofStates, zkAppStates, publicKeyBase58, game } =
-  storeToRefs(useZkAppStore());
-const isCodeMasterTurn = computed(() => {
-  return zkProofStates.value?.turnCount % 2 === 0;
-});
+const { getRole, getZkAppStates, penalizePlayer, setLoading, setStepDisplay } =
+  useZkAppStore();
+const {
+  zkAppAddress,
+  zkProofStates,
+  zkAppStates,
+  publicKeyBase58,
+  game,
+  userRole,
+  isTurnPlayed,
+} = storeToRefs(useZkAppStore());
 const intervalId = ref<number | null>(null);
 const guesses = ref<Array<AvailableColor[]>>(
   zkProofStates.value?.guessesHistory
@@ -128,8 +150,10 @@ const guesses = ref<Array<AvailableColor[]>>(
 const clues = computed<Array<AvailableColor[]>>(
   () => zkProofStates.value?.cluesHistory
 );
+const isTurnTimeExceeded = ref(false);
 const handleTurnEnded = () => {
-  if (game.value?.status === 'IN_PROGRESS') {
+  isTurnTimeExceeded.value = true;
+  if (game.value?.status === 'IN_PROGRESS' && !isCurrentUserTurn.value) {
     penalizePlayer();
   }
 };
@@ -140,6 +164,19 @@ const handleSetColor = (
 ) => {
   guesses.value[row][payload.index] = { ...payload.selectedColor };
 };
+const isCodeMasterTurn = computed(() => {
+  return zkProofStates.value?.turnCount % 2 === 0;
+});
+const isCurrentUserTurn = computed(() => {
+  return (
+    (isCodeMasterTurn.value && userRole.value === 'CODE_MASTER') ||
+    (!isCodeMasterTurn.value && userRole.value === 'CODE_BREAKER')
+  );
+});
+
+const isCodeMasterWinner = computed(() => {
+  return game.value?.codeMaster === game.value?.winnerPublicKeyBase58;
+});
 const isGameSolved = computed(() => {
   return clues.value?.some((clue: AvailableColor[]) =>
     clue?.every((el: AvailableColor) => el.value === 2)
@@ -175,6 +212,7 @@ watch(
   () => zkProofStates.value?.turnCount,
   () => {
     guesses.value = zkProofStates.value.guessesHistory;
+    isTurnTimeExceeded.value = false;
     if (
       zkProofStates.value?.turnCount > MAX_ATTEMPTS * 2 ||
       isGameSolved.value
@@ -190,6 +228,8 @@ watch(
 );
 onMounted(async () => {
   await getRole();
+  setLoading(false);
+  setStepDisplay('');
 });
 </script>
 <style scoped>

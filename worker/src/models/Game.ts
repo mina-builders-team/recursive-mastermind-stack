@@ -8,6 +8,7 @@ export enum GameStatus {
   ENDED = 'ENDED',
   PENALIZED = 'PENALIZED',
   CANCELLED = 'CANCELLED',
+  FAKE = 'FAKE'
 }
 
 export interface IGame extends Document {
@@ -23,6 +24,10 @@ export interface IGame extends Document {
   lastAcceptTimestamp: number;
   penalizationTransactionHash?: string;
   turnCount: number;
+  cancelTransactionHash?: string;
+  lastCancelTimestamp: number;
+  refereePubKeyBase58: string;
+  isRefereeVerified: boolean;
 }
 
 const gameSchema: Schema = new Schema(
@@ -44,6 +49,10 @@ const gameSchema: Schema = new Schema(
     lastAcceptTimestamp: { type: Number, required: false },
     penalizationTransactionHash: { type: String, required: false },
     turnCount: { type: Number, required: false },
+    cancelTransactionHash: { type: String, required: false },
+    lastCancelTimestamp: { type: Number, required: false },
+    refereePubKeyBase58: { type: String, required: true },
+    isRefereeVerified: { type: Boolean, required: true },
   },
   { timestamps: true }
 );

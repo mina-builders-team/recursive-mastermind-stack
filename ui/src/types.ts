@@ -25,8 +25,19 @@ export interface GameParams {
 }
 export interface Game {
   _id: string;
-  rewardAmount: string;
+  lastProof: any;
+  rewardAmount: number;
+  timestamp: number;
+  codeBreaker?: string;
   codeMaster: string;
+  winnerPublicKeyBase58?: string;
   status: string;
-  lastAcceptTimestamp: number;
+  settlementTransactionHash?: string;
+  lastAcceptTimestamp?: number;
+  penalizationTransactionHash?: string;
+  turnCount: number;
+  cancelTransactionHash?: string;
+  lastCancelTimestamp?: number;
+  refereePubKeyBase58: string;
+  isRefereeVerified: boolean;
 }

@@ -5,7 +5,7 @@
       :class="{ blinkColor: blinkColor }"
       v-if="!editable"
     >
-      <span class="rounded__value" v-if="bgColor !== '#222'">{{ value }}</span>
+      <span class="rounded__value" v-if="showValue && bgColor !== '#222'">{{ value }}</span>
     </div>
     <el-input
       v-else
@@ -51,6 +51,10 @@ const props = defineProps({
     required: false,
     default: false,
   },
+  showValue: {
+    type: Boolean,
+    default:true
+  }
 });
 const emit = defineEmits(['input', 'focusNext', 'focusPrev']);
 const inputRef = ref<InstanceType<
