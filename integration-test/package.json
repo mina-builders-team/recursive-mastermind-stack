@@ -14,7 +14,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --runInBand"
   },
   "dependencies": {
-    "@navigators-exploration-team/mina-mastermind": "1.3.0",
+    "@navigators-exploration-team/mina-mastermind": "1.4.0",
     "@types/cors": "^2.8.17",
     "bullmq": "^5.52.2",
     "dotenv": "^16.4.7",
