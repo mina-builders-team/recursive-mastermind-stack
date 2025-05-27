@@ -299,7 +299,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       try {
         this.loading = true;
         this.isTurnPlayed = true;
-        const res = await this.zkappWorkerClient!.createGuessTransaction(
+        await this.zkappWorkerClient!.createGuessTransaction(
           this.publicKeyBase58,
           combination
         );
@@ -337,7 +337,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.loading = true;
         this.isTurnPlayed = true;
         this.stepDisplay = 'Generating Transaction...';
-        const res = await this.zkappWorkerClient!.createGiveClueTransaction(
+        await this.zkappWorkerClient!.createGiveClueTransaction(
           this.publicKeyBase58,
           combination,
           randomSalt

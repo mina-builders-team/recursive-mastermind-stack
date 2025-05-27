@@ -341,7 +341,7 @@ const functions = {
       return false;
     }
   },
-  fetchCurrentSlot: async (args: {}) => {
+  fetchCurrentSlot: async () => {
     try {
       const latestBlock = await fetchLastBlock(
         import.meta.env.VITE_MINA_NETWORK_URL
