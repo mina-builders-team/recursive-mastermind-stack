@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import {
   createOrUpdateGame,
-  getActiveGames,
   getGameById,
+  getGamesByStatus,
   getUserGames,
 } from '../repositories/game.js';
 import { GameStatus } from '../models/Game.js';
@@ -14,7 +14,7 @@ const router = Router();
 
 router.get('/active-games', async (req: Request, res: Response) => {
   try {
-    const games = await getActiveGames();
+    const games = await getGamesByStatus(GameStatus.ACTIVE);
     res.status(200).json(games);
   } catch (error) {
     console.error('Error fetching game  list:', error);

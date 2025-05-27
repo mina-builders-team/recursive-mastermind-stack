@@ -23,9 +23,9 @@ export const getGameById = async (_id: string) => {
   }
 };
 
-export const getActiveGames = async () => {
+export const getGamesByStatus = async (status: GameStatus) => {
   try {
-    const activeGames = await Game.find({ status: GameStatus.ACTIVE });
+    const activeGames = await Game.find({ status });
     return activeGames;
   } catch (err) {
     throw new Error('Error retrieving active games: ' + err);
@@ -48,5 +48,28 @@ export const deleteGame = async (_id: string) => {
     return await Game.deleteOne({ _id });
   } catch (err) {
     throw new Error('Error deleting game: ' + err);
+  }
+};
+
+export const updateManyGames = async (
+  gamesIds: string[],
+  status: GameStatus
+) => {
+  try {
+    await Game.updateMany({ _id: { $in: gamesIds } }, { $set: { status } });
+  } catch (err) {
+    throw new Error('Error updating games : ' + err);
+  }
+};
+
+export const resumeOnGoingGames = async () => {
+  try {
+    const userGames = await Game.updateMany(
+      { status: GameStatus.IN_PROGRESS },
+      { $set: { status: GameStatus.ON_CHAIN } }
+    );
+    return userGames;
+  } catch (err) {
+    throw new Error('Error while resuming games on chain: ' + err);
   }
 };

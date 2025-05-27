@@ -14,7 +14,22 @@ const { zkappWorkerClient, hasBeenSetup, accountExists } =
 const { checkAccountExists, setupZkApp } = useZkAppStore();
 onMounted(async () => {
   await setupZkApp();
+  removePastGames();
 });
+const removePastGames = () => {
+  const now = Date.now();
+  let games: any = {};
+  const storedGames = localStorage.getItem('games');
+  if (storedGames) {
+    games = { ...JSON.parse(storedGames) };
+    for (const gameId of Object.keys(games)) {
+      const lastUpdatedAt = games[gameId].lastUpdatedAt;
+      if (now - lastUpdatedAt > 1000 * 3600 * 24 * 3) {
+        delete games[gameId];
+      }
+    }
+  }
+};
 watch(
   [
     () => zkappWorkerClient.value,

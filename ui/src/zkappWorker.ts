@@ -10,6 +10,7 @@ import {
   UInt64,
   Poseidon,
   verify,
+  fetchLastBlock,
 } from 'o1js';
 import {
   Combination,
@@ -44,6 +45,7 @@ const state = {
 };
 
 const functions = {
+  //TODO:: change function name
   setActiveInstanceToLightnet: async () => {
     const network = Mina.Network({
       mina: import.meta.env.VITE_MINA_NETWORK_URL,
@@ -153,6 +155,32 @@ const functions = {
     state.lastProof = stepProof.proof;
     return stepProof.proof.toJSON();
   },
+  createGuessTransaction: async (args: {
+    feePayer: string;
+    separatedGuess: number[];
+  }) => {
+    const feePayerPublickKey = PublicKey.fromBase58(args.feePayer);
+    const transaction = await Mina.transaction(feePayerPublickKey, async () => {
+      await state.zkappInstance?.makeGuess(
+        Combination.from(args.separatedGuess)
+      );
+    });
+    state.transaction = transaction;
+  },
+  createGiveClueTransaction: async (args: {
+    feePayer: string;
+    secretCombination: number[];
+    randomSalt: string;
+  }) => {
+    const feePayerPublickKey = PublicKey.fromBase58(args.feePayer);
+    const transaction = await Mina.transaction(feePayerPublickKey, async () => {
+      await state.zkappInstance?.giveClue(
+        Combination.from(args.secretCombination),
+        Field(args.randomSalt)
+      );
+    });
+    state.transaction = transaction;
+  },
   initZkappInstance: async (args: { publicKeyBase58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKeyBase58);
     await fetchAccount({ publicKey });
@@ -188,21 +216,35 @@ const functions = {
   getZkAppStates: async () => {
     const publicKey = PublicKey.fromBase58(state.zkAppAddress as string);
     await fetchAccount({ publicKey });
-    const [codeMasterId, codeBreakerId, compressedState] = await Promise.all([
+    const [
+      codeMasterId,
+      codeBreakerId,
+      compressedState,
+      packedGuessHistory,
+      packedClueHistory,
+    ] = await Promise.all([
       state.zkappInstance!.codeMasterId.get(),
       state.zkappInstance!.codeBreakerId.get(),
       state.zkappInstance!.compressedState.get(),
+      state.zkappInstance!.packedGuessHistory.get(),
+      state.zkappInstance?.packedClueHistory.get(),
     ]);
-    let { rewardAmount, finalizeSlot, turnCount, isSolved } =
+    let { rewardAmount, finalizeSlot, turnCount, isSolved, lastPlayedSlot } =
       GameState.unpack(compressedState);
 
     return {
       rewardAmount: Number(rewardAmount.toString()),
-      finalizeSlot: finalizeSlot.toString(),
+      lastPlayedSlot: Number(lastPlayedSlot.toString()),
+      finalizeSlot: Number(finalizeSlot.toString()),
       codeBreakerId: codeBreakerId.toString(),
       codeMasterId: codeMasterId.toString(),
-      turnCount: turnCount.toString(),
+      turnCount: Number(turnCount.toString()),
       isSolved: isSolved.toString(),
+      guessesHistory: generateColoredGuessHistory(packedGuessHistory),
+      cluesHistory: generateColoredCluesHistory(
+        packedClueHistory,
+        Number(turnCount.toString())
+      ),
     };
   },
   getZkProofStates: async () => {
@@ -230,7 +272,7 @@ const functions = {
     return null;
   },
   getUserRole: async (args: { playerPubKeyBase58: string }) => {
-    try{
+    try {
       const publicKey = PublicKey.fromBase58(args.playerPubKeyBase58 as string);
       await fetchAccount({ publicKey });
       const playerId = Poseidon.hash(publicKey.toFields());
@@ -238,23 +280,24 @@ const functions = {
         state.zkappInstance!.codeMasterId.get(),
         state.zkappInstance!.codeBreakerId.get(),
       ]);
-  
+
       return playerId.toString() === codeMasterId.toString()
         ? 'CODE_MASTER'
         : playerId.toString() === codeBreakerId.toString()
           ? 'CODE_BREAKER'
-          : 'UNKNOWN';  
-    }catch(e) {
-      console.log("Error getting user role: ",e)
+          : 'UNKNOWN';
+    } catch (e) {
+      console.log('Error getting user role: ', e);
     }
   },
   setLastProof: async (args: { zkProof: any }) => {
     state.lastProof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
   },
-  submitGameProof: async () => {
+  submitGameProof: async (args: { zkProof: string }) => {
     const transaction = await Mina.transaction(async () => {
+      const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
       await state.zkappInstance!.submitGameProof(
-        state.lastProof as StepProgramProof,
+        proof,
         //Todo: add corect pubkey
         PublicKey.empty()
       );
@@ -293,6 +336,17 @@ const functions = {
         JSON.parse(args.zkProof)
       );
       return await verify(receivedProof, state.verificationKey);
+    } catch (e) {
+      console.log('Error verifying proof: ', e);
+      return false;
+    }
+  },
+  fetchCurrentSlot: async (args: {}) => {
+    try {
+      const latestBlock = await fetchLastBlock(
+        import.meta.env.VITE_MINA_NETWORK_URL
+      );
+      return Number(latestBlock.globalSlotSinceGenesis.toString());
     } catch (e) {
       console.log('Error verifying proof: ', e);
       return false;

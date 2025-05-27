@@ -8,6 +8,7 @@ import {
   handleJoinGame,
   handlePenalize,
   handleProof,
+  resumeOnChain,
 } from './services.js';
 import cors from 'cors';
 import gamesRoute from './routes/gamesRoute.js';
@@ -27,11 +28,12 @@ const REDIS_PORT = parseInt(process.env.REDIS_PORT as string) || 6379;
 const REDIS_HOST = process.env.REDIS_HOST || 'redis';
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const verificationKeys = await setupContract();
+connectDatabase();
 
+await resumeOnChain();
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-connectDatabase();
 app.use('/games', gamesRoute);
 
 const wss = new WebSocketServer({ server });
@@ -117,7 +119,13 @@ wss.on('connection', (ws) => {
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');
-        await handleGameStart(gameId, activePlayers, ws, gameLifecycleQueue,verificationKeys.contractVerificationKey.hash);
+        await handleGameStart(
+          gameId,
+          activePlayers,
+          ws,
+          gameLifecycleQueue,
+          verificationKeys.contractVerificationKey.hash
+        );
       } else if (action === 'penalize') {
         await handlePenalize(gameId, activePlayers, ws, gameLifecycleQueue);
       } else {

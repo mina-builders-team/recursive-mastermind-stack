@@ -8,7 +8,8 @@ export enum GameStatus {
   ENDED = 'ENDED',
   PENALIZED = 'PENALIZED',
   CANCELLED = 'CANCELLED',
-  FAKE = 'FAKE'
+  FAKE = 'FAKE',
+  ON_CHAIN = 'ON_CHAIN',
 }
 
 export interface IGame extends Document {

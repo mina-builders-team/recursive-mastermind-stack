@@ -137,6 +137,8 @@ export const MinaFileSystem = (files: any): Cache => ({
 export function fetchZkAppCacheFiles() {
   const files = [
     { name: 'lagrange-basis-fp-2048', type: 'string' },
+    { name: 'lagrange-basis-fp-4096', type: 'string' },
+
     { name: 'step-vk-mastermindzkapp-acceptgame', type: 'string' },
     { name: 'step-vk-mastermindzkapp-claimreward', type: 'string' },
     { name: 'step-vk-mastermindzkapp-forfeitwin', type: 'string' },
@@ -197,4 +199,26 @@ export function dateToDayHourMin(timestamp?: number): string {
   });
 
   return `${datePart.replace(/-/g, '/')} ${timePart}`;
+}
+export function updateLocalStorageGames(gameId: string, data: any): void {
+  let games: any = {};
+  const storedGames = localStorage.getItem('games');
+  if (storedGames) {
+    games = { ...JSON.parse(storedGames) };
+  }
+  games = {
+    ...games,
+    [gameId]: games?.[gameId]
+      ? { ...games?.[gameId], ...data, lastUpdatedAt: Date.now() }
+      : data,
+  };
+  localStorage.setItem('games', JSON.stringify(games));
+}
+export function getStoredGame(gameId: string): string | null {
+  const games = localStorage.getItem('games');
+  if (games) {
+    const jsonGames: any = JSON.parse(games);
+    return jsonGames?.[gameId];
+  }
+  return null;
 }

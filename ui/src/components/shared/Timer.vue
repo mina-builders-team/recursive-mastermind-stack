@@ -6,7 +6,8 @@
       :class="['cursor-pointer timer-icon', { critical: isCritical }]"
       ><Timer
     /></el-icon>
-    <span>{{ minutes }}:{{ seconds }}</span>
+    <span v-if="!isOnChain">{{ minutes }}:{{ seconds }}</span>
+    <span v-else> < {{ remainingSlot * 3 }} Minutes</span>
   </div>
 </template>
 
@@ -25,15 +26,22 @@ const props = defineProps({
     type: Number,
   },
   notifyOnCritical: {
-    type:Boolean,
-    default:true
+    type: Boolean,
+    default: true,
   },
-  showIcon:{
-    type:Boolean,
-    default:true
+  showIcon: {
+    type: Boolean,
+    default: true,
+  },
+  isOnChain: {
+    type: Boolean,
+    default: false,
+  },
+  remainingSlot: {
+    type: Number,
+    required: false,
   },
 });
-
 
 const minutes = ref('00');
 const seconds = ref('00');
@@ -41,9 +49,13 @@ const isCritical = ref(false);
 
 let interval;
 const updateCountdown = () => {
+  if (props.isOnChain) {
+    clearInterval(interval);
+    isCritical.value = false;
+    return;
+  }
   const now = Date.now();
   const elapsed = now - props.startTimestamp;
-
   if (elapsed >= props.duration) {
     emit('timeEnded');
     clearInterval(interval);
@@ -67,7 +79,11 @@ const startTimer = () => {
   interval = setInterval(updateCountdown, 1000);
 };
 
-onMounted(startTimer);
+onMounted(() => {
+  if (!props.isOnChain) {
+    startTimer();
+  }
+});
 onUnmounted(() => clearInterval(interval));
 </script>
 

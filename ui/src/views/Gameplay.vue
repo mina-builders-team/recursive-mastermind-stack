@@ -33,13 +33,8 @@ import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
 const route = useRoute();
 const router = useRouter();
 const { compiled, zkAppStates, game } = storeToRefs(useZkAppStore());
-const {
-  initZkappInstance,
-  joinGame,
-  getZkAppStates,
-  startGame,
-  clearGame,
-} = useZkAppStore();
+const { initZkappInstance, joinGame, getZkAppStates, startGame, clearGame } =
+  useZkAppStore();
 const gameId = route?.params?.id as string;
 const initializeGame = async () => {
   if (compiled.value) {
