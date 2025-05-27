@@ -97,7 +97,7 @@ services:
     restart: always
   
   client-worker-1:
-    profiles: ['dev']
+    profiles: ['test']
     build:
       context: .
       dockerfile: integration-test/docker/dockerfile.dev

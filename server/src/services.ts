@@ -3,6 +3,7 @@ import {
   getGameById,
   createOrUpdateGame,
   deleteGame,
+  resumeOnGoingGames,
 } from './repositories/game.js';
 import {
   MastermindZkApp,
@@ -12,6 +13,7 @@ import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
 import {
   fetchAccount,
+  fetchLastBlock,
   Field,
   PublicKey,
   UInt32,
@@ -172,27 +174,10 @@ export async function handleGameStart(
       return;
     }
     const acceptedGame = JSON.parse(JSON.stringify(acceptGameEvent.event.data));
-    const response = await fetch(process.env.MINA_NETWORK_URL as string, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `
-          query {
-            bestChain(maxLength: 1) {
-              protocolState {
-                consensusState {
-                  slotSinceGenesis
-                }
-              }
-            }
-          }
-        `,
-      }),
-    });
-    const data = await response.json();
-    const currentSlot =
-      data.data?.bestChain?.[0]?.protocolState?.consensusState
-        ?.slotSinceGenesis;
+    const latestBlock = await fetchLastBlock(
+      process.env.MINA_NETWORK_URL as string
+    );
+    const currentSlot = Number(latestBlock.globalSlotSinceGenesis.toString());
     const finalizeSlot = Number(acceptedGame.finalizeSlot);
     const startGameSlot = finalizeSlot - 2 * (MAX_ATTEMPTS || 0);
     let status = GameStatus.IN_PROGRESS;
@@ -280,4 +265,11 @@ async function checkForPenalization(gameId: string, gameLifecycleQueue: Queue) {
     isPenalized: false,
     game,
   };
+}
+export async function resumeOnChain() {
+  try {
+    await resumeOnGoingGames();
+  } catch (err) {
+    console.log('error resuming games on chain: ', err);
+  }
 }

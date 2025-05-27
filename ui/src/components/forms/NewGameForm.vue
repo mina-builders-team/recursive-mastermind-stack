@@ -10,7 +10,7 @@
         <label>Reward Amount</label>
         <el-input
           type="number"
-          placeholder="Reward amount greater than 9 MINA"
+          placeholder="Reward amount no less than 10 MINA"
           v-model.number="game.rewardAmount"
           size="large"
           :min="10"
@@ -46,6 +46,7 @@ import { GameParams } from '../../types';
 import { PublicKey } from 'o1js';
 import { ElNotification } from 'element-plus';
 import PasteFromClipBoard from '@/components/shared/PasteFromClipBoard.vue';
+import { updateLocalStorageGames } from '@/utils';
 
 const { zkAppAddress, error, currentTransactionLink } =
   storeToRefs(useZkAppStore());
@@ -70,7 +71,7 @@ const rules = ref({
           callback();
         } else {
           callback(
-            new Error(`The reward amount should be greater than 10 MINA`)
+            new Error(`The reward amount should be no less than 10 MINA`)
           );
         }
       },
@@ -119,19 +120,11 @@ const handleInitGame = async (formData: CodePicker) => {
           type: 'success',
           duration: 5000,
         });
-        let games = {};
-        const storedGames = localStorage.getItem('games');
-        if (storedGames) {
-          games = { ...JSON.parse(storedGames) };
-        }
-        games = {
-          ...games,
-          [zkAppAddress.value as string]: {
-            randomSalt: formData.randomSalt,
-            secretCode: formData.code,
-          },
-        };
-        localStorage.setItem('games', JSON.stringify(games));
+        updateLocalStorageGames(zkAppAddress.value as string, {
+          randomSalt: formData.randomSalt,
+          secretCode: formData.code,
+          role: 'CODE_MASTER',
+        });
         router.push({
           name: 'gameplay',
           params: {

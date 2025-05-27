@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div v-if="isPlayingOnChain">
+    we are currently experiencing some problems! please come back later!
+  </div>
+  <div v-else>
     <div v-if="isGameCancelled">Code master has cancelled this game!</div>
     <div class="d-flex flex-column gap-4 align-items-start w-100" v-else>
       <div class="d-flex align-items-center gap-2">
@@ -68,18 +71,18 @@
       </div>
       <div v-else class="w-100">
         <div
-          v-if="acceptedGame?.transactionHash"
+          v-if="acceptedGame?.lastAcceptTransactionHash"
           class="d-flex flex-column gap-4 w-100"
         >
           <div class="d-flex align-items-center gap-2">
             Last Accept Game Transaction Hash :
-            {{ formatAddress(acceptedGame?.transactionHash) }}
-            <CopyToClipBoard :text="acceptedGame?.transactionHash" />
+            {{ formatAddress(acceptedGame?.lastAcceptTransactionHash) }}
+            <CopyToClipBoard :text="acceptedGame?.lastAcceptTransactionHash" />
           </div>
           <div>
             Please check this
             <a
-              :href="`https://minascan.io/devnet/tx/${acceptedGame?.transactionHash}?type=zk-tx`"
+              :href="`https://minascan.io/devnet/tx/${acceptedGame?.lastAcceptTransactionHash}?type=zk-tx`"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -89,7 +92,9 @@
             before accepting the game again.
           </div>
         </div>
-        <div v-if="isAcceptGameTimeElapsed || !acceptedGame?.timestamp">
+        <div
+          v-if="isAcceptGameTimeElapsed || !acceptedGame?.lastAcceptTimestamp"
+        >
           <el-button
             v-if="game?.status === 'ACTIVE'"
             size="large"
@@ -112,7 +117,7 @@
             Game should start anytime before
             <Timer
               :duration="MINA_APPROX_SLOT_DURATION"
-              :startTimestamp="acceptedGame.timestamp"
+              :startTimestamp="acceptedGame.lastAcceptTimestamp"
               :showIcon="false"
               @timeEnded="handleAcceptTimeElapsed"
             />
@@ -126,7 +131,11 @@
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
-import { formatAddress, dateToDayHourMin } from '@/utils';
+import {
+  formatAddress,
+  dateToDayHourMin,
+  updateLocalStorageGames,
+} from '@/utils';
 import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
 import { computed, onMounted, ref } from 'vue';
 import { ElNotification } from 'element-plus';
@@ -142,24 +151,28 @@ const {
   userRole,
   currentTransactionLink,
   game,
+  isPlayingOnChain,
 } = storeToRefs(useZkAppStore());
 const { acceptGame, cancelGame, getZkAppStates, getRole } = useZkAppStore();
 const route = useRoute();
-const MINA_APPROX_SLOT_DURATION = Number(import.meta.env.VITE_MINA_APPROX_SLOT_DURATION) 
-let storedAcceptedGames = localStorage.getItem('acceptedGames')
-  ? JSON.parse(localStorage.getItem('acceptedGames')!)
+const MINA_APPROX_SLOT_DURATION = Number(
+  import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
+);
+let storedAcceptedGames = localStorage.getItem('games')
+  ? JSON.parse(localStorage.getItem('games')!)
   : {};
 const acceptedGame = ref(
-  storedAcceptedGames[route?.params?.id as string] || null
+  storedAcceptedGames?.[route?.params?.id as string] || null
 );
 
 const isAcceptGameTimeElapsed = ref(
-  Date.now() - acceptedGame.value?.timestamp > MINA_APPROX_SLOT_DURATION 
+  Date.now() - acceptedGame.value?.lastAcceptTimestamp >
+    MINA_APPROX_SLOT_DURATION
 );
 
 const isCancelGameTimeElapsed = ref(
   game.value?.lastCancelTimestamp &&
-    Date.now() - game.value?.lastCancelTimestamp > MINA_APPROX_SLOT_DURATION 
+    Date.now() - game.value?.lastCancelTimestamp > MINA_APPROX_SLOT_DURATION
 );
 const isGameCancelled = computed(() => {
   return zkAppStates.value?.rewardAmount === 0;
@@ -170,14 +183,12 @@ const handleAcceptGame = async () => {
     ElMessage.error({ message: error.value, duration: 6000 });
   } else {
     acceptedGame.value = {
-      transactionHash: currentTransactionLink.value,
-      timestamp: Date.now(),
+      lastAcceptTransactionHash: currentTransactionLink.value,
+      lastAcceptTimestamp: Date.now(),
     };
-    storedAcceptedGames = {
-      ...storedAcceptedGames,
-      [zkAppAddress.value as string]: { ...acceptedGame.value },
-    };
-    localStorage.setItem('acceptedGames', JSON.stringify(storedAcceptedGames));
+    updateLocalStorageGames(zkAppAddress.value as string, {
+      ...acceptedGame.value,
+    });
     isAcceptGameTimeElapsed.value = false;
     ElNotification({
       title: 'Success',

@@ -98,6 +98,24 @@ export default class ZkappWorkerClient {
       randomSalt,
     });
   }
+  async createGuessTransaction(feePayer: string, separatedGuess: number[]) {
+    return this._call('createGuessTransaction', {
+      feePayer,
+      separatedGuess,
+    });
+  }
+  async createGiveClueTransaction(
+    feePayer: string,
+    secretCombination: number[],
+    randomSalt: string
+  ) {
+    return this._call('createGiveClueTransaction', {
+      feePayer,
+      secretCombination,
+      randomSalt,
+    });
+  }
+
   async getZkAppStates() {
     return this._call('getZkAppStates', {});
   }
@@ -112,8 +130,8 @@ export default class ZkappWorkerClient {
   async setLastProof(zkProof: any) {
     return this._call('setLastProof', { zkProof });
   }
-  async submitGameProof() {
-    return this._call('submitGameProof', {});
+  async submitGameProof(zkProof: string) {
+    return this._call('submitGameProof', {zkProof});
   }
   async createClaimRewardTransaction(feePayer: string) {
     return this._call('createClaimRewardTransaction', {
@@ -135,6 +153,10 @@ export default class ZkappWorkerClient {
       zkProof,
     });
     return result as Promise<boolean>;
+  }
+  async fetchCurrentSlot() {
+    const result = this._call('fetchCurrentSlot', {});
+    return result as Promise<number>;
   }
 
   // worker initialization

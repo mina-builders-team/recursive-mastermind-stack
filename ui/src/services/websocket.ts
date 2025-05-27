@@ -1,5 +1,6 @@
 import { useWebSocket } from '@vueuse/core';
 import { useZkAppStore } from '@/store/zkAppModule';
+import { updateLocalStorageGames } from '@/utils';
 
 export class WebSocketService {
   socket: ReturnType<typeof useWebSocket>;
@@ -13,8 +14,10 @@ export class WebSocketService {
       autoReconnect: {
         retries: 5,
         delay: 1000,
-        onFailed: () => {
+        onFailed: async () => {
+          const { setPlayingOnChain } = useZkAppStore();
           console.error('Max reconnection attempts reached!');
+          await setPlayingOnChain(true);
         },
       },
       immediate: true,
@@ -22,17 +25,31 @@ export class WebSocketService {
         try {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
+          const {
+            setTurnPlayed,
+            verifyProof,
+            setGame,
+            setPlayingOnChain,
+            isPlayingOnChain,
+            zkAppAddress,
+          } = useZkAppStore();
           if (data.zkProof) {
-            const { setTurnPlayed, verifyProof } = useZkAppStore();
             const isValidProof = await verifyProof(data.zkProof);
             if (!isValidProof) {
               throw new Error('Invalid zkProof!');
             }
             setTurnPlayed(false);
-            if (this.onMessageCallback) this.onMessageCallback(data);
+            updateLocalStorageGames(zkAppAddress as string, {
+              lastProof: data.zkProof,
+            });
+            if (this.onMessageCallback && !isPlayingOnChain)
+              this.onMessageCallback(data);
           }
           if (data.game) {
-            const { setGame } = useZkAppStore();
+            if (data?.game.status === 'ON_CHAIN' && !isPlayingOnChain) {
+              await setPlayingOnChain(true);
+              return;
+            }
             await setGame(data.game);
           }
         } catch (e) {

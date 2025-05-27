@@ -81,9 +81,21 @@ import { storeToRefs } from 'pinia';
 import CodePickerForm from './forms/CodePickerForm.vue';
 import { validateColorCombination } from '../utils';
 import { ElMessage } from 'element-plus';
-const { createGuessProof, createGiveClueProof } = useZkAppStore();
-const { error, zkProofStates, loading, userRole, stepDisplay } =
-  storeToRefs(useZkAppStore());
+const {
+  createGuessProof,
+  createGiveClueProof,
+  createGiveClueTransaction,
+  createGuessTransaction,
+} = useZkAppStore();
+const {
+  error,
+  zkProofStates,
+  loading,
+  userRole,
+  stepDisplay,
+  isPlayingOnChain,
+  zkAppStates,
+} = storeToRefs(useZkAppStore());
 
 const inputRefs = ref<(InstanceType<typeof RoundedColor> | null)[]>([]);
 
@@ -101,20 +113,31 @@ const focusPrevInput = (index: number) => {
 
 const handleGiveClue = async (formData: CodePicker) => {
   isVerifyGuessModalOpen.value = false;
-  await createGiveClueProof(
-    formData.code.map((e: AvailableColor) => e.value),
-    formData.randomSalt
-  );
+  if (isPlayingOnChain.value) {
+    await createGiveClueTransaction(
+      formData.code.map((e: AvailableColor) => e.value),
+      formData.randomSalt
+    );
+  } else {
+    await createGiveClueProof(
+      formData.code.map((e: AvailableColor) => e.value),
+      formData.randomSalt
+    );
+  }
   if (error.value) {
     ElMessage.error({ message: error.value, duration: 6000 });
   }
 };
 const isVerifyGuessModalOpen = ref(false);
 const isCodeMasterTurn = computed(() => {
-  return zkProofStates.value?.turnCount % 2 === 0;
+  return isPlayingOnChain.value
+    ? zkAppStates.value?.turnCount % 2 === 0
+    : zkProofStates.value?.turnCount % 2 === 0;
 });
 const isCurrentRound = computed(() => {
-  return Math.ceil(zkProofStates.value?.turnCount / 2) === props.attemptNo + 1;
+  return isPlayingOnChain.value
+    ? Math.ceil(zkAppStates.value?.turnCount / 2) === props.attemptNo + 1
+    : Math.ceil(zkProofStates.value?.turnCount / 2) === props.attemptNo + 1;
 });
 const combinationValidation = computed(() => {
   return validateColorCombination(props.guess);
@@ -147,7 +170,11 @@ const props = defineProps({
 });
 const handleSubmitGuess = async () => {
   const code = props.guess.map((e: AvailableColor) => e.value);
-  await createGuessProof(code);
+  if (isPlayingOnChain.value) {
+    await createGuessTransaction(code);
+  } else {
+    await createGuessProof(code);
+  }
   if (error.value) {
     ElMessage.error({ message: error.value, duration: 6000 });
   }
