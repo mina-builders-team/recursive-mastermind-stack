@@ -17,14 +17,6 @@
           @blur="setRewardAmount"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="refereePubKeyBase58">
-        <label>Referee Public Key</label>
-        <PasteFromClipBoard
-          placeholder="Insert referee public key"
-          @change="handleRefereeChange"
-          :inputValue="game.refereePubKeyBase58"
-        />
-      </el-form-item>
       <CodePickerForm
         @submit="handleInitGame"
         btnText="Submit Code"
@@ -43,9 +35,7 @@ import CodePickerForm from '@/components/forms/CodePickerForm.vue';
 import { ElForm, ElMessage } from 'element-plus';
 import { AvailableColor, CodePicker } from '@/types';
 import { GameParams } from '../../types';
-import { PublicKey } from 'o1js';
 import { ElNotification } from 'element-plus';
-import PasteFromClipBoard from '@/components/shared/PasteFromClipBoard.vue';
 import { updateLocalStorageGames } from '@/utils';
 
 const { zkAppAddress, error, currentTransactionLink } =
@@ -55,7 +45,7 @@ const { createInitGameTransaction } = useZkAppStore();
 
 const game = ref<GameParams>({
   rewardAmount: null,
-  refereePubKeyBase58: '',
+  refereePubKeyBase58: import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
 });
 const ruleFormRef = ref<InstanceType<typeof ElForm>>();
 const rules = ref({
@@ -73,23 +63,6 @@ const rules = ref({
           callback(
             new Error(`The reward amount should be no less than 10 MINA`)
           );
-        }
-      },
-    },
-  ],
-  refereePubKeyBase58: [
-    {
-      required: true,
-      message: `The referee public key is required!`,
-      trigger: 'change',
-    },
-    {
-      validator: (_rule: any, value: any, callback: any) => {
-        try {
-          PublicKey.fromBase58(value);
-          callback();
-        } catch {
-          callback(new Error(`This is not a valid public key!`));
         }
       },
     },
@@ -134,9 +107,6 @@ const handleInitGame = async (formData: CodePicker) => {
       }
     }
   });
-};
-const handleRefereeChange = (input: string) => {
-  game.value.refereePubKeyBase58 = input;
 };
 </script>
 
