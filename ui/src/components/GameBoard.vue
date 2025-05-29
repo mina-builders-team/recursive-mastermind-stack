@@ -263,6 +263,9 @@ const {
   submitGameTransactionHash,
   claimRewardTransactionHash,
 } = storeToRefs(useZkAppStore());
+import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
+const { playSound } = usePreloadedSound('/sounds/notification.mp3');
+
 const remainingSlot = ref<number>(2);
 const onChainInterval = ref<null | number>(null);
 
@@ -358,7 +361,9 @@ const playOnChain = async () => {
     await fetchCurrentSlot();
     await getZkAppStates();
     remainingSlot.value =
-      zkAppStates.value?.lastPlayedSlot + PER_TURN_GAME_DURATION - currentSlot.value!;
+      zkAppStates.value?.lastPlayedSlot +
+      PER_TURN_GAME_DURATION -
+      currentSlot.value!;
     if (remainingSlot.value < 0) {
       isTurnTimeExceeded.value = true;
       if (onChainInterval.value) {
@@ -371,9 +376,6 @@ const playOnChain = async () => {
     guesses.value = zkProofStates.value?.guessesHistory;
   }
   onChainInterval.value = setInterval(handler, 5000);
-  console.log('  zkProofStates.value ', zkProofStates.value);
-  console.log('  zkAppStates.value ', zkAppStates.value);
-  console.log('  guesses.value guesses.value ', guesses.value);
 };
 const submitLastProof = async () => {
   const game: any = getStoredGame(zkAppAddress.value as string);
@@ -400,6 +402,7 @@ watch(
     if (!isPlayingOnChain.value) {
       guesses.value = zkProofStates.value.guessesHistory;
       isTurnTimeExceeded.value = false;
+      playSound();
     }
   }
 );
@@ -411,6 +414,7 @@ watch(
       isTurnTimeExceeded.value = false;
       setTurnPlayed(false);
       setCurrentTransactionHash(null);
+      playSound();
     }
   }
 );
@@ -419,6 +423,7 @@ watch(
   async () => {
     if (isPlayingOnChain.value) {
       await playOnChain();
+      playSound();
     }
   }
 );
@@ -429,6 +434,9 @@ onMounted(async () => {
   if (isPlayingOnChain.value) {
     await playOnChain();
     getStoredTransactionsHash();
+  }
+  if (!isGameEnded.value) {
+    playSound();
   }
 });
 onUnmounted(() => {

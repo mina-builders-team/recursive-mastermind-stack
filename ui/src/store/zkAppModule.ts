@@ -571,6 +571,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       }
     },
     async clearGame() {
+      this.webSocketInstance?.close();
       this.game = null;
       this.userRole = null;
       this.webSocketInstance = null;

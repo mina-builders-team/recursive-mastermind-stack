@@ -56,9 +56,6 @@ const handleLeaveGame = () => {
 onMounted(async () => {
   await initializeGame();
 });
-onUnmounted(() => {
-  clearGame();
-});
 watch(
   () => compiled.value,
   async () => {
@@ -82,6 +79,7 @@ watch(
 const intervalId = ref<number | null>(null);
 
 onUnmounted(async () => {
+  clearGame();
   if (intervalId.value) {
     clearInterval(intervalId.value);
   }
