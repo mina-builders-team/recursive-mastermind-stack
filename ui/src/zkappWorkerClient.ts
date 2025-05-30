@@ -10,8 +10,8 @@ import { SignedData } from './store/zkAppModule';
 export default class ZkappWorkerClient {
   // worker functions
 
-  async setActiveInstanceToLightnet() {
-    return this._call('setActiveInstanceToLightnet', {});
+  async setMinaActiveInstance() {
+    return this._call('setMinaActiveInstance', {});
   }
 
   async loadContract() {

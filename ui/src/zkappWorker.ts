@@ -45,8 +45,7 @@ const state = {
 };
 
 const functions = {
-  //TODO:: change function name
-  setActiveInstanceToLightnet: async () => {
+  setMinaActiveInstance: async () => {
     const network = Mina.Network({
       mina: import.meta.env.VITE_MINA_NETWORK_URL,
     });
