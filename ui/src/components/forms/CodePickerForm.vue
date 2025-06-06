@@ -13,19 +13,20 @@
               :value="secret.value"
               v-if="isSecretHidden"
             />
-            <RoundedColor
-              height="40px"
-              width="40px"
-              editable
-              v-for="(secret, index) in secretCode"
-              v-else
-              :bg-color="secret.color"
-              :value="secret.value"
-              @input="handleSetSecretCode($event, index)"
-              @focusNext="focusNextInput(index)"
-              @focusPrev="focusPrevInput(index)"
-              ref="inputRefs"
-            />
+            <template v-else>
+              <RoundedColor
+                height="40px"
+                width="40px"
+                editable
+                v-for="(secret, index) in secretCode"
+                :bg-color="secret.color"
+                :value="secret.value"
+                @input="handleSetSecretCode($event, index)"
+                @focusNext="focusNextInput(index)"
+                @focusPrev="focusPrevInput(index)"
+                ref="inputRefs"
+              />
+            </template>
           </div>
         </div>
         <el-icon :size="25" class="cursor-pointer" @click="toggleSecret">
@@ -88,6 +89,7 @@ import { generateRandomSalt, validateColorCombination } from '../../utils';
 import { ElForm } from 'element-plus';
 import { storeToRefs } from 'pinia';
 import { useZkAppStore } from '@/store/zkAppModule';
+import { initialColor } from '@/constants/colors';
 
 const { compiled, loading, zkAppAddress } = storeToRefs(useZkAppStore());
 
@@ -151,10 +153,7 @@ const rules = ref({
 const initialSecret = () => {
   if (props.isRandomSalt) {
     return {
-      secretCode: Array.from({ length: 4 }, () => ({
-        color: '#222',
-        value: 0,
-      })),
+      secretCode: Array.from({ length: 4 }, () => initialColor),
       randomSalt: generateRandomSalt(20),
     };
   } else {
@@ -169,10 +168,7 @@ const initialSecret = () => {
       }
     }
     return {
-      secretCode: Array.from({ length: 4 }, () => ({
-        color: '#222',
-        value: 0,
-      })),
+      secretCode: Array.from({ length: 4 }, () => initialColor),
       randomSalt: '',
     };
   }
