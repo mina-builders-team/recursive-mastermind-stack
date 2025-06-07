@@ -169,21 +169,13 @@ If you **don't have Docker installed**, you can download and install it using th
 Once Docker is installed and running, start the Lightnet blockchain network using the following command:
 
 ```sh
-zk lightnet start --no-archive
+zk lightnet start
 ```
-
-### Note:
-By default, starting the Lightnet blockchain network also launches archive data tools such as:
-- The Mina archive process
-- PostgreSQL RDBMS
-- Archive-Node-API application
-
-If your testing does **not** require archive data tools and you want to use fewer system resources, you can disable them using the `--no-archive` option, as shown above.
 
 ## 3. Running the Application
 
 ### Environment Setup
-Duplicate the `.env.example` file in the following directories and rename it to `.env`:
+Duplicate the `.env.lightnet.example` file in the following directories and rename it to `.env`:
 - `server`
 - `ui`
 - `worker`
