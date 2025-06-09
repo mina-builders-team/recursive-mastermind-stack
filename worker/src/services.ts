@@ -21,40 +21,46 @@ const SERVER_PUBLIC_KEY = process.env.SERVER_PUBLIC_KEY as string;
 const TRANSACTION_FEE = 1e8;
 
 export const sendFinalProof = async (job: Job) => {
-  const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
-  const { gameId, zkProof, winnerPublicKeyBase58 } = job.data;
-  const senderPrivateKey = PrivateKey.fromBase58(SERVER_PRIVATE_KEY);
-  const senderPublicKey = senderPrivateKey.toPublicKey();
-  const winnerPublicKey = PublicKey.fromBase58(winnerPublicKeyBase58);
-  const zkApp = new MastermindZkApp(PublicKey.fromBase58(gameId));
-  console.log('creating transaction...');
-  const proof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
-  const transaction = await Mina.transaction(
-    {
-      sender: senderPublicKey,
-      fee: TRANSACTION_FEE,
-      nonce,
-    },
-    async () => {
-      await zkApp.submitGameProof(proof, winnerPublicKey);
-    }
-  );
-  console.log('proving transaction...');
-  await transaction.prove();
-  transaction.sign([senderPrivateKey]);
-  console.log('sending transaction...');
-  const pendingTx = await transaction.send();
-  await redisClient.incr(`${SERVER_PUBLIC_KEY}:lastNonce`);
-  console.log('Transaction sent: ', pendingTx.hash);
-  const txHash = pendingTx.hash;
-  const game = await createOrUpdateGame({
-    _id: gameId,
-    settlementTransactionHash: txHash,
-  });
-  console.log(
-    `Proof submitted for game ${gameId}, transaction hash: ${txHash}`
-  );
-  return game;
+  try {
+    const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
+    const { gameId, zkProof, winnerPublicKeyBase58 } = job.data;
+    const senderPrivateKey = PrivateKey.fromBase58(SERVER_PRIVATE_KEY);
+    const senderPublicKey = senderPrivateKey.toPublicKey();
+    const winnerPublicKey = PublicKey.fromBase58(winnerPublicKeyBase58);
+    const zkApp = new MastermindZkApp(PublicKey.fromBase58(gameId));
+    console.log('creating transaction...');
+    const proof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
+    const transaction = await Mina.transaction(
+      {
+        sender: senderPublicKey,
+        fee: TRANSACTION_FEE,
+        nonce,
+      },
+      async () => {
+        await zkApp.submitGameProof(proof, winnerPublicKey);
+      }
+    );
+    console.log('proving transaction...');
+    await transaction.prove();
+    transaction.sign([senderPrivateKey]);
+    console.log('sending transaction...');
+    const pendingTx = await transaction.send();
+    await redisClient.incr(`${SERVER_PUBLIC_KEY}:lastNonce`);
+    console.log('Transaction sent: ', pendingTx.hash);
+    const txHash = pendingTx.hash;
+    const game = await createOrUpdateGame({
+      _id: gameId,
+      settlementTransactionHash: txHash,
+    });
+    console.log(
+      `Proof submitted for game ${gameId}, transaction hash: ${txHash}`
+    );
+    return game;
+  } catch (err) {
+    throw new Error(
+      `Error when sending final proof ${job?.data?.gameId} : ${err}`
+    );
+  }
 };
 
 export const checkGameCreation = async (verificationKeyHash: Field) => {
@@ -66,6 +72,7 @@ export const checkGameCreation = async (verificationKeyHash: Field) => {
     pendingGames = await getPendingGames();
   } catch (error) {
     console.error('Error fetching games: ', error);
+    throw new Error(`Error fetching pending games: ${error}`);
   }
   const promises = pendingGames.map(async (game) => {
     try {
@@ -81,6 +88,7 @@ export const checkGameCreation = async (verificationKeyHash: Field) => {
       }
     } catch (err) {
       console.error(`Error on game ${game._id}: `, err);
+      throw new Error(`Error checking game ${game._id} creation: ${err}`);
     }
   });
   await Promise.all(promises);
@@ -93,36 +101,40 @@ export const checkGameCreation = async (verificationKeyHash: Field) => {
 };
 
 export const forfeitWin = async (job: Job) => {
-  const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
-  const { gameId, winnerPublicKeyBase58 } = job.data;
-  const senderPrivateKey = PrivateKey.fromBase58(SERVER_PRIVATE_KEY);
-  const senderPublicKey = senderPrivateKey.toPublicKey();
-  const winnerPublicKey = PublicKey.fromBase58(winnerPublicKeyBase58);
-  const zkApp = new MastermindZkApp(PublicKey.fromBase58(gameId));
-  console.log('creating transaction...');
-  const transaction = await Mina.transaction(
-    {
-      sender: senderPublicKey,
-      fee: TRANSACTION_FEE,
-      nonce: nonce,
-    },
-    async () => {
-      await zkApp.forfeitWin(winnerPublicKey);
-    }
-  );
-  console.log('proving transaction..., Used nonce in tx : ', nonce);
-  await transaction.prove();
-  transaction.sign([senderPrivateKey]);
-  console.log('sending transaction...');
-  const pendingTx = await transaction.send();
-  await redisClient.incr(`${SERVER_PUBLIC_KEY}:lastNonce`);
-  console.log('Transaction sent: ', pendingTx.hash);
-  const txHash = pendingTx.hash;
-  const game = await createOrUpdateGame({
-    _id: gameId,
-    penalizationTransactionHash: txHash,
-  });
-  return game;
+  try {
+    const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
+    const { gameId, winnerPublicKeyBase58 } = job.data;
+    const senderPrivateKey = PrivateKey.fromBase58(SERVER_PRIVATE_KEY);
+    const senderPublicKey = senderPrivateKey.toPublicKey();
+    const winnerPublicKey = PublicKey.fromBase58(winnerPublicKeyBase58);
+    const zkApp = new MastermindZkApp(PublicKey.fromBase58(gameId));
+    console.log('creating transaction...');
+    const transaction = await Mina.transaction(
+      {
+        sender: senderPublicKey,
+        fee: TRANSACTION_FEE,
+        nonce: nonce,
+      },
+      async () => {
+        await zkApp.forfeitWin(winnerPublicKey);
+      }
+    );
+    console.log('proving transaction..., Used nonce in tx : ', nonce);
+    await transaction.prove();
+    transaction.sign([senderPrivateKey]);
+    console.log('sending transaction...');
+    const pendingTx = await transaction.send();
+    await redisClient.incr(`${SERVER_PUBLIC_KEY}:lastNonce`);
+    console.log('Transaction sent: ', pendingTx.hash);
+    const txHash = pendingTx.hash;
+    const game = await createOrUpdateGame({
+      _id: gameId,
+      penalizationTransactionHash: txHash,
+    });
+    return game;
+  } catch (err) {
+    throw new Error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
+  }
 };
 
 export const initializeServerNonce = async () => {

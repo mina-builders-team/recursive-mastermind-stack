@@ -2,5 +2,5 @@
   "watch": ["src"],
   "ext": "ts",
   "ignore": ["dist"],
-  "exec": "node  --no-warnings --loader ts-node/esm src/index.ts"
+  "exec": "node --no-warnings --import ./src/instrument.ts --loader ts-node/esm src/index.ts"
 }

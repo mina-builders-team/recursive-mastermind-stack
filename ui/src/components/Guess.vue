@@ -161,7 +161,7 @@ const props = defineProps({
   },
   clue: {
     type: Array<AvailableColor>,
-    required: true,
+    required: false,
   },
   showBtn: {
     type: Boolean,

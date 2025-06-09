@@ -1,3 +1,5 @@
+import './instrument';
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
 import { Queue, QueueEvents } from 'bullmq';
@@ -77,6 +79,17 @@ await gameLifecycleQueue.upsertJobScheduler(
   { pattern: '* * * * *' },
   {
     name: 'checkGameCreation',
+    opts: {
+      removeOnFail: true,
+      removeOnComplete: true,
+    },
+  }
+);
+await gameLifecycleQueue.upsertJobScheduler(
+  'server-balance',
+  { pattern: '0 0 * * *' },
+  {
+    name: 'checkServerBalance',
     opts: {
       removeOnFail: true,
       removeOnComplete: true,
@@ -165,6 +178,8 @@ cron.schedule('*/20 * * * *', async () => {
   }
 });
 
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'OK' });
 });
+
+Sentry.setupExpressErrorHandler(app);

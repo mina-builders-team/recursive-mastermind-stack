@@ -1,3 +1,5 @@
+import './instrument';
+import * as Sentry from '@sentry/node';
 import { Worker, Job, Queue } from 'bullmq';
 import { fetchAccount, Field, Mina, PublicKey } from 'o1js';
 import {
@@ -38,12 +40,12 @@ const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
     },
   },
 });
-let verificationKeyHash:Field;
+let verificationKeyHash: Field;
 async function initialize() {
   console.time('compiling');
   await StepProgram.compile();
   const { verificationKey } = await MastermindZkApp.compile();
-  verificationKeyHash = verificationKey.hash
+  verificationKeyHash = verificationKey.hash;
   console.timeEnd('compiling');
   connectDatabase();
   await initializeServerNonce();
@@ -54,12 +56,19 @@ initialize()
     const proofWorker = new Worker(
       'gameLifecycleQueue',
       async (job: Job) => {
-        if (job.name === 'checkGameCreation') {
-          await checkGameCreation(verificationKeyHash);
-        } else if (job.name === 'sendFinalProof') {
-          return await sendFinalProof(job);
-        } else if (job.name === 'forfeitWin') {
-          return await forfeitWin(job);
+        try {
+          if (job.name === 'checkGameCreation') {
+            await checkGameCreation(verificationKeyHash);
+          } else if (job.name === 'sendFinalProof') {
+            return await sendFinalProof(job);
+          } else if (job.name === 'forfeitWin') {
+            return await forfeitWin(job);
+          } else if (job.name === 'checkServerBalance') {
+            await checkServerBalance();
+          }
+        } catch (err) {
+          const error = err ?? new Error(`Unknown error in job ${job?.id}`);
+          Sentry.captureException(error);
         }
       },
       {
@@ -76,11 +85,17 @@ initialize()
       console.log(`Job ${job.id} completed successfully.`);
     });
 
-    proofWorker.on('failed', async (job) => {
+    proofWorker.on('failed', async (job, err) => {
+      const error = err ?? new Error(`Unknown error in job ${job?.id}`);
+      Sentry.captureException(error);
+
       console.error(
         `Job ${job?.id} failed: -------------------- `,
         process.env.name
       );
+
+      await checkServerBalance();
+
       const isPaused = await gameLifecycleQueue.isPaused();
       if (!isPaused) {
         await redisClient.set('gameLifecycleQueue:paused', Date.now());
@@ -107,6 +122,8 @@ initialize()
       }
     });
     proofWorker.on('error', (err) => {
+      const error = err ?? new Error(`Unknown error`);
+      Sentry.captureException(error);
       console.error(err);
     });
 
@@ -114,4 +131,17 @@ initialize()
   })
   .catch((error) => {
     console.error('Initialization failed:', error);
+    Sentry.captureException(error);
   });
+
+const checkServerBalance = async () => {
+  const serverPubKey = PublicKey.fromBase58(SERVER_PUBLIC_KEY);
+  const serverAccount = await fetchAccount({ publicKey: serverPubKey });
+  if (serverAccount?.account) {
+    const balance = Number(serverAccount.account.balance?.toString());
+    if (balance < 100 * 1e9) {
+      const error = new Error(`insufficient server Balance `);
+      Sentry.captureException(error);
+    }
+  }
+};
