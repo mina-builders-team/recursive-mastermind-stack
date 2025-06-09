@@ -1,4 +1,4 @@
-import './instrument';
+import './instrument.js';
 import * as Sentry from '@sentry/node';
 import { Worker, Job, Queue } from 'bullmq';
 import { fetchAccount, Field, Mina, PublicKey } from 'o1js';
