@@ -65,11 +65,26 @@ services:
       - '5540:5540'
     restart: unless-stopped
 
-  worker-1:
-    profiles: ['prod', 'dev']
+  worker-dev-1:
+    profiles: ['dev']
     build:
       context: .
       dockerfile: worker/docker/dockerfile.dev
+    volumes:
+      - ./worker/src:/app/src
+    env_file:
+      - worker/.env
+    environment:
+      - name=worker_1
+    depends_on:
+      - redis
+      - db
+    restart: always  
+  worker-prod-1:
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
     volumes:
       - ./worker/src:/app/src
     env_file:
