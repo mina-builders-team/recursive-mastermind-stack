@@ -2,13 +2,13 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-COPY server/package.json ./
+COPY worker/package.json ./
 COPY yarn.lock ./
 
 RUN yarn install 
 
-COPY server/tsconfig.json ./
-COPY server/src ./src
+COPY worker/tsconfig.json ./
+COPY worker/src ./src
 
 RUN yarn build
 
