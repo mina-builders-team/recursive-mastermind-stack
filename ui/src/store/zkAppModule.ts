@@ -17,12 +17,18 @@ interface ProviderError extends Error {
   code: number;
   data?: unknown;
 }
+type ChainInfoArgs = {
+  networkID: string;
+};
+
 interface MinaWallet {
   requestAccounts: () => Promise<string[]>;
   signFields: (args: {
     message: Array<string | number>;
   }) => Promise<SignedData | ProviderError>;
   on: (event: string, handler: Function) => void;
+  switchChain: (args: ChainInfoArgs) => Promise<ChainInfoArgs | ProviderError>;
+  requestNetwork: () => Promise<ChainInfoArgs>;
 }
 
 declare global {
@@ -35,6 +41,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
   state: () => ({
     zkappWorkerClient: null as null | ZkappWorkerClient,
     hasWallet: null as null | boolean,
+    isOnValidChain: null as null | boolean,
     stepDisplay: '' as string,
     hasBeenSetup: false,
     accountExists: false,
@@ -67,7 +74,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.zkappWorkerClient = new ZkappWorkerClient();
           await new Promise((resolve) => setTimeout(resolve, 500));
           this.stepDisplay = 'Setting Mina instance...';
-          await this.zkappWorkerClient.setActiveInstanceToLightnet();
+          await this.zkappWorkerClient.setMinaActiveInstance();
+          await this.syncMinaChain();
           const accounts = await window.mina.requestAccounts();
           this.publicKeyBase58 = accounts[0];
           this.stepDisplay = 'Checking if fee payer account exists...';
@@ -124,6 +132,29 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       }
       this.accountExists = true;
       this.error = null;
+    },
+    async syncMinaChain() {
+      const currentMinaNetworkId: ChainInfoArgs = await window.mina
+        ?.requestNetwork()
+        .catch((err: any) => err);
+      const minaNetwork = import.meta.env.VITE_MINA_NETWORK;
+      const minaNetworkId =
+        minaNetwork === 'mainnet'
+          ? 'mina:mainnet'
+          : minaNetwork === 'devnet'
+            ? 'mina:devnet'
+            : 'mina:testnet';
+      this.isOnValidChain = currentMinaNetworkId.networkID === minaNetworkId;
+      if (!this.isOnValidChain) {
+        const switchResult = await window.mina
+          ?.switchChain({
+            networkID: minaNetworkId,
+          })
+          .catch((err: any) => err);
+        if (switchResult.networkID) {
+          this.isOnValidChain = true;
+        }
+      }
     },
     async joinGame(gameId?: string) {
       const currentGame = gameId ?? (this.zkAppAddress as string);

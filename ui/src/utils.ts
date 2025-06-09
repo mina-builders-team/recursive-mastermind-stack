@@ -2,7 +2,7 @@ import {
   Clue,
   Combination,
 } from '@navigators-exploration-team/mina-mastermind';
-import { availableColors, cluesColors } from './constants/colors';
+import { availableColors, cluesColors, initialColor } from './constants/colors';
 import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';
 import { MAX_ATTEMPTS } from './constants/config';
@@ -31,13 +31,13 @@ export function generateColoredGuessHistory(
   try {
     const guesses = decompressHistory(packedGuessHistory);
     return guesses.map((e: string) => {
-      return e === '0'
-        ? Array.from({ length: 4 }, () => ({ color: '#222', value: 0 }))
+      return e === '0' || e === '0,0,0,0'
+        ? Array.from({ length: 4 }, () => initialColor)
         : e.split(',').map((num: string) => {
             const colorObj = availableColors.find(
               (c) => c.value === Number(num)
             );
-            return colorObj ?? { color: '#222', value: 0 };
+            return colorObj ?? initialColor;
           });
     });
   } catch (error) {
@@ -63,7 +63,7 @@ export function generateColoredCluesHistory(
     const blowColor = cluesColors.find((c) => c.value === 1);
     const missColor = cluesColors.find((c) => c.value === 0);
     return index >= Math.floor((round - 1) / 2)
-      ? Array.from({ length: 4 }, () => ({ color: '#222', value: 0 }))
+      ? Array.from({ length: 4 }, () => initialColor)
       : [
           ...Array.from({ length: Number(e.hits) }, () => hitColor!),
           ...Array.from({ length: Number(e.blows) }, () => blowColor!),

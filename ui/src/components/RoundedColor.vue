@@ -5,23 +5,27 @@
       :class="{ blinkColor: blinkColor }"
       v-if="!editable"
     >
-      <span class="rounded__value" v-if="showValue && bgColor !== '#222'">{{ value }}</span>
+      <span class="rounded__value" v-if="showValue && value !== 9">{{
+        value
+      }}</span>
     </div>
-    <el-input
-      v-else
-      :model-value="value === 0 ? null : value"
-      class="code-input"
-      maxlength="1"
-      @input="handleInput"
-      @keydown.delete="handleDelete"
-      ref="inputRef"
-    />
+    <template v-else>
+      <el-input
+        :model-value="value === 9 ? null : value"
+        class="code-input"
+        maxlength="1"
+        @input="handleInput"
+        @keydown.delete="handleDelete"
+        ref="inputRef"
+      />
+    </template>
+
     <span v-if="title" class="ms-2">{{ title }}</span>
   </div>
 </template>
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
-import { availableColors } from '../constants/colors';
+import { availableColors, initialColor } from '../constants/colors';
 const props = defineProps({
   value: {
     required: true,
@@ -53,8 +57,8 @@ const props = defineProps({
   },
   showValue: {
     type: Boolean,
-    default:true
-  }
+    default: true,
+  },
 });
 const emit = defineEmits(['input', 'focusNext', 'focusPrev']);
 const inputRef = ref<InstanceType<
@@ -72,15 +76,17 @@ const focus = () => {
 defineExpose({ focus });
 
 const handleInput = (value: string) => {
-  const selectedColor = availableColors.find((c) => c.value === Number(value));
-  emit('input', selectedColor ? selectedColor : { color: '#393E46', value: 0 });
+  const selectedColor = availableColors.find(
+    (c) => c.value === parseInt(value, 10)
+  );
+  emit('input', selectedColor ? selectedColor : initialColor);
   if (selectedColor) {
     nextTick(() => emit('focusNext'));
   }
 };
 
 const handleDelete = () => {
-  if (props.value === 0) {
+  if (props.value === 9) {
     nextTick(() => emit('focusPrev'));
   }
 };

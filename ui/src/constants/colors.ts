@@ -1,4 +1,5 @@
 export const availableColors = [
+  { color: '#ffd800', value: 0 },
   { color: '#fcf6bd', value: 1 },
   { color: '#FFC0CB', value: 2 },
   { color: '#FFBF00', value: 3 },
@@ -13,3 +14,5 @@ export const cluesColors = [
   { color: '#ffd800', value: 1, title: 'Blow' },
   { color: '#66FF00', value: 2, title: 'Hit' },
 ];
+
+export const initialColor = { color: '#222', value: 9 };
