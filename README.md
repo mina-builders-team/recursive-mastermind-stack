@@ -10,6 +10,7 @@
 
   - [Overview](#overview)
   - [Game Rules](#game-rules)
+
 - [Introduction](#introduction)
 - [System Architecture](#system-architecture)
 - [Repository Structure](#repository-structure)
@@ -59,7 +60,7 @@
   |      | Hits | Blows |
   | ---- | ---- | ----- |
   | Clue | 1    | 1     |
-  
+
   - Code Master's secret combination: **5 0 3 4**
   - Code Breaker's guess: **5 7 6 0**
   - Result: `1` hit and `1` blow.
@@ -77,6 +78,7 @@ Mina Mastermind is a zero-knowledge (ZK) adaptation of the classic Mastermind ga
 This section provides a high-level overview of how the different components interact throughout the game lifecycle. It includes a visual representation of the system architecture, illustrating the flow of data and responsibilities across the zkApp, server, worker, database, and UI.
 
 Understanding this diagram is essential for grasping:
+
 - The separation of concerns across components
 - How game state and zero-knowledge proofs are handled
 - The role of background workers and persistent storage
@@ -88,7 +90,6 @@ You can view the full architecture diagram here: [System Architecture Diagram on
 
 For more details about the zkApp contract and zkProgram, please refer to the dedicated repository:  
 [recursive-mastermind-zkApp](https://github.com/mina-builders-team/recursive-mastermind-zkApp)
-
 
 # Repository-Structure
 
@@ -183,12 +184,12 @@ yarn test src/test/mastermind.test.ts
 
 These tests simulate multiple games being created and played simultaneously, handled via a queue and processed by separate worker containers.
 
-####  Setup:
+#### Setup:
 
 - `index.ts` pushes game creation jobs into a Redis queue.
 - Worker containers (built via Docker) consume and process the jobs.
 
-####  Steps to run:
+#### Steps to run:
 
 ```bash
 # 1. Install dependencies and build the project
@@ -284,6 +285,7 @@ server/
 ## 📂 `worker/`
 
 - **Purpose**: Processes server-emitted tasks, such as:
+
   - Sending final zk proofs
   - Penalizing inactive players
   - Monitoring and including new games in the lobby
