@@ -12,10 +12,8 @@
   - [Game Rules](#game-rules)
 
 - [Introduction](#introduction)
-- [Motivation](#motivation)
-
-- [Mastermind zkApp Structure](#mastermind-zkapp-structure)
-
+- [System Architecture](#system-architecture)
+- [Repository Structure](#repository-structure)
 - [How to Build & Test](#how-to-build--test)
   - [How to build](#how-to-build)
   - [How to run tests](#how-to-run-tests)
@@ -24,7 +22,7 @@
   - [Prerequisites](#1-prerequisites)
     - [Install Docker](#install-docker)
   - [Running Lightnet](#2-running-lightnet)
-  - [Running the Application](#3-Running-the-Application)
+  - [Running the Application](#3-running-the-application)
   - [Working with Lightnet Test Accounts](#working-with-lightnet-test-accounts)
     - [HTTP GET](#http-get)
     - [Supported Query Parameters](#supported-query-parameters)
@@ -39,7 +37,7 @@
 ## Overview
 
 - The game involves two players: a `Code Master` and a `Code Breaker`.
-- Inspired by [mastermind-noir](https://github.com/vezenovm/mastermind-noir), this version replaces colored pegs with a combination of 4 unique, non-zero digits.
+- Inspired by [mastermind-noir](https://github.com/vezenovm/mastermind-noir), this version replaces colored pegs with a combination of 4 unique digits.
 
 ## Game Rules
 
@@ -56,71 +54,271 @@
 
   |        | P1  | P2  | P3  | P4  |
   | ------ | --- | --- | --- | --- |
-  | Secret | 5   | 9   | 3   | 4   |
-  | Guess  | 5   | 7   | 8   | 9   |
-  | Clue   | 2   | 0   | 0   | 1   |
+  | Secret | 5   | 0   | 3   | 4   |
+  | Guess  | 5   | 7   | 6   | 0   |
 
-  - Code Master's secret combination: **5 9 3 4**
-  - Code Breaker's guess: **5 7 8 9**
-  - Clue: **2 0 0 1**
-    - Result: `1` hit and `1` blow.
-      - The hit is `5` in the first position.
-      - The blow is `9` in the fourth position.
-      -
+  |      | Hits | Blows |
+  | ---- | ---- | ----- |
+  | Clue | 1    | 1     |
+
+  - Code Master's secret combination: **5 0 3 4**
+  - Code Breaker's guess: **5 7 6 0**
+  - Result: `1` hit and `1` blow.
+    - The hit is `5` in the first position.
+    - The blow is `0` in the fourth position.
 
 - The game continues with alternating guesses and clues until the Code Breaker achieves 4 hits and uncovers the secret combination or fails to do so within the **maximum allowed attempts**.
 
 # Introduction
 
-This implementation is part of a multi-level series of the Mastermind zkApp game. It represents Level 2, which introduces packing techniques to efficiently store the history of actions for both the Code Master and the Code Breaker. Additionally, it incorporates dynamic array indexing and updates to retrieve and modify elements (fields) within lists, specifically in the context of zero-knowledge proof (ZKP) circuits.
+Mina Mastermind is a zero-knowledge (ZK) adaptation of the classic Mastermind game, built on the Mina blockchain. It leverages Mina’s ZK infrastructure to provide privacy, programmability, and recursion for verifying game logic on a trustless, decentralized layer. Built on top of Mina’s native payment system, it also enables players to securely place bets, with outcomes enforced by off-chain proofs and finalized on-chain, ensuring fairness, transparency, and a smooth gameplay experience.
 
-- For a foundational understanding of the game, as well as insights into the enhancements introduced in Level 2, please refer to the [Mastermind Level 1](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level1?tab=readme-ov-file) code and documentation.
+## System Architecture
 
-- **Note**: Level 1 also includes a [General zkApp Documentation](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level1?tab=readme-ov-file#general-zkapp-documentation), which covers key concepts related to zkApp development, along with details and APIs that are beyond the scope of this documentation.
+This section provides a high-level overview of how the different components interact throughout the game lifecycle. It includes a visual representation of the system architecture, illustrating the flow of data and responsibilities across the zkApp, server, worker, database, and UI.
 
-# Motivation
+Understanding this diagram is essential for grasping:
 
-- In the Level 1 implementation, both the [`unseparatedGuess` and `serializedClue` states](https://github.com/o1-labs-XT/mastermind-zkApp/blob/level1/src/Mastermind.ts#L27-L28) represent only a single guess and clue at a time.
+- The separation of concerns across components
+- How game state and zero-knowledge proofs are handled
+- The role of background workers and persistent storage
+- The communication patterns between clients, backend services, and the Mina blockchain
 
-  - While functional, this approach introduces the potential for errors, as it requires both players to manually track the history of the game.
+### Diagram
 
-  - Any mistake or oversight, particularly by the Code Breaker, could compromise their strategy, as the player must consider all prior clues to make informed guesses in subsequent turns.
+You can view the full architecture diagram here: [System Architecture Diagram on Excalidraw](https://excalidraw.com/#json=8TJUSk6bhCl__6YvDXLR5,aJl72tc6Dbc5P0P6MZC7Eg)
 
-  - Typically, the application frontend would display the game's history and progress to both players. However, since no live record is stored on-chain, this setup relies on trust that the frontend will accurately represent the game state without tampering.
+For more details about the zkApp contract and zkProgram, please refer to the dedicated repository:  
+[recursive-mastermind-zkApp](https://github.com/mina-builders-team/recursive-mastermind-zkApp)
 
-  - Although a player may recognize inconsistencies based on their memory of previous moves, relying on trust in frontend code (instead of an on-chain record) undermines the trustless nature of the game.
+# Repository-Structure
 
-  - The goal of the Level 2 implementation is to overcome the zkApp’s 8-state storage limit by storing the history of guesses and clues directly on-chain. This eliminates the need for trust in off-chain tracking and reduces the risk of player errors, ensuring a more reliable and trustless gameplay experience.
+This section describes the folder structure and the purpose of each major file or directory in this repository.
 
-- Since the size of individual states (guesses and clues) is small, a practical solution is to pack multiple small states into a single storage state. This is feasible, as each storage state in zkApps is 255 bits.
+```sh
+├── cache/
+├── integration-test/
+├── server/
+├── ui/
+├── worker/
 
-- The [packing techniques](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#packing-small-fields) introduced in this implementation can be applied beyond the game, serving as an efficient method to pack any list of small field elements into a single state, optimizing storage or for **encoding purposes**.
-
-- Additionally, following the logic of the [giveClue method](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#giveclue), which relies on the most recent guess stored on-chain, this implementation demonstrates [dynamic indexing](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#dynamic-indexing) and [updating](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#dynamic-updating) of field arrays to retrieve the latest guess based on the [turnCount state](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#turncount).
-
-  - These techniques are not limited to this game and can be applied in other contexts when the index is a provable type, such as a `Field`.
+```
 
 ---
 
-- Dive deeper to explore the innovative [techniques](https://github.com/o1-labs-XT/mastermind-zkApp/tree/level2?tab=readme-ov-file#techniques) and architectural choices that showcase this level advancement in the game’s design.
+## 📂 `cache/`
 
-# Mastermind zkApp Structure
+- **Purpose**: Generates zkApp/zkProgram compilation artifacts for browser-side loading.
+- **Structure**:
 
-Following the game rules, the [MastermindZkApp](https://github.com/navigators-exploration-team/mina-mastermind-ui/blob/level2-ui/contracts/src/Mastermind.ts) should be deployed:
+```sh
+├── cache/
+│   └── src/
+│       └── cache.ts
 
-- The zkApp is initialized by calling the `initGame` method, with `maxAttempts` as the method parameter to set an upper limit.
+```
 
-- After initialization, the Code Master calls the `createGame` method to start the game and set a secret combination for the Code Breaker to solve.
+- **Running This Service**: Follow these steps to install dependencies, build the project, and generate the required compilation files:
 
-- The Code Breaker then makes a guess by calling the `makeGuess` method with a valid combination as an argument.
+```bash
+yarn install
+yarn build
+yarn start
+```
 
-- The Code Master submits the solution again to be checked against the previous guess and provides a clue.
+Running the above commands will generate two folders:
 
-- The Code Breaker should analyze the given clue and make another meaningful guess.
+zkAppCache/ – contains compilation zkApp files.
 
-- The game continues by alternating between `makeGuess` and `giveClue` methods until the Code Breaker either uncovers the secret combination or fails by exceeding the allowed `maxAttempts`, concluding the game.
+zkProgramCache/ – contains compilation zkProgram files.
 
-For more details on the game states, methods and techniques used, refer to [this repo](https://github.com/Shigoto-dev19/mina-mastermind/tree/level2) for more details!
+Note: You may need to run yarn start multiple times (typically 3–5 times) until all the required compilation files are fully generated.
+
+---
+
+## 📂 `integration-test/`
+
+- **Purpose**: Simulates end-to-end interactions between frontend and backend, including multi-client scenarios.
+- **Structure**:
+
+```sh
+
+├── integration-test/
+│   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed 
+│   ├              #by an isolated worker,allowing testing of asynchronous and multi-client game play.
+│   ├── games.json #mock game definitions.Each game entry includes codeMaster, codeBreaker and attempts.
+│
+├── docker/
+│   └── Dockerfile.dev #Dockerfile to build a client worker for test simulations.
+├── src/
+│   ├── worker.ts #Handles job queue consumption to simulate player interactions.
+│   ├── websocket.ts #Mock frontend WebSocket class for server simulation.
+│   ├── mastermindGame.ts #Manages the entire game lifecycle and zkApp interaction.
+│   └── test/
+│       └── mastermind.test.ts #Tests gameplay flow, proof validation, error cases.
+
+```
+
+- **Running This Service**: The `integration-test/` folder includes two types of tests:
+
+### 1. Unit & Game Flow Tests
+
+These are defined in `src/test/mastermind.test.ts` and cover:
+
+- Game creation
+- Error scenarios (invalid inputs, unauthorized actions)
+- Game progression lifecycle
+- zkApp and proof validation
+
+#### To run them:
+
+```bash
+yarn install       # Install dependencies
+yarn build         # Build the project
+yarn test src/test/mastermind.test.ts
+```
+
+---
+
+### 2. Multi-Game Queue Simulation Tests
+
+These tests simulate multiple games being created and played simultaneously, handled via a queue and processed by separate worker containers.
+
+#### Setup:
+
+- `index.ts` pushes game creation jobs into a Redis queue.
+- Worker containers (built via Docker) consume and process the jobs.
+
+#### Steps to run:
+
+```bash
+# 1. Install dependencies and build the project
+yarn install
+yarn build
+
+# 2. Start the worker containers using Docker Compose
+docker-compose --profile test up -d --build
+
+# 3. Push simulated game jobs into the queue
+yarn dev         # This runs index.ts
+```
+
+> You can monitor and scale worker containers to test concurrency and performance.
+
+---
+
+## 📂 `ui/`
+
+- **Purpose**: The web interface for players.
+
+- **Structure**:
+
+```
+ui/
+├── docker/
+│   └── dockerfile.dev    # Builds the frontend container for local/dev use
+├── functions/
+│   └── _middleware.ts    # Cloudflare Pages headers
+├── public/
+│   ├── zkAppCache/       # Stores cached zkApp compilation files.
+│   └── zkProgramCache/   # Stores cached zkProgram files.
+├── .env.lightnet.example # Example env files for Lightnet
+├── .env.devnet.example   # Example env files for Devnet
+└── src/
+    ├── components/          # Reusable UI components
+    ├── composable/          # Vue composables (reusable logic)
+    ├── constants/
+    │   └── config.ts        # Game config (e.g., max_attempts)
+    ├── router/
+    │   └── index.ts         # UI routes
+    ├── services/
+    │   └── websocket.ts     # WebSocket logic
+    ├── store/
+    │   └── zkAppModule.ts   # Pinia store for zkApp state
+    ├── views/               # Page-level components
+    ├── zkappWorkerClient.ts # Interface to communicate with the zkApp web worker
+    ├── zkappWorker.ts       # Logic executed by web workers
+    ├── utils.ts             # Project-wide helper functions
+    ├── types.ts             # Type declarations
+```
+
+---
+
+- **Running This Service**: Refer to the [Running the Application](#3-running-the-application) section under _Running with Lightnet_.  
+  _Note: To use Devnet instead, simply rename `.env.devnet.example` to `.env` instead of `.env.lightnet.example`._
+
+## 📂 `server/`
+
+- **Purpose**: Handles REST APIs, WebSocket communication, game management, and zkApp validation.
+
+- **Structure**:
+
+```
+server/
+├── docker/
+│   ├── dockerfile.dev      # Dev Docker image.
+│   └── dockerfile.prod     # Production Docker image.
+├── .env.lightnet.example   # Example env files for Lightnet
+├── .env.devnet.example     # Example env files for Devnet
+└── src/
+    ├── models/
+    │   └── Game.ts             # Mongoose schema for Game documents
+    ├── repositories/
+    │   └── game.ts             # DB interactions for Game model
+    ├── routes/
+    │   └── gamesRoute.ts       # REST API routes
+    ├── constants.ts            # Shared constants
+    ├── databaseConnection.ts   # MongoDB connection handler
+    ├── index.ts                # Entry point of the Express server
+    ├── instrument.ts           # Sentry initialization
+    ├── redisClient.ts          # Redis connection logic
+    ├── services.ts             # WebSocket message handling
+    ├── zkAppHandler.ts         # zkApp utility functions
+
+```
+
+- **Running This Service**: Refer to the [Running the Application](#3-running-the-application) section under _Running with Lightnet_.  
+  _Note: To use Devnet instead, simply rename `.env.devnet.example` to `.env` instead of `.env.lightnet.example`._
+
+---
+
+## 📂 `worker/`
+
+- **Purpose**: Processes server-emitted tasks, such as:
+
+  - Sending final zk proofs
+  - Penalizing inactive players
+  - Monitoring and including new games in the lobby
+
+- **Structure**:
+
+```
+worker/
+├── docker/
+│   ├── dockerfile.dev      # Dev Docker image.
+│   └── dockerfile.prod     # Production Docker image.
+├── .env.lightnet.example   # Example env files for Lightnet
+├── .env.devnet.example     # Example env files for Devnet
+└── src/
+    ├── models/
+    │   └── Game.ts             # Mongoose schema for Game documents
+    ├── repositories/
+    │   └── game.ts             # DB interactions for Game model
+    ├── routes/
+    │   └── gamesRoute.ts       # REST API routes
+    ├── constants.ts            # Shared constants
+    ├── databaseConnection.ts   # MongoDB connection handler
+    ├── index.ts                # Entry point of the Express server
+    ├── instrument.ts           # Sentry initialization
+    ├── redisClient.ts          # Redis connection logic
+    ├── services.ts             # WebSocket message handling
+    ├── zkAppHandler.ts         # zkApp utility functions
+```
+
+---
+
+- **Running This Service**: Refer to the [Running the Application](#3-running-the-application) section under _Running with Lightnet_.  
+  _Note: To use Devnet instead, simply rename `.env.devnet.example` to `.env` instead of `.env.lightnet.example`._
 
 # How to Build & Test
 
@@ -143,7 +341,6 @@ npm run testw # watch mode
 npm run coverage
 ```
 
-
 # Running with Lightnet
 
 This guide provides step-by-step instructions to set up and run the zkApp, including the UI and the Lightnet blockchain network.
@@ -152,17 +349,17 @@ This guide provides step-by-step instructions to set up and run the zkApp, inclu
 
 Before starting, ensure you have the following installed:
 
-- **Node.js** 
+- **Node.js**
 - **Yarn**
-- **Docker** 
+- **Docker**
 
 ### Install Docker
 
 If you **don't have Docker installed**, you can download and install it using the links below:
 
-- **Windows:** [Install Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)  
-- **Mac:** [Install Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)  
-- **Linux:** [Install Docker for Linux](https://docs.docker.com/desktop/setup/install/linux/ubuntu/)  
+- **Windows:** [Install Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+- **Mac:** [Install Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+- **Linux:** [Install Docker for Linux](https://docs.docker.com/desktop/setup/install/linux/ubuntu/)
 
 ## 2. Running Lightnet
 
@@ -175,7 +372,9 @@ zk lightnet start
 ## 3. Running the Application
 
 ### Environment Setup
+
 Duplicate the `.env.lightnet.example` file in the following directories and rename it to `.env`:
+
 - `server`
 - `ui`
 - `worker`
@@ -183,32 +382,38 @@ Duplicate the `.env.lightnet.example` file in the following directories and rena
 Ensure all environment variables are correctly configured in each `.env` file.
 
 ### Starting the Application
+
 Run the following command to start the application using Docker:
 
 ```sh
 docker compose --profile dev up -d
 ```
+
 ## Working with Lightnet Test Accounts
 
 To get a set of testing accounts for Lightnet, you can use the following API:
 
 ### HTTP GET:
+
 ```
 http://localhost:8181/acquire-account
 ```
 
 ### Supported Query Parameters:
+
 - **isRegularAccount**=`<boolean>` (default: `true`)
   - Useful if you need to get a non-zkApp account.
 - **unlockAccount**=`<boolean>` (default: `false`)
   - Useful if you need to get an unlocked account.
 
 ### Example Request:
+
 ```
 http://localhost:8181/acquire-account?isRegularAccount=true&unlockAccount=true
 ```
 
 ### Example Response:
+
 ```json
 {
   "used": true,
@@ -218,7 +423,6 @@ http://localhost:8181/acquire-account?isRegularAccount=true&unlockAccount=true
 ```
 
 By doing this, you will get an account that contains **1550 tMINA** on the Lightnet network.
-
 
 ## Adding the Lightnet Network to Auro Wallet
 
@@ -246,7 +450,6 @@ To integrate the Lightnet network into the Auro Wallet, follow these steps:
 6. Click **Confirm** to complete the process.
 
 ![Adding the Test Account to Auro Wallet](./images/add-account.gif)
-
 
 # License
 
