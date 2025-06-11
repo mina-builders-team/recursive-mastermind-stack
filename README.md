@@ -144,8 +144,8 @@ Note: You may need to run yarn start multiple times (typically 3–5 times) unti
 ```sh
 
 ├── integration-test/
-│   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed by an isolated
-│   ├              #worker,allowing testing of asynchronous and multi-client game play.
+│   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed 
+│   ├              #by an isolated worker,allowing testing of asynchronous and multi-client game play.
 │   ├── games.json #mock game definitions.Each game entry includes codeMaster, codeBreaker and attempts.
 │
 ├── docker/
