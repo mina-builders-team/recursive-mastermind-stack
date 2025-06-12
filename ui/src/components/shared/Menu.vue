@@ -36,6 +36,15 @@
       @click="setMenuStep('JOIN')"
       >Join</el-button
     >
+    <el-button
+      type="primary"
+      color="#00ADB5"
+      size="large"
+      style="width: 120px; text-align: center; white-space: normal"
+      :plain="menuStep !== 'BENCHMARK'"
+      @click="setMenuStep('BENCHMARK')"
+      >Benchmark</el-button
+    >
   </div>
 </template>
 <script lang="ts" setup>

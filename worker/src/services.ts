@@ -57,6 +57,9 @@ export const sendFinalProof = async (job: Job) => {
     );
     return game;
   } catch (err) {
+    console.error(
+      `Error when sending final proof ${job?.data?.gameId} : ${err}`
+    );
     throw new Error(
       `Error when sending final proof ${job?.data?.gameId} : ${err}`
     );
@@ -133,6 +136,8 @@ export const forfeitWin = async (job: Job) => {
     });
     return game;
   } catch (err) {
+    console.error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
+
     throw new Error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
   }
 };

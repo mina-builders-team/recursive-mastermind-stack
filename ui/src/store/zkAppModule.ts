@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Poseidon, PublicKey } from 'o1js';
+import { Field, Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -646,6 +646,64 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     setCurrentTransactionHash(hash: string | null) {
       this.currentTransactionLink = hash ? hash : '';
+    },
+    async createDummyGameTransaction() {
+      this.loading = true;
+      const start = performance.now();
+      await this.zkappWorkerClient!.createInitGameTransaction(
+        this.publicKeyBase58,
+        [1, 2, 3, 4],
+        Field(1).toString(),
+        PublicKey.empty().toBase58(),
+        10
+      );
+      await this.zkappWorkerClient!.proveTransaction();
+      this.loading = false;
+      const end = performance.now();
+      return { duration: ((end - start) / 1000).toFixed(2) };
+    },
+    async createDummyGameProof() {
+      this.loading = true;
+      const start = performance.now();
+      const salt = Field(1).toString();
+      const signedData = await this.signFields([...[1, 2, 3, 4], salt]);
+      const res = await this.zkappWorkerClient!.sendNewGameProof(
+        signedData,
+        [1, 2, 3, 4],
+        salt
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async createDummyGuessProof() {
+      this.loading = true;
+      const start = performance.now();
+      const signedData = await this.signFields([...[1, 2, 3, 4], 1]);
+      const res = await this.zkappWorkerClient!.createGuessProof(
+        signedData,
+        [1, 2, 3, 4]
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async createDummyClueProof() {
+      this.loading = true;
+      const start = performance.now();
+      const signedData = await this.signFields([
+        ...[1, 2, 3, 4],
+        Field(1).toString(),
+        2,
+      ]);
+      const res = await this.zkappWorkerClient!.createGiveClueProof(
+        signedData,
+        [1, 2, 3, 4],
+        Field(1).toString()
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
     },
   },
 });

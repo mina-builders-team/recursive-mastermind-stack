@@ -110,11 +110,15 @@ export const handleProof = async (
   let winnerPublicKeyBase58 = null;
   if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
     winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
-    await gameLifecycleQueue.add('sendFinalProof', {
-      gameId,
-      zkProof,
-      winnerPublicKeyBase58,
-    });
+    await gameLifecycleQueue.add(
+      'sendFinalProof',
+      {
+        gameId,
+        zkProof,
+        winnerPublicKeyBase58,
+      },
+      { priority: 1 }
+    );
   }
   const timestamp = Date.now();
   const updatedGame = await createOrUpdateGame({
@@ -184,10 +188,14 @@ export async function handleGameStart(
     let winnerPublicKeyBase58 = null;
 
     if (currentSlot - startGameSlot > 4) {
-      await gameLifecycleQueue.add('forfeitWin', {
-        gameId,
-        winnerPublicKeyBase58: game?.codeMaster,
-      });
+      await gameLifecycleQueue.add(
+        'forfeitWin',
+        {
+          gameId,
+          winnerPublicKeyBase58: game?.codeMaster,
+        },
+        { priority: 1 }
+      );
       status = GameStatus.PENALIZED;
       winnerPublicKeyBase58 = game?.codeMaster;
     }
@@ -252,10 +260,14 @@ async function checkForPenalization(gameId: string, gameLifecycleQueue: Queue) {
       winnerPublicKeyBase58,
     });
     console.log('Penalizing game : ', gameId);
-    await gameLifecycleQueue.add('forfeitWin', {
-      gameId,
-      winnerPublicKeyBase58,
-    });
+    await gameLifecycleQueue.add(
+      'forfeitWin',
+      {
+        gameId,
+        winnerPublicKeyBase58,
+      },
+      { priority: 1 }
+    );
     return {
       isPenalized: true,
       game: updatedGame,
