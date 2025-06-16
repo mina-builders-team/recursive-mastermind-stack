@@ -69,6 +69,7 @@ initialize()
         } catch (err) {
           const error = err ?? new Error(`Unknown error in job ${job?.id}`);
           Sentry.captureException(error);
+          throw error
         }
       },
       {
@@ -111,7 +112,7 @@ initialize()
         let lastNonce = Number(
           await redisClient.get(`${SERVER_PUBLIC_KEY}:lastNonce`)
         );
-        if (accountNonce - 1 > Number(lastNonce)) {
+        if (accountNonce - 1 > Number(lastNonce) || accountNonce === 0) {
           lastNonce = accountNonce - 1;
         }
         await redisClient.set(`${SERVER_PUBLIC_KEY}:nonce`, lastNonce || 0);
