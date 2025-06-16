@@ -37,7 +37,7 @@
 ## Overview
 
 - The game involves two players: a `Code Master` and a `Code Breaker`.
-- Inspired by [mastermind-noir](https://github.com/vezenovm/mastermind-noir), this version replaces colored pegs with a combination of 4 unique digits.
+- Inspired by [mastermind-noir](https://github.com/vezenovm/mastermind-noir), this version replaces colored pegs with a combination of 4 unique digits between 0 and 7.
 
 ## Game Rules
 
