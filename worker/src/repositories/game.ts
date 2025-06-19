@@ -25,7 +25,7 @@ export const getGameById = async (_id: string) => {
 
 export const getPendingGames = async () => {
   try {
-    const activeGames = await Game.find({ status: GameStatus.PENDING }, '_id').lean();
+    const activeGames = await Game.find({ status: GameStatus.PENDING }, '_id lastProof').lean();
     return activeGames;
    } catch (err) {
     throw new Error('Error retrieving pending games: ' + err);

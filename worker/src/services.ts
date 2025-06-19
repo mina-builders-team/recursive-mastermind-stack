@@ -12,7 +12,7 @@ import {
   updateManyGames,
 } from './repositories/game.js';
 import redisClient from './redisClient.js';
-import { GameStatus } from './models/Game.js';
+import { GameStatus, IGame } from './models/Game.js';
 
 dotenv.config();
 
@@ -66,8 +66,10 @@ export const sendFinalProof = async (job: Job) => {
   }
 };
 
-export const checkGameCreation = async (verificationKeyHash: Field) => {
-  let pendingGames: { _id: string }[] = [];
+export const checkGameCreation = async (
+  verificationKeyHash: Field
+): Promise<void> => {
+  let pendingGames: IGame[] = [];
   let activeGames: string[] = [];
   let fakeGames: string[] = [];
 
@@ -82,8 +84,18 @@ export const checkGameCreation = async (verificationKeyHash: Field) => {
       const zkAppPublicKey = PublicKey.fromBase58(game._id);
       let response = await fetchAccount({ publicKey: zkAppPublicKey });
       if (response.account !== undefined) {
+        const zkApp = new MastermindZkApp(zkAppPublicKey);
+        const solutionHash = await zkApp.solutionHash.get();
+        const baseProof = await StepProgramProof.fromJSON(
+          JSON.parse(game.lastProof)
+        );
+        const baseProofSolutionHash =
+          baseProof.publicOutput.solutionHash.toString();
         const vk = response.account?.zkapp?.verificationKey?.hash;
-        if (vk?.toString() === verificationKeyHash.toString()) {
+        if (
+          vk?.toString() === verificationKeyHash.toString() &&
+          solutionHash?.toString() === baseProofSolutionHash
+        ) {
           activeGames.push(game._id);
         } else {
           fakeGames.push(game._id);
