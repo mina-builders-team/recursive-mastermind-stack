@@ -8,6 +8,7 @@ import {
 import {
   MastermindZkApp,
   StepProgramProof,
+  GameState,
 } from '@navigators-exploration-team/mina-mastermind';
 import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
@@ -155,7 +156,7 @@ export async function handleGameStart(
   verificationKeyHash: Field
 ) {
   const game = await getGameById(gameId);
-  if (!game?.codeBreaker) {
+  if (!game?.codeBreaker || game?.status !== GameStatus.ACTIVE) {
     const zkAppPublicKey = PublicKey.fromBase58(gameId);
     const zkApp = new MastermindZkApp(zkAppPublicKey);
     let res = await fetchAccount({ publicKey: zkAppPublicKey });
@@ -199,6 +200,21 @@ export async function handleGameStart(
       status = GameStatus.PENALIZED;
       winnerPublicKeyBase58 = game?.codeMaster;
     }
+    const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
+    if (Number(turnCount.toString()) > 1) {
+      const updatedGame = await createOrUpdateGame({
+        _id: gameId,
+        codeBreaker: acceptedGame.codeBreakerPubKey,
+        status: GameStatus.ON_CHAIN,
+        timestamp: Date.now(),
+      });
+      const players = activePlayers.get(gameId) || new Set();
+      players.forEach((player: WebSocket) => {
+        player.send(JSON.stringify({ game: updatedGame }));
+      });
+      return;
+    }
+
     const updatedGame = await createOrUpdateGame({
       _id: gameId,
       codeBreaker: acceptedGame.codeBreakerPubKey,

@@ -372,12 +372,12 @@ zk lightnet start
 ## 3. Running the Application
 
 ### Environment Setup
+- Duplicate the `.env.example` file located in the root directory and rename the copy to `.env`:
+- Duplicate the `.env.lightnet.example` file in the following directories and rename it to `.env`:
 
-Duplicate the `.env.lightnet.example` file in the following directories and rename it to `.env`:
-
-- `server`
-- `ui`
-- `worker`
+  - `server`
+  - `ui`
+  - `worker`
 
 Ensure all environment variables are correctly configured in each `.env` file.
 
@@ -388,6 +388,7 @@ Run the following command to start the application using Docker:
 ```sh
 docker compose --profile dev up -d
 ```
+Once the containers are running, the UI will be available at http://localhost:3001.
 
 ## Working with Lightnet Test Accounts
 

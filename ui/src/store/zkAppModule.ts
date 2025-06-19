@@ -49,6 +49,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     requestedConnexion: false,
     error: null as Object | any,
     loading: false,
+    lastTurnTransactionHash: '',
     currentTransactionLink: '',
     submitGameTransactionHash: '',
     claimRewardTransactionHash: '',
@@ -219,11 +220,12 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
-        if (this.isPlayingOnChain) {
+        if (this.isPlayingOnChain && !this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
           );
         }
+        this.setPlayingOnChain(false);
         const { hash } = await (window as any).mina.sendTransaction({
           transaction: transactionJSON,
           feePayer: {
@@ -348,7 +350,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             memo: '',
           },
         });
-        this.currentTransactionLink = hash;
+        this.lastTurnTransactionHash = hash;
         updateLocalStorageGames(this.zkAppAddress as string, {
           lastTurnTransactionHash: hash,
         });
@@ -387,7 +389,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             memo: '',
           },
         });
-        this.currentTransactionLink = hash;
+        this.lastTurnTransactionHash = hash;
         updateLocalStorageGames(this.zkAppAddress as string, {
           lastTurnTransactionHash: hash,
         });
@@ -609,6 +611,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.zkAppAddress = null;
       this.zkProofStates = null;
       this.zkAppStates = null;
+      this.lastTurnTransactionHash = '';
+      this.submitGameTransactionHash = '';
+      this.claimRewardTransactionHash = '';
     },
     setMenuStep(step: string) {
       this.menuStep = step;
@@ -627,12 +632,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     async setPlayingOnChain(isOnChain: boolean) {
       this.isPlayingOnChain = isOnChain;
-      await this.getZkAppStates();
-      const game: any = getStoredGame(this.zkAppAddress as string);
-      const proof = game?.lastProof;
-      if (proof) {
-        await this.setLastProof(proof);
-        await this.getZkProofStates();
+      if (isOnChain) {
+        await this.getZkAppStates();
+        const game: any = getStoredGame(this.zkAppAddress as string);
+        const proof = game?.lastProof;
+        if (proof) {
+          await this.setLastProof(proof);
+          await this.getZkProofStates();
+        }
       }
     },
     async fetchCurrentSlot() {
@@ -641,8 +648,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     getStoredTransactionsHash() {
       const game: any = getStoredGame(this.zkAppAddress as string);
       this.submitGameTransactionHash = game?.submitGameTransactionHash;
-      this.currentTransactionLink = game?.lastTurnTransactionHash;
       this.claimRewardTransactionHash = game?.claimRewardTransactionHash;
+      this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
     setCurrentTransactionHash(hash: string | null) {
       this.currentTransactionLink = hash ? hash : '';
@@ -704,6 +711,15 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       const end = performance.now();
       this.loading = false;
       return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async establishConnection() {
+      if (!this.webSocketInstance?.connected) {
+        this.webSocketInstance?.open();
+        await new Promise((res) => setTimeout(res, 5000));
+        if (this.isPlayingOnChain) {
+          this.isPlayingOnChain = false;
+        }
+      }
     },
   },
 });

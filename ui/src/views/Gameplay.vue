@@ -10,8 +10,9 @@
     <div v-if="zkAppStates" class="w-100">
       <GameDetail
         v-if="
-          zkAppStates.codeBreakerId === '0' ||
-          ['ACTIVE', 'PENDING'].includes(game?.status || '')
+          !isGameAcceptedOnChain ||
+          (!isPlayingOnChain &&
+            ['ACTIVE', 'PENDING'].includes(game?.status || ''))
         "
       />
       <GameBoard v-else />
@@ -32,10 +33,19 @@ import GameDetail from '@/components/GameDetail.vue';
 import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
 const route = useRoute();
 const router = useRouter();
-const { compiled, zkAppStates, game } = storeToRefs(useZkAppStore());
-const { initZkappInstance, joinGame, getZkAppStates, startGame, clearGame } =
-  useZkAppStore();
+const { compiled, zkAppStates, game, isPlayingOnChain } =
+  storeToRefs(useZkAppStore());
+const {
+  initZkappInstance,
+  joinGame,
+  getZkAppStates,
+  startGame,
+  clearGame,
+  setPlayingOnChain,
+  establishConnection,
+} = useZkAppStore();
 const gameId = route?.params?.id as string;
+const isGameAcceptedOnChain = ref(false);
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
@@ -64,12 +74,16 @@ watch(
 );
 watch(
   () => zkAppStates.value?.codeBreakerId,
-  () => {
+  async () => {
+    await establishConnection();
+
+    isGameAcceptedOnChain.value =
+      zkAppStates.value?.codeBreakerId &&
+      zkAppStates.value?.codeBreakerId !== '0';
     if (
       game.value?.status &&
       ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
-      zkAppStates.value?.codeBreakerId &&
-      zkAppStates.value?.codeBreakerId !== '0'
+      isGameAcceptedOnChain.value
     ) {
       startGame();
     }
@@ -82,6 +96,9 @@ onUnmounted(async () => {
   clearGame();
   if (intervalId.value) {
     clearInterval(intervalId.value);
+  }
+  if (isPlayingOnChain.value) {
+    setPlayingOnChain(false);
   }
 });
 </script>

@@ -210,7 +210,7 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
     ...games,
     [gameId]: games?.[gameId]
       ? { ...games?.[gameId], ...data, lastUpdatedAt: Date.now() }
-      : data,
+      : { ...data, lastUpdatedAt: Date.now() },
   };
   localStorage.setItem('games', JSON.stringify(games));
 }

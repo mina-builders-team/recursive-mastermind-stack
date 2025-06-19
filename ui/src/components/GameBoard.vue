@@ -41,7 +41,10 @@
           </span>
         </div>
       </div>
-      <div v-if="isWinner" class="w-100">
+      <div
+        v-if="isWinner && (currentSlot || 0) > zkAppStates.finalizeSlot"
+        class="w-100"
+      >
         <el-button
           type="primary"
           size="large"
@@ -124,7 +127,7 @@
         </template>
         <div
           v-else-if="
-            isPlayingOnChain && isLastProofSubmitted && currentTransactionLink
+            isPlayingOnChain && isLastProofSubmitted && lastTurnTransactionHash
           "
           class="transaction-notice d-flex flex-column align-items-start"
         >
@@ -133,7 +136,7 @@
             <el-icon color="yellow"><WarnTriangleFilled /></el-icon>
             Avoid re-submitting unless this
             <a
-              :href="`https://minascan.io/devnet/tx/${currentTransactionLink}?type=zk-tx`"
+              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -155,7 +158,12 @@
               >
                 <span v-if="isCodeMasterTurn">Code Master Turn</span>
                 <span v-else>Code Breaker Turn</span>
-                <div class="pe-2" v-if="!isTurnPlayed || isPlayingOnChain">
+                <div
+                  class="pe-2"
+                  v-if="
+                    !isTurnPlayed && (!isPlayingOnChain || isLastProofSubmitted)
+                  "
+                >
                   <Timer
                     :duration="
                       isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5
@@ -256,6 +264,7 @@ const {
   isTurnPlayed,
   isPlayingOnChain,
   currentTransactionLink,
+  lastTurnTransactionHash,
   currentSlot,
   stepDisplay,
   loading,
@@ -266,7 +275,7 @@ const {
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
 const { playSound } = usePreloadedSound('/sounds/notification.mp3');
 
-const remainingSlot = ref<number>(2);
+const remainingSlot = ref<number>(PER_TURN_GAME_DURATION);
 const onChainInterval = ref<null | number>(null);
 
 const guesses = ref<Array<AvailableColor[]>>(
@@ -342,7 +351,8 @@ const isGameEnded = computed(() => {
   return isPlayingOnChain.value
     ? isGameSolved.value ||
         zkAppStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
-        remainingSlot.value < 0
+        (isLastProofSubmitted.value && remainingSlot.value < 0) ||
+        (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
     : isGameSolved.value ||
         zkProofStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
         game.value?.status === 'PENALIZED';
@@ -366,7 +376,7 @@ const playOnChain = async () => {
       currentSlot.value!;
     if (remainingSlot.value < 0) {
       isTurnTimeExceeded.value = true;
-      if (onChainInterval.value) {
+      if (onChainInterval.value && zkAppStates.value.rewardAmount === 0) {
         clearInterval(onChainInterval.value);
       }
     }
@@ -375,7 +385,7 @@ const playOnChain = async () => {
   if (!isLastProofSubmitted.value) {
     guesses.value = zkProofStates.value?.guessesHistory;
   }
-  onChainInterval.value = setInterval(handler, 5000);
+  onChainInterval.value = setInterval(handler, 10000);
 };
 const submitLastProof = async () => {
   const game: any = getStoredGame(zkAppAddress.value as string);

@@ -69,7 +69,7 @@ initialize()
         } catch (err) {
           const error = err ?? new Error(`Unknown error in job ${job?.id}`);
           Sentry.captureException(error);
-          throw error
+          throw error;
         }
       },
       {

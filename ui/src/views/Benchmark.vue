@@ -18,9 +18,8 @@
           class="flex-1 fw-bold"
           color="#00ADB5"
           size="large"
-          :loading="loadings.txLoading"
           type="primary"
-          plain
+          :loading="loadings.txLoading"
           @click="handleCreateDummyGameTx"
           :disabled="createGameTxTime !== null || loading || !compiled"
         >
@@ -36,7 +35,6 @@
           color="#00ADB5"
           :loading="loadings.createGameLoading"
           type="primary"
-          plain
           @click="handleCreateDummyGameProof"
           :disabled="
             createGameProofTime !== null ||
@@ -59,7 +57,6 @@
           size="large"
           :loading="loadings.makeGuessLoading"
           type="primary"
-          plain
           @click="handleCreateDummyGuessProof"
           :disabled="
             makeGuessProofTime !== null ||
@@ -82,7 +79,6 @@
           size="large"
           :loading="loadings.giveClueLoading"
           type="primary"
-          plain
           @click="handleCreateDummyClueProof"
           :disabled="
             giveClueProofTime !== null ||
@@ -97,7 +93,7 @@
       </div>
 
       <div class="footer">
-        <el-button @click="reset" type="danger" plain>Reset</el-button>
+        <el-button @click="reset" type="danger" >Reset</el-button>
       </div>
     </el-card>
   </div>
