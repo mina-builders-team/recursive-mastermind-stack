@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Poseidon, PublicKey } from 'o1js';
+import { Field, Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -49,6 +49,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     requestedConnexion: false,
     error: null as Object | any,
     loading: false,
+    lastTurnTransactionHash: '',
     currentTransactionLink: '',
     submitGameTransactionHash: '',
     claimRewardTransactionHash: '',
@@ -219,11 +220,12 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
-        if (this.isPlayingOnChain) {
+        if (this.isPlayingOnChain && !this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
           );
         }
+        this.setPlayingOnChain(false);
         const { hash } = await (window as any).mina.sendTransaction({
           transaction: transactionJSON,
           feePayer: {
@@ -348,7 +350,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             memo: '',
           },
         });
-        this.currentTransactionLink = hash;
+        this.lastTurnTransactionHash = hash;
         updateLocalStorageGames(this.zkAppAddress as string, {
           lastTurnTransactionHash: hash,
         });
@@ -387,7 +389,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             memo: '',
           },
         });
-        this.currentTransactionLink = hash;
+        this.lastTurnTransactionHash = hash;
         updateLocalStorageGames(this.zkAppAddress as string, {
           lastTurnTransactionHash: hash,
         });
@@ -609,6 +611,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.zkAppAddress = null;
       this.zkProofStates = null;
       this.zkAppStates = null;
+      this.lastTurnTransactionHash = '';
+      this.submitGameTransactionHash = '';
+      this.claimRewardTransactionHash = '';
     },
     setMenuStep(step: string) {
       this.menuStep = step;
@@ -627,12 +632,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     async setPlayingOnChain(isOnChain: boolean) {
       this.isPlayingOnChain = isOnChain;
-      await this.getZkAppStates();
-      const game: any = getStoredGame(this.zkAppAddress as string);
-      const proof = game?.lastProof;
-      if (proof) {
-        await this.setLastProof(proof);
-        await this.getZkProofStates();
+      if (isOnChain) {
+        await this.getZkAppStates();
+        const game: any = getStoredGame(this.zkAppAddress as string);
+        const proof = game?.lastProof;
+        if (proof) {
+          await this.setLastProof(proof);
+          await this.getZkProofStates();
+        }
       }
     },
     async fetchCurrentSlot() {
@@ -641,11 +648,78 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     getStoredTransactionsHash() {
       const game: any = getStoredGame(this.zkAppAddress as string);
       this.submitGameTransactionHash = game?.submitGameTransactionHash;
-      this.currentTransactionLink = game?.lastTurnTransactionHash;
       this.claimRewardTransactionHash = game?.claimRewardTransactionHash;
+      this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
     setCurrentTransactionHash(hash: string | null) {
       this.currentTransactionLink = hash ? hash : '';
+    },
+    async createDummyGameTransaction() {
+      this.loading = true;
+      const start = performance.now();
+      await this.zkappWorkerClient!.createInitGameTransaction(
+        this.publicKeyBase58,
+        [1, 2, 3, 4],
+        Field(1).toString(),
+        PublicKey.empty().toBase58(),
+        10
+      );
+      await this.zkappWorkerClient!.proveTransaction();
+      this.loading = false;
+      const end = performance.now();
+      return { duration: ((end - start) / 1000).toFixed(2) };
+    },
+    async createDummyGameProof() {
+      this.loading = true;
+      const start = performance.now();
+      const salt = Field(1).toString();
+      const signedData = await this.signFields([...[1, 2, 3, 4], salt]);
+      const res = await this.zkappWorkerClient!.sendNewGameProof(
+        signedData,
+        [1, 2, 3, 4],
+        salt
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async createDummyGuessProof() {
+      this.loading = true;
+      const start = performance.now();
+      const signedData = await this.signFields([...[1, 2, 3, 4], 1]);
+      const res = await this.zkappWorkerClient!.createGuessProof(
+        signedData,
+        [1, 2, 3, 4]
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async createDummyClueProof() {
+      this.loading = true;
+      const start = performance.now();
+      const signedData = await this.signFields([
+        ...[1, 2, 3, 4],
+        Field(1).toString(),
+        2,
+      ]);
+      const res = await this.zkappWorkerClient!.createGiveClueProof(
+        signedData,
+        [1, 2, 3, 4],
+        Field(1).toString()
+      );
+      const end = performance.now();
+      this.loading = false;
+      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+    },
+    async establishConnection() {
+      if (!this.webSocketInstance?.connected) {
+        this.webSocketInstance?.open();
+        await new Promise((res) => setTimeout(res, 5000));
+        if (this.isPlayingOnChain) {
+          this.isPlayingOnChain = false;
+        }
+      }
     },
   },
 });

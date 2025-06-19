@@ -82,6 +82,7 @@ await gameLifecycleQueue.upsertJobScheduler(
     opts: {
       removeOnFail: true,
       removeOnComplete: true,
+      priority: 2,
     },
   }
 );
@@ -93,6 +94,7 @@ await gameLifecycleQueue.upsertJobScheduler(
     opts: {
       removeOnFail: true,
       removeOnComplete: true,
+      priority: 2,
     },
   }
 );

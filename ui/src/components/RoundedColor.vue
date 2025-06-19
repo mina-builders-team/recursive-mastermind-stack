@@ -26,6 +26,8 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
 import { availableColors, initialColor } from '../constants/colors';
+import { ElMessage } from 'element-plus';
+
 const props = defineProps({
   value: {
     required: true,
@@ -82,6 +84,12 @@ const handleInput = (value: string) => {
   emit('input', selectedColor ? selectedColor : initialColor);
   if (selectedColor) {
     nextTick(() => emit('focusNext'));
+  }
+  if (!selectedColor && value) {
+    ElMessage.error({
+      message: 'Please choose a combination of 4 unique digits between 0 and 7',
+      duration: 3000,
+    });
   }
 };
 

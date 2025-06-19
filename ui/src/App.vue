@@ -24,9 +24,10 @@ const removePastGames = () => {
     games = { ...JSON.parse(storedGames) };
     for (const gameId of Object.keys(games)) {
       const lastUpdatedAt = games[gameId].lastUpdatedAt;
-      if (now - lastUpdatedAt > 1000 * 3600 * 24 * 3) {
+      if (now - lastUpdatedAt > 1000 * 3600 * 24) {
         delete games[gameId];
       }
+      localStorage.setItem('games', JSON.stringify(games));
     }
   }
 };

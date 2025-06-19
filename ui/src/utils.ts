@@ -76,7 +76,7 @@ export function generateColoredCluesHistory(
 }
 
 export function validateColorCombination(combination: AvailableColor[]) {
-  const combinationDigits = combination.map(({ value }) => Field(value));
+  const combinationDigits = combination?.map(({ value }) => Field(value));
   const comb = new Combination({ digits: combinationDigits });
   let isValid = true;
   try {
@@ -210,7 +210,7 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
     ...games,
     [gameId]: games?.[gameId]
       ? { ...games?.[gameId], ...data, lastUpdatedAt: Date.now() }
-      : data,
+      : { ...data, lastUpdatedAt: Date.now() },
   };
   localStorage.setItem('games', JSON.stringify(games));
 }

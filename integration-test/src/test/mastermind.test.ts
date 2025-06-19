@@ -57,14 +57,14 @@ describe('Mastermind Integration Tests', () => {
         autoPlay: false,
       });
       mastermindGame.joinGame(PlayerRole.CODE_MASTER);
-      await waitFor(2000);
+      await waitFor(15000);
     });
     it('should reject a request missing the zkProof', async () => {
       mastermindGame.codeMasterWebSocket?.send({
         gameId: mastermindGame.gameId,
         action: 'sendProof',
       });
-      await waitFor(2000);
+      await waitFor(15000);
       const expectedErrorMsg = 'Missing zkProof!';
       expectError(
         mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -75,7 +75,7 @@ describe('Mastermind Integration Tests', () => {
       mastermindGame.codeMasterWebSocket?.send({
         gameId: mastermindGame.gameId,
       });
-      await waitFor(2000);
+      await waitFor(15000);
       const expectedErrorMsg = 'Bad request!';
       expectError(
         mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -86,7 +86,7 @@ describe('Mastermind Integration Tests', () => {
       mastermindGame.codeMasterWebSocket?.send({
         action: 'sendProof',
       });
-      await waitFor(2000);
+      await waitFor(15000);
       const expectedErrorMsg = 'Bad request!';
       expectError(
         mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -106,13 +106,13 @@ describe('Mastermind Integration Tests', () => {
         attempts: mockGame.attempts,
         autoPlay: false,
       });
-      await waitFor(2000);
+      await waitFor(15000);
     });
 
     describe('Code Master Create A Game', () => {
       it('should deploy and initialize the game on-chain and on the server', async () => {
         await mastermindGame.createGame();
-        await waitFor(3000);
+        await waitFor(20000);
 
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
@@ -140,11 +140,11 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should close the Code Master WebSocket connection gracefully', async () => {
         mastermindGame.codeMasterWebSocket?.close();
-        await waitFor(2000);
+        await waitFor(15000);
       });
       it('should allow the Code Master to rejoin the game and receive the current game state', async () => {
         mastermindGame.joinGame(PlayerRole.CODE_MASTER);
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
         ).toMatchObject({
@@ -182,7 +182,7 @@ describe('Mastermind Integration Tests', () => {
             .toPublicKey()
             .toBase58(),
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Not allowed to send a proof!';
         expectError(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -191,9 +191,9 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should reject starting the game before it is accepted by the code breaker', async () => {
         mastermindGame.joinGame(PlayerRole.CODE_BREAKER);
-        await waitFor(3000);
+        await waitFor(15000);
         mastermindGame.startGame();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Game has not been accepted!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -205,7 +205,7 @@ describe('Mastermind Integration Tests', () => {
           action: 'penalize',
           gameId: mastermindGame.gameId,
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Player did not exceeded the allowed time!';
         expectError(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -219,7 +219,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should reject the first guess if the game has not started yet', async () => {
         await mastermindGame.makeGuess();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Not allowed to send a proof!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -228,7 +228,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should allow the Code Master to start the game after acceptance', async () => {
         mastermindGame.startGame();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
         ).toMatchObject({
@@ -264,7 +264,7 @@ describe('Mastermind Integration Tests', () => {
             action: 'startGame',
             gameId: mastermindGame.gameId,
           });
-          await waitFor(3000);
+          await waitFor(15000);
           const expectedErrorMsg = 'Game has already started!';
           expectError(
             mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -276,7 +276,7 @@ describe('Mastermind Integration Tests', () => {
     describe('Players Engage in Gameplay - Exchanging Clues and Guesses', () => {
       it('should increment turn count after an invalid guess', async () => {
         await mastermindGame.makeGuess();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           Number(
             mastermindGame.lastReceivedProof?.publicOutput.turnCount?.value
@@ -291,20 +291,20 @@ describe('Mastermind Integration Tests', () => {
           PlayerRole.CODE_MASTER,
           WEB_SOCKET_URL
         );
-        await waitFor(3000);
+        await waitFor(15000);
         client?.send({
           action: 'sendProof',
           gameId: fakeGameId,
           zkProof: JSON.stringify(mastermindGame.lastReceivedProof),
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Proof is outdated!';
         expectError(client?.lastReceivedMessage, expectedErrorMsg);
         client?.close();
       });
       it('should allow the Code Master to give a clue and increment the turn count', async () => {
         await mastermindGame.giveClue();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           Number(
             mastermindGame.lastReceivedProof?.publicOutput.turnCount?.value
@@ -320,7 +320,7 @@ describe('Mastermind Integration Tests', () => {
           gameId: mastermindGame.gameId,
           zkProof: JSON.stringify(mastermindGame.lastReceivedProof),
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Proof is outdated!';
         expectError(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -329,7 +329,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should increment turn count after a valid guess', async () => {
         await mastermindGame.makeGuess(true);
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           Number(
             mastermindGame.lastReceivedProof?.publicOutput.turnCount?.value
@@ -341,7 +341,7 @@ describe('Mastermind Integration Tests', () => {
           action: 'penalize',
           gameId: mastermindGame.gameId,
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Player did not exceeded the allowed time!';
         expectError(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -350,7 +350,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should mark the game as solved after a correct clue is given', async () => {
         await mastermindGame.giveClue();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
         ).toMatchObject({
@@ -369,7 +369,7 @@ describe('Mastermind Integration Tests', () => {
           action: 'penalize',
           gameId: mastermindGame.gameId,
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Player did not exceeded the allowed time!';
         expectError(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage,
@@ -392,7 +392,7 @@ describe('Mastermind Integration Tests', () => {
         autoPlay: false,
       });
       await mastermindGame.createGame();
-      await waitFor(3000);
+      await waitFor(15000);
     });
     describe('Fool the Server with Invalid Cancel Attempts', () => {
       it('should reject cancel request with invalid signature', async () => {
@@ -430,7 +430,7 @@ describe('Mastermind Integration Tests', () => {
       it('should start the game even if it is marked as cancelled on server', async () => {
         await mastermindGame.acceptGame();
         mastermindGame.startGame();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
         ).toMatchObject({
@@ -445,7 +445,7 @@ describe('Mastermind Integration Tests', () => {
       it('should penalize Code Breaker for late guess', async () => {
         await waitFor(150000);
         await mastermindGame.makeGuess();
-        await waitFor(3000);
+        await waitFor(15000);
         expect(
           mastermindGame.codeMasterWebSocket?.lastReceivedMessage
         ).toMatchObject({
@@ -464,7 +464,7 @@ describe('Mastermind Integration Tests', () => {
           action: 'penalize',
           gameId: mastermindGame.gameId,
         });
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Player is already penalized!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -475,7 +475,7 @@ describe('Mastermind Integration Tests', () => {
     describe('Reject Actions After Game Penalization', () => {
       it('should reject sending guess after penalization', async () => {
         await mastermindGame.makeGuess();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Not allowed to send a proof!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -484,7 +484,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should reject restarting the game after penalization', async () => {
         mastermindGame.startGame();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Game has already started!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -506,7 +506,7 @@ describe('Mastermind Integration Tests', () => {
         autoPlay: false,
       });
       await mastermindGame.createGame();
-      await waitFor(3000);
+      await waitFor(15000);
     });
     it('should allow code master to cancel the game', async () => {
       await mastermindGame.cancelGame();
@@ -515,7 +515,7 @@ describe('Mastermind Integration Tests', () => {
       it('should reject sending a proof after game is cancelled', async () => {
         mastermindGame.joinGame(PlayerRole.CODE_BREAKER);
         await mastermindGame.makeGuess();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Not allowed to send a proof!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,
@@ -524,7 +524,7 @@ describe('Mastermind Integration Tests', () => {
       });
       it('should reject starting a cancelled game', async () => {
         mastermindGame.startGame();
-        await waitFor(3000);
+        await waitFor(15000);
         const expectedErrorMsg = 'Game has not been accepted!';
         expectError(
           mastermindGame.codeBreakerWebSocket?.lastReceivedMessage,

@@ -5,10 +5,12 @@ import { updateLocalStorageGames } from '@/utils';
 export class WebSocketService {
   socket: ReturnType<typeof useWebSocket>;
   gameId: string;
+  connected: boolean;
   onMessageCallback: ((data: any) => void) | null = null;
 
   constructor(gameId: string) {
     this.gameId = gameId;
+    this.connected = false
     console.log('web socket server : ', import.meta.env.VITE_WEB_SOCKET_URL);
     this.socket = useWebSocket(import.meta.env.VITE_WEB_SOCKET_URL, {
       autoReconnect: {
@@ -18,6 +20,7 @@ export class WebSocketService {
           const { setPlayingOnChain } = useZkAppStore();
           console.error('Max reconnection attempts reached!');
           await setPlayingOnChain(true);
+          this.connected = false;
         },
       },
       immediate: true,
@@ -58,6 +61,7 @@ export class WebSocketService {
       },
       onConnected: async (_ws: WebSocket) => {
         this.send({ action: 'join', gameId });
+        this.connected = true;
       },
     });
   }
@@ -76,5 +80,6 @@ export class WebSocketService {
 
   close() {
     this.socket.close();
+    this.connected = false;
   }
 }

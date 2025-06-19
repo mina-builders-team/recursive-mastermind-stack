@@ -1,8 +1,5 @@
 <template>
-  <div v-if="isPlayingOnChain">
-    we are currently experiencing some problems! please come back later!
-  </div>
-  <div v-else>
+  <div>
     <div v-if="isGameCancelled">Code master has cancelled this game!</div>
     <div class="d-flex flex-column gap-4 align-items-start w-100" v-else>
       <div class="d-flex align-items-center gap-2">
@@ -57,6 +54,24 @@
             Waiting for code breaker to accept the game
             <DotsLoader />
           </div>
+          <div
+            v-if="isPlayingOnChain"
+            class="transaction-notice d-flex flex-column align-items-start"
+          >
+            <span class="d-flex gap-2 warning-text">
+              <el-icon color="yellow" class="mt-1"
+                ><WarnTriangleFilled /></el-icon
+              >Server Issue Warning! <br />
+              We are currently facing internal server problems.
+              <br />To avoid the game being played fully on-chain,<br />
+              we strongly recommend that you cancel the game now.<br /> Please ensure
+              that the game cancellation transaction <br />is successfully applied
+              before leaving. <br />This will help prevent unnecessary on-chain
+              interactions and potential delays.<br />
+              Thank you for your understanding.
+            </span>
+          </div>
+
           <el-button
             :disabled="loading"
             :loading="loading"
@@ -95,6 +110,22 @@
         <div
           v-if="isAcceptGameTimeElapsed || !acceptedGame?.lastAcceptTimestamp"
         >
+          <div
+            v-if="isPlayingOnChain"
+            class="transaction-notice d-flex flex-column align-items-start"
+          >
+            <span class="d-flex gap-2 warning-text">
+              <el-icon color="yellow" class="mt-1"
+                ><WarnTriangleFilled /></el-icon
+              >Server Issue Warning! <br />
+              We are currently experiencing internal server problems. <br />If
+              you choose to accept a game at this time, it may be played fully
+              on-chain,<br />
+              which could lead to unexpected behavior or delays. <br />We do not
+              recommend accepting a game right now. <br />Please come back
+              later.
+            </span>
+          </div>
           <el-button
             v-if="game?.status === 'ACTIVE'"
             size="large"
@@ -224,3 +255,15 @@ onMounted(async () => {
   await getRole();
 });
 </script>
+<style lang="css" scoped>
+.warning-text {
+  font-size: 12px;
+  text-align: start;
+}
+.transaction-notice {
+  background: #313a41;
+  padding: 20px;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+</style>

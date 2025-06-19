@@ -8,6 +8,7 @@ import {
 import {
   MastermindZkApp,
   StepProgramProof,
+  GameState,
 } from '@navigators-exploration-team/mina-mastermind';
 import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
@@ -110,11 +111,15 @@ export const handleProof = async (
   let winnerPublicKeyBase58 = null;
   if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
     winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
-    await gameLifecycleQueue.add('sendFinalProof', {
-      gameId,
-      zkProof,
-      winnerPublicKeyBase58,
-    });
+    await gameLifecycleQueue.add(
+      'sendFinalProof',
+      {
+        gameId,
+        zkProof,
+        winnerPublicKeyBase58,
+      },
+      { priority: 1 }
+    );
   }
   const timestamp = Date.now();
   const updatedGame = await createOrUpdateGame({
@@ -151,7 +156,7 @@ export async function handleGameStart(
   verificationKeyHash: Field
 ) {
   const game = await getGameById(gameId);
-  if (!game?.codeBreaker) {
+  if (!game?.codeBreaker || game?.status !== GameStatus.ACTIVE) {
     const zkAppPublicKey = PublicKey.fromBase58(gameId);
     const zkApp = new MastermindZkApp(zkAppPublicKey);
     let res = await fetchAccount({ publicKey: zkAppPublicKey });
@@ -184,13 +189,32 @@ export async function handleGameStart(
     let winnerPublicKeyBase58 = null;
 
     if (currentSlot - startGameSlot > 4) {
-      await gameLifecycleQueue.add('forfeitWin', {
-        gameId,
-        winnerPublicKeyBase58: game?.codeMaster,
-      });
+      await gameLifecycleQueue.add(
+        'forfeitWin',
+        {
+          gameId,
+          winnerPublicKeyBase58: game?.codeMaster,
+        },
+        { priority: 1 }
+      );
       status = GameStatus.PENALIZED;
       winnerPublicKeyBase58 = game?.codeMaster;
     }
+    const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
+    if (Number(turnCount.toString()) > 1) {
+      const updatedGame = await createOrUpdateGame({
+        _id: gameId,
+        codeBreaker: acceptedGame.codeBreakerPubKey,
+        status: GameStatus.ON_CHAIN,
+        timestamp: Date.now(),
+      });
+      const players = activePlayers.get(gameId) || new Set();
+      players.forEach((player: WebSocket) => {
+        player.send(JSON.stringify({ game: updatedGame }));
+      });
+      return;
+    }
+
     const updatedGame = await createOrUpdateGame({
       _id: gameId,
       codeBreaker: acceptedGame.codeBreakerPubKey,
@@ -252,10 +276,14 @@ async function checkForPenalization(gameId: string, gameLifecycleQueue: Queue) {
       winnerPublicKeyBase58,
     });
     console.log('Penalizing game : ', gameId);
-    await gameLifecycleQueue.add('forfeitWin', {
-      gameId,
-      winnerPublicKeyBase58,
-    });
+    await gameLifecycleQueue.add(
+      'forfeitWin',
+      {
+        gameId,
+        winnerPublicKeyBase58,
+      },
+      { priority: 1 }
+    );
     return {
       isPenalized: true,
       game: updatedGame,

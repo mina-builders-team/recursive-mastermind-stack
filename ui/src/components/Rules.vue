@@ -2,7 +2,7 @@
   <ul class="d-flex flex-column w-100 align-items-start gap-3 p-4">
     <li>The game involves two players: a Code Master and a Code Breaker.</li>
     <li>
-      The Code Master sets a secret combination and the Code Breaker tries to
+      The Code Master sets a secret combination of 4 unique digits between 0 and 7 and the Code Breaker tries to
       guess it.
     </li>
     <li>The clue indicates the following:</li>
@@ -44,18 +44,13 @@
       </div>
     </div>
     <ul>
-      <li>Code Master's secret combination: 5 6 2 4</li>
+      <li>Code Master's secret combination: 5 6 3 4</li>
     </ul>
     <ul>
-      <li>Code Breaker's guess: 5 7 3 6</li>
+      <li>Code Breaker's guess: 5 7 0 6</li>
     </ul>
     <ul>
-      <li>Clue: 2 0 0 1</li>
-    </ul>
-    <ul>
-      <ul>
-        <li>Result: 1 hit and 1 blow.</li>
-      </ul>
+        <li>Clue: 1 hit and 1 blow.</li>
     </ul>
     <ul>
       <ul>
@@ -105,21 +100,21 @@ import { ref } from 'vue';
 
 const secret = ref([
   { color: '#7FFFD4', value: 5 },
-  { color: '#fcf6bd', value: 9 },
+  { color: '#fcf6bd', value: 6 },
   { color: '#FFBF00', value: 3 },
   { color: '#0BDA51', value: 4 },
 ]);
 const guess = ref([
   { color: '#7FFFD4', value: 5 },
   { color: '#73C2FB', value: 7 },
-  { color: '#D473D4', value: 8 },
-  { color: '#fcf6bd', value: 9 },
+  { color: '#D473D4', value: 0 },
+  { color: '#fcf6bd', value: 6 },
 ]);
 const clue = ref([
   { color: '#66FF00', value: 2, title: 'Hit' },
-  { color: '#ED2939', value: 0, title: 'Miss' },
-  { color: '#ED2939', value: 0, title: 'Miss' },
   { color: '#ffd800', value: 1, title: 'Blow' },
+  { color: '#ED2939', value: 0, title: 'Miss' },
+  { color: '#ED2939', value: 0, title: 'Miss' },
 ]);
 </script>
 <style scoped>
