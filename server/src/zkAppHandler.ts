@@ -7,7 +7,7 @@
  * Used during server initialization and runtime to verify game integrity.
  */
 
-import { fetchAccount, Mina, PublicKey } from 'o1js';
+import { Mina } from 'o1js';
 import dotenv from 'dotenv';
 import {
   Clue,
