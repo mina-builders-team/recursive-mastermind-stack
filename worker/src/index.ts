@@ -1,3 +1,12 @@
+/**
+ * Entry point for the BullMQ worker that processes game lifecycle jobs.
+ *
+ * This worker listens to the `gameLifecycleQueue` and handles critical zkApp-related
+ * tasks such as checking game creation on-chain, sending final game proofs, and
+ * resolving forfeits. It also manages automatic recovery on failure using Redis,
+ * synchronizes nonce values, and reports errors to Sentry.
+ *
+ */
 import './instrument.js';
 import * as Sentry from '@sentry/node';
 import { Worker, Job, Queue } from 'bullmq';
@@ -41,6 +50,11 @@ const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
   },
 });
 let verificationKeyHash: Field;
+
+/**
+ * Initializes the worker by compiling zkApps, connecting to DB,
+ * and initializing the nonce value used by the server account.
+ */
 async function initialize() {
   console.time('compiling');
   await StepProgram.compile();
@@ -135,6 +149,12 @@ initialize()
     Sentry.captureException(error);
   });
 
+/**
+ * Checks if the server's account has enough balance to send transactions.
+ * notify via Sentry if the balance is below a threshold.
+ *
+ * @throws If balance fetch fails.
+ */
 const checkServerBalance = async () => {
   const serverPubKey = PublicKey.fromBase58(SERVER_PUBLIC_KEY);
   const serverAccount = await fetchAccount({ publicKey: serverPubKey });

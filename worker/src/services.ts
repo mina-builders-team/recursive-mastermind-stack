@@ -1,3 +1,9 @@
+/**
+ *
+ * This module provides utility functions invoked by the worker to interact
+ * with the blockchain and database for game lifecycle tasks.
+ */
+
 import { Job } from 'bullmq';
 import { fetchAccount, Field, Mina, PrivateKey, PublicKey } from 'o1js';
 import {
@@ -20,6 +26,12 @@ const SERVER_PRIVATE_KEY = process.env.SERVER_PRIVATE_KEY as string;
 const SERVER_PUBLIC_KEY = process.env.SERVER_PUBLIC_KEY as string;
 const TRANSACTION_FEE = 1e8;
 
+/**
+ * Sends the final zk proof of a completed game to the blockchain.
+ *
+ * @param job - The BullMQ job containing gameId and serialized proof data.
+ * @throws Will throw if transaction submission fails.
+ */
 export const sendFinalProof = async (job: Job) => {
   try {
     const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
@@ -66,10 +78,19 @@ export const sendFinalProof = async (job: Job) => {
   }
 };
 
+/**
+ * Verifies whether games with status PENDING exist on-chain, and updates their status accordingly.
+ *
+ * @param verificationKeyHash - The hash of the on-chain verification key.
+ * @throws Will throw if the verification fails or updateManyGames fails.
+ */
 export const checkGameCreation = async (
   verificationKeyHash: Field
 ): Promise<void> => {
-  let pendingGames: IGame[] = [];
+  let pendingGames: { _id: string; lastProof: string }[] = [] as {
+    _id: string;
+    lastProof: string;
+  }[];
   let activeGames: string[] = [];
   let fakeGames: string[] = [];
 
@@ -115,6 +136,12 @@ export const checkGameCreation = async (
   }
 };
 
+/**
+ * Handles the forfeit win logic.
+ *
+ * @param job - The BullMQ job containing the game ID and the winner’s public key.
+ * @throws Will throw if transaction creation or submission fails.
+ */
 export const forfeitWin = async (job: Job) => {
   try {
     const nonce = await redisClient.incr(`${SERVER_PUBLIC_KEY}:nonce`);
@@ -154,6 +181,13 @@ export const forfeitWin = async (job: Job) => {
   }
 };
 
+/**
+ * Initializes the server nonce in Redis by reading the current account nonce from Mina.
+ *
+ * This is used to prevent nonce mismatch errors.
+ *
+ * @throws Will throw if the account is not found on-chain.
+ */
 export const initializeServerNonce = async () => {
   await setNonceToRedis('nonce');
   await setNonceToRedis('lastNonce');
