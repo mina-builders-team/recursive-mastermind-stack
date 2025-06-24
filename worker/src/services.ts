@@ -18,7 +18,7 @@ import {
   updateManyGames,
 } from './repositories/game.js';
 import redisClient from './redisClient.js';
-import { GameStatus, IGame } from './models/Game.js';
+import { GameStatus } from './models/Game.js';
 
 dotenv.config();
 

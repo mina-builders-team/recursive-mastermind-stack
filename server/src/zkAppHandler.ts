@@ -58,9 +58,7 @@ export const setupContract = async () => {
  *  - `turnCount`: The number of turns taken so far in the game.
  *  - `isSolved`: Boolean indicating whether the game has been solved.
  */
-export async function checkGameStatus(
-  zkProof: StepProgramProof
-) {
+export async function checkGameStatus(zkProof: StepProgramProof) {
   try {
     const turnCount = zkProof.publicOutput.turnCount.toString();
     const deserializedClue = Clue.decompress(
