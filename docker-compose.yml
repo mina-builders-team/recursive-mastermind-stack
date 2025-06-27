@@ -1,6 +1,6 @@
 services:
   server-dev:
-    profiles: ['dev']
+    profiles: ['dev','test','simulate']
     build:
       context: .
       dockerfile: server/docker/dockerfile.dev
@@ -46,7 +46,7 @@ services:
       - ui/.env
 
   redis:
-    profiles: ['dev','prod']
+    profiles: ['dev','prod','test','simulate']
     image: redis:7.4.2
     volumes:
       - redis_data:/data
@@ -66,7 +66,7 @@ services:
     restart: unless-stopped
 
   worker-dev-1:
-    profiles: ['dev']
+    profiles: ['devv','test','simulate']
     build:
       context: .
       dockerfile: worker/docker/dockerfile.dev
@@ -96,7 +96,7 @@ services:
       - db
     restart: always  
   client-worker-1:
-    profiles: ['test']
+    profiles: ['simulate']
     build:
       context: .
       dockerfile: integration-test/docker/dockerfile.dev
@@ -110,8 +110,21 @@ services:
       - redis
       - db
     restart: always
+  game-simulator:
+    profiles: ['simulate']
+    build:
+      context: .
+      dockerfile: integration-test/docker/dockerfile.simulator.dev
+    volumes:
+      - ./integration-test/src:/app/src
+    env_file:
+      - integration-test/.env
+    depends_on:
+      - redis
+      - db
+    restart: always
   db:
-    profiles: ["prod","dev"]
+    profiles: ["prod","dev",'test','simulate']
     image: mongo:8.0.6
     container_name: db
     environment:

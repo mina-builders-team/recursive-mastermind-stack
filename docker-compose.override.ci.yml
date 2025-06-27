@@ -1,7 +1,7 @@
 services:
   redis:
     ports: !override
-      - 6380:6379
+      - 6379:6379
   db:
     ports: !override
       - "27017:27017"

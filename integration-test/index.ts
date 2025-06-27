@@ -7,8 +7,8 @@ console.log('Running tests');
 const jsonGames = readFileSync('games.json', 'utf-8');
 const gameList = JSON.parse(jsonGames);
 
-const REDIS_PORT = 6380;
-const REDIS_HOST = 'localhost';
+const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
+const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const gameTestQueue = new Queue('gameTestQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },

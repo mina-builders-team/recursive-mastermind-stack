@@ -95,24 +95,34 @@ export const checkGameCreation = async (
   let fakeGames: string[] = [];
 
   try {
+    // Get all games marked as PENDING in DB
     pendingGames = await getPendingGames();
   } catch (error) {
     console.error('Error fetching games: ', error);
     throw new Error(`Error fetching pending games: ${error}`);
   }
+
+  // For each pending game, validate on-chain existence and integrity
   const promises = pendingGames.map(async (game) => {
     try {
       const zkAppPublicKey = PublicKey.fromBase58(game._id);
       let response = await fetchAccount({ publicKey: zkAppPublicKey });
+
+      // Proceed if the zkApp account is deployed
       if (response.account !== undefined) {
         const zkApp = new MastermindZkApp(zkAppPublicKey);
+        // Get on-chain solution hash
         const solutionHash = await zkApp.solutionHash.get();
+        // Get solution hash from base proof stored in DB
         const baseProof = await StepProgramProof.fromJSON(
           JSON.parse(game.lastProof)
         );
         const baseProofSolutionHash =
           baseProof.publicOutput.solutionHash.toString();
+
+        // Get verification key from the on-chain contract
         const vk = response.account?.zkapp?.verificationKey?.hash;
+        // Validate both solution hash and verification key hash
         if (
           vk?.toString() === verificationKeyHash.toString() &&
           solutionHash?.toString() === baseProofSolutionHash
@@ -129,6 +139,7 @@ export const checkGameCreation = async (
   });
   await Promise.all(promises);
   if (activeGames.length) {
+    // Mark validated games as ACTIVE in the DB
     await updateManyGames(activeGames, GameStatus.ACTIVE);
   }
   if (fakeGames.length) {
