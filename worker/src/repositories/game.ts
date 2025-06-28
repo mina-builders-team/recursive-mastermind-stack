@@ -1,61 +1,107 @@
+/**
+ * Repository functions for interacting with the Game collection in the database.
+ *
+ * It is used in the worker context to perform data access operations related to games.
+ *
+ */
+
 import dotenv from 'dotenv';
 import Game, { GameStatus, IGame } from '../models/Game.js';
+import { DeleteResult } from 'mongoose';
 dotenv.config();
 
-export const createOrUpdateGame = async (gameData: Partial<IGame>) => {
+/**
+ * Creates a new game or updates an existing one in the database.
+ *
+ * If a game with the provided `_id` exists, it updates the record.
+ * Otherwise, it inserts a new game document.
+ *
+ * @param gameData - Partial game object containing fields to upsert.
+ * @returns {Promise<IGame>} The created or updated game document.
+ * @throws If MongoDB update operation fails.
+ */
+export const createOrUpdateGame = async (
+  gameData: Partial<IGame>
+): Promise<IGame> => {
   try {
-     const game = await Game.findOneAndUpdate({ _id: gameData._id }, gameData, {
+    const game = await Game.findOneAndUpdate({ _id: gameData._id }, gameData, {
       new: true,
       upsert: true,
     });
     return game;
-   } catch (err) {
+  } catch (err) {
     throw new Error('Error creating or updating game: ' + err);
   }
 };
 
-export const getGameById = async (_id: string) => {
+/**
+ * Retrieves a game document by its ID.
+ *
+ * @param _id - The unique ID of the game.
+ * @returns {Promise<IGame | null>}  The game document, or null if not found.
+ * @throws If the query to MongoDB fails.
+ */
+export const getGameById = async (_id: string): Promise<IGame | null> => {
   try {
-     const game = await Game.findOne({ _id });
+    const game = await Game.findOne({ _id });
     return game;
-   } catch (err) {
+  } catch (err) {
     throw new Error('Error retrieving game by ID: ' + err);
   }
 };
 
-export const getPendingGames = async () => {
+/**
+ * Retrieves all games that match the given status.
+ *
+ *
+ * @returns {Promise<{_id:string;lastProof:string}[]>} An array of game documents with the specified status.
+ * @throws If MongoDB query fails.
+ */
+export const getPendingGames = async (): Promise<
+  { _id: string; lastProof: string }[]
+> => {
   try {
-    const activeGames = await Game.find({ status: GameStatus.PENDING }, '_id').lean();
+    const activeGames = await Game.find(
+      { status: GameStatus.PENDING },
+      '_id lastProof'
+    ).lean();
     return activeGames;
-   } catch (err) {
+  } catch (err) {
     throw new Error('Error retrieving pending games: ' + err);
   }
 };
 
-export const getUserGames = async (userId: string) => {
+/**
+ * Updates the status of multiple games at once.
+ *
+ * @param gamesIds - An array of game IDs to update.
+ * @param status - The new status to apply.
+ * @returns {Promise<void>}
+ * @throws If the bulk update operation fails.
+ */
+export const updateManyGames = async (
+  gamesIds: string[],
+  status: GameStatus
+): Promise<void> => {
   try {
-     const userGames = await Game.find({
-      $or: [{ codeMaster: userId }, { codeBreaker: userId }],
-    });
-    return userGames;
-   } catch (err) {
-    throw new Error('Error retrieving user games: ' + err);
-  }
-};
-
-export const updateManyGames = async (gamesIds: string[],status: GameStatus) => {
-  try {
-     await Game.updateMany(
-      { _id: { $in: gamesIds } },
-      { $set: { status } }
-    );
-   } catch (err) {
+    await Game.updateMany({ _id: { $in: gamesIds } }, { $set: { status } });
+  } catch (err) {
     throw new Error('Error updating games : ' + err);
   }
 };
-export const deleteManyGames = async (gamesIds: string[]) => {
+
+/**
+ * Deletes multiple games by their IDs.
+ *
+ * @param gamesIds - An array of game IDs to delete.
+ * @returns {Promise<{ acknowledged: true, deletedCount: number}>}
+ * @throws If an error occurs while deleting games.
+ */
+export const deleteManyGames = async (
+  gamesIds: string[]
+): Promise<DeleteResult> => {
   try {
-    return await Game.deleteMany( { _id: { $in: gamesIds } });
+    return await Game.deleteMany({ _id: { $in: gamesIds } });
   } catch (err) {
     throw new Error('Error deleting game: ' + err);
   }

@@ -1,3 +1,14 @@
+/**
+ * Utility functions for the Mina Mastermind frontend.
+ *
+ * This module provides various helpers for:
+ * - Formatting and displaying player and game data.
+ * - Decompressing and visualizing game history (guesses, clues) from zkApp state and zk proofs.
+ * - Validating color combinations for user input.
+ * - Interfacing with localStorage to persist game metadata across sessions.
+ * - Loading cached verification key files for performance optimizations.
+ */
+
 import {
   Clue,
   Combination,
@@ -7,9 +18,25 @@ import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';
 import { MAX_ATTEMPTS } from './constants/config';
 
-export function formatAddress(address: string) {
+/**
+ * Formats a public key address by truncating the middle for display purposes.
+ * Example: 'B62q...xyz01'
+ *
+ * @param address - The full public key address in base 58.
+ * @returns The formatted address string.
+ */
+export function formatAddress(address: string): string {
   return `${address?.slice(0, 5)}...${address?.slice(-5)}`;
 }
+
+/**
+ * Decomposes a serialized game history field into an array of bit chunks.
+ * Each chunk represents a guess or clue depending on the provided chunk size.
+ *
+ * @param serializedHistory - The field value encoding all previous moves.
+ * @param chunkSize - Number of bits allocated for each move or clue.
+ * @returns An array of bit arrays representing individual guesses or clues.
+ */
 const decomposeHistory = (serializedHistory: Field, chunkSize: number) => {
   const historyBits = serializedHistory.toBits(chunkSize * MAX_ATTEMPTS);
   const historyBitPacks: Bool[][] = [];
@@ -19,12 +46,24 @@ const decomposeHistory = (serializedHistory: Field, chunkSize: number) => {
   return historyBitPacks;
 };
 
+/**
+ * Decompresses the packed guess history from the field into an array of string digits.
+ *
+ * @param compressedHistory - The compressed guess history field from the zkApp.
+ * @returns An array of string representations of each guess.
+ */
 function decompressHistory(compressedHistory: Field) {
   return decomposeHistory(compressedHistory, 12).map((bits) =>
     Combination.decompress(Field.fromBits(bits)).digits.toString()
   );
 }
 
+/**
+ * Converts a compressed guess history into an array of color-coded guesses.
+ *
+ * @param packedGuessHistory - Field representing compressed guesses.
+ * @returns Array of color arrays representing guesses.
+ */
 export function generateColoredGuessHistory(
   packedGuessHistory: Field
 ): Array<AvailableColor[]> {
@@ -46,12 +85,25 @@ export function generateColoredGuessHistory(
   }
 }
 
+/**
+ * Converts a compressed clue history into an array of Clue objects.
+ *
+ * @param compressedHistory - Field containing compressed clue data.
+ * @returns Array of Clue objects.
+ */
 const deserializeClueHistory = (compressedHistory: Field) => {
   return decomposeHistory(compressedHistory, 6).map((bits) =>
     Clue.decompress(Field.fromBits(bits))
   );
 };
 
+/**
+ * Generates a color-coded representation of clue history for display.
+ *
+ * @param packedClueHistory - Field representing compressed clue history.
+ * @param round - Current round number in the game.
+ * @returns Array of color arrays representing clues.
+ */
 export function generateColoredCluesHistory(
   packedClueHistory: Field,
   round: number
@@ -75,6 +127,12 @@ export function generateColoredCluesHistory(
   });
 }
 
+/**
+ * Validates that a color combination contains distinct values from 0 to 7.
+ *
+ * @param combination - Array of selected colors.
+ * @returns Object indicating validity and an optional error message.
+ */
 export function validateColorCombination(combination: AvailableColor[]) {
   const combinationDigits = combination?.map(({ value }) => Field(value));
   const comb = new Combination({ digits: combinationDigits });
@@ -93,6 +151,13 @@ export function validateColorCombination(combination: AvailableColor[]) {
     };
   }
 }
+
+/**
+ * Generates a random numeric salt string of specified length.
+ *
+ * @param length - Length of the salt string (default is 20).
+ * @returns Random numeric salt string.
+ */
 export function generateRandomSalt(length = 20): string {
   const chars = '123456789';
   let randomSalt = '';
@@ -102,6 +167,12 @@ export function generateRandomSalt(length = 20): string {
   return randomSalt;
 }
 
+/**
+ * Custom cache interface used for reading and writing compiled zkApp artifacts.
+ *
+ * @param files - Object containing cached file data.
+ * @returns A Cache-compliant object.
+ */
 export const MinaFileSystem = (files: any): Cache => ({
   read({ persistentId, uniqueId, dataType }: any) {
     // read current uniqueId, return data if it matches
@@ -134,6 +205,12 @@ export const MinaFileSystem = (files: any): Cache => ({
   },
   canWrite: true,
 });
+
+/**
+ * Fetches zkApp cache files required for contract interaction.
+ *
+ * @returns A promise resolving to the fetched zkApp cache content.
+ */
 export function fetchZkAppCacheFiles() {
   const files = [
     { name: 'lagrange-basis-fp-2048', type: 'string' },
@@ -150,6 +227,12 @@ export function fetchZkAppCacheFiles() {
   ];
   return fetchFiles(files, 'zkAppCache');
 }
+
+/**
+ * Fetches zkProgram cache files.
+ *
+ * @returns A promise resolving to the fetched zkProgram cache content.
+ */
 export function fetchZkProgramCacheFiles() {
   const files = [
     { name: 'srs-fp-65536', type: 'string' },
@@ -164,6 +247,14 @@ export function fetchZkProgramCacheFiles() {
   ];
   return fetchFiles(files, 'zkProgramCache');
 }
+
+/**
+ * Fetches cache file headers and data from a specified folder.
+ *
+ * @param files - Array of file definitions with name and type.
+ * @param folder - The folder path where the files are stored.
+ * @returns A promise resolving to a dictionary of cached file contents.
+ */
 export function fetchFiles(
   files: Array<{ name: string; type: string }>,
   folder: string
@@ -183,11 +274,24 @@ export function fetchFiles(
     }, {})
   );
 }
+/**
+ * Serializes a combination of digits into a single numeric code.
+ *
+ * @param code - Array of digits representing a color combination.
+ * @returns A single number encoding the combination.
+ */
 export function serializeSecret(code: number[]) {
   return code.reduce((acc: number, curr: number) => {
     return acc * 10 + curr;
   }, 0);
 }
+
+/**
+ * Formats a timestamp into a readable date and time string.
+ *
+ * @param timestamp - Optional timestamp in milliseconds.
+ * @returns A formatted date and time string, or '-' if timestamp is undefined.
+ */
 export function dateToDayHourMin(timestamp?: number): string {
   if (!timestamp) return '-';
   const date = new Date(timestamp);
@@ -200,6 +304,13 @@ export function dateToDayHourMin(timestamp?: number): string {
 
   return `${datePart.replace(/-/g, '/')} ${timePart}`;
 }
+
+/**
+ * Updates the local storage with game metadata for a given game ID.
+ *
+ * @param gameId - The game ID used as the key in local storage.
+ * @param data - Data object to store.
+ */
 export function updateLocalStorageGames(gameId: string, data: any): void {
   let games: any = {};
   const storedGames = localStorage.getItem('games');
@@ -214,6 +325,13 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
   };
   localStorage.setItem('games', JSON.stringify(games));
 }
+
+/**
+ * Retrieves a stored game object from local storage.
+ *
+ * @param gameId - The ID of the game to retrieve.
+ * @returns The stored game data as a string or null if not found.
+ */
 export function getStoredGame(gameId: string): string | null {
   const games = localStorage.getItem('games');
   if (games) {

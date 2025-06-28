@@ -3,7 +3,7 @@ dotenv.config();
 const minaNetwork = process.env.MINA_NETWORK || 3000;
 
 export const MAX_ATTEMPTS = 7;
-export const VERIFIED_REFREES =
+export const VERIFIED_REFEREES =
   minaNetwork === 'lightnet'
     ? ['B62qiaUDjv6eeRrwVCy68WVb6W2cYe1Bev8vjcoKzr3QNkXFoxFutf5']
     : minaNetwork === 'devnet'
