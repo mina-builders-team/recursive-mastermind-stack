@@ -300,7 +300,6 @@ const functions = {
       const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
       await state.zkappInstance!.submitGameProof(
         proof,
-        //Todo: add corect pubkey
         PublicKey.empty()
       );
     });
