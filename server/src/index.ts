@@ -28,15 +28,15 @@ import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
 
-//Environment Setup
+// Environment Setup
 dotenv.config();
 
-//Express Server Initialization
+// Express Server Initialization
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-//Port configuration
+// Port configuration
 const PORT = process.env.SERVER_PORT || 3000;
 
 // Redis connection parameters
@@ -47,13 +47,13 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 // Compile & Load verification keys (step program & contract)
 const verificationKeys = await setupContract();
 
-//Connect to MongoDB
+// Connect to MongoDB
 connectDatabase();
 
 // Resume all in-progress games on startup by marking them as "on_chain" to continue execution on the blockchain
 await resumeOnChain();
 
-//Start Express Server
+// Start Express Server
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
@@ -61,16 +61,16 @@ const server = app.listen(PORT, () => {
 // Mounts game routes at the '/games' endpoint.
 app.use('/games', gamesRoute);
 
-//Healthcheck Endpoint
+// Healthcheck Endpoint
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-//WebSocket Server Setup
+// WebSocket Server Setup
 const wss = new WebSocketServer({ server });
 const activePlayers = new Map<string, Set<WebSocket>>();
 
-//Queue to manage game tasks like game creation check, submitting final proof on chain, penalty, server balance check,etc.
+// Queue to manage game tasks like game creation check, submitting final proof on chain, penalty, server balance check,etc.
 const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
   defaultJobOptions: {
@@ -113,7 +113,7 @@ queueEvents.on('failed', async ({ failedReason, jobId }) => {
 
 // Schedule recurring jobs:
 // - 'lobby-games': runs every minute to verify that all games created on the server
-//   are also properly created on-chain.
+// - are also properly created on-chain.
 await gameLifecycleQueue.upsertJobScheduler(
   'lobby-games',
   { pattern: '* * * * *' },
@@ -128,7 +128,7 @@ await gameLifecycleQueue.upsertJobScheduler(
 );
 
 // - 'server-balance': runs daily at midnight to monitor the remaining balance of the server’s
-//    account used for sending transactions. This helps avoid failures due to low funds.
+// - account used for sending transactions. This helps avoid failures due to low funds.
 await gameLifecycleQueue.upsertJobScheduler(
   'server-balance',
   { pattern: '0 0 * * *' },
@@ -142,7 +142,7 @@ await gameLifecycleQueue.upsertJobScheduler(
   }
 );
 
-//WebSocket Handler
+// WebSocket Handler
 wss.on('connection', (ws) => {
   ws.on('message', async (message) => {
     try {
@@ -238,5 +238,5 @@ cron.schedule('*/20 * * * *', async () => {
   }
 });
 
-//Error Monitoring with Sentry
+// Error Monitoring with Sentry
 Sentry.setupExpressErrorHandler(app);
