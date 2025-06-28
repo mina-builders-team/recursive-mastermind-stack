@@ -252,7 +252,7 @@ const {
   claimRewardTransaction,
   getZkAppStates,
   getStoredTransactionsHash,
-  setCurrentTransactionHash,
+  setLastTurnTransactionHash,
 } = useZkAppStore();
 const {
   zkAppAddress,
@@ -304,7 +304,7 @@ const claimReward = async () => {
   } else {
     ElNotification({
       title: 'Success',
-      message: `Transaction Hash : ${currentTransactionLink.value}`,
+      message: `Transaction Hash : ${claimRewardTransactionHash.value}`,
       type: 'success',
       duration: 5000,
     });
@@ -397,7 +397,7 @@ const submitLastProof = async () => {
     } else {
       ElNotification({
         title: 'Success',
-        message: `Transaction Hash : ${currentTransactionLink.value}`,
+        message: `Transaction Hash : ${submitGameTransactionHash.value}`,
         type: 'success',
         duration: 5000,
       });
@@ -423,7 +423,7 @@ watch(
       guesses.value = zkAppStates.value.guessesHistory;
       isTurnTimeExceeded.value = false;
       setTurnPlayed(false);
-      setCurrentTransactionHash(null);
+      setLastTurnTransactionHash(null);
       playSound();
     }
   }

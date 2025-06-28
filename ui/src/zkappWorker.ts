@@ -129,7 +129,8 @@ const functions = {
           authSignature: signature,
         },
         combination,
-        Field(args.salt)
+        Field(args.salt),
+        PublicKey.fromBase58(state.zkAppAddress as string)
       );
       state.lastProof = stepProof.proof;
       return stepProof.proof.toJSON();
@@ -149,7 +150,8 @@ const functions = {
         authSignature: signature,
       },
       state.lastProof as StepProgramProof,
-      Combination.from(args.separatedGuess)
+      Combination.from(args.separatedGuess),
+      PublicKey.fromBase58(state.zkAppAddress as string)
     );
     state.lastProof = stepProof.proof;
     return stepProof.proof.toJSON();
@@ -200,7 +202,8 @@ const functions = {
       },
       state.lastProof as StepProgramProof,
       Combination.from(args.secretCombination),
-      Field(args.randomSalt)
+      Field(args.randomSalt),
+      PublicKey.fromBase58(state.zkAppAddress as string)
     );
     state.lastProof = stepProof.proof;
     return stepProof.proof.toJSON();

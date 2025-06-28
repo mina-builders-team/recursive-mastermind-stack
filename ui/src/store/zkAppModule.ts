@@ -199,10 +199,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           throw new Error("You don't have enough funds!");
         }
         this.stepDisplay = 'Creating a transaction...';
-        const signedData = await this.signFields([
-          ...separatedSecretCombination,
-          salt,
-        ]);
         this.zkAppAddress =
           await this.zkappWorkerClient!.createInitGameTransaction(
             this.publicKeyBase58,
@@ -211,6 +207,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             refereePubKeyBase58,
             rewardAmount
           );
+        const signedData = await this.signFields([
+          ...separatedSecretCombination,
+          salt,
+          ...PublicKey.fromBase58(this.zkAppAddress)
+            .toFields()
+            .map((e) => e.toString()),
+        ]);
         await this.joinGame();
         this.stepDisplay = 'Generating proof...';
         await this.zkappWorkerClient!.proveTransaction();
@@ -264,6 +267,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         const signedData = await this.signFields([
           ...combination,
           this.zkProofStates.turnCount,
+          ...PublicKey.fromBase58(this.zkAppAddress as string)
+            .toFields()
+            .map((e) => e.toString()),
         ]);
         if (signedData) {
           this.isTurnPlayed = true;
@@ -300,6 +306,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           ...combination,
           randomSalt,
           this.zkProofStates.turnCount,
+          ...PublicKey.fromBase58(this.zkAppAddress as string)
+            .toFields()
+            .map((e) => e.toString()),
         ]);
         if (signedData) {
           this.isTurnPlayed = true;
@@ -651,8 +660,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.claimRewardTransactionHash = game?.claimRewardTransactionHash;
       this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
-    setCurrentTransactionHash(hash: string | null) {
-      this.currentTransactionLink = hash ? hash : '';
+    setLastTurnTransactionHash(hash: string | null) {
+      this.lastTurnTransactionHash = hash ? hash : '';
     },
     async createDummyGameTransaction() {
       this.loading = true;
