@@ -147,7 +147,10 @@ Note: You may need to run yarn start multiple times (typically 3–5 times) unti
 │   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed 
 │   ├              #by an isolated worker,allowing testing of asynchronous and multi-client game play.
 │   ├── games.json #mock game definitions.Each game entry includes codeMaster, codeBreaker and attempts.
-│
+│   ├── .env.simulate.devnet.example #Example env file for Devnet-based simulations
+│   ├── .env.simulate.lightnet.example #Example env file for Lightnet-based simulations
+│   ├── .env.test.devnet.example #Example env file for Devnet-based Jest tests
+│   ├── .env.test.lightnet.example #Example env file for Lightnet-based Jest tests
 ├── docker/
 │   └── Dockerfile.dev #Dockerfile to build a client worker for test simulations.
 ├── src/
@@ -173,6 +176,8 @@ These are defined in `src/test/mastermind.test.ts` and cover:
 #### To run them:
 
 ```bash
+cp .env.test.lightnet.example .env #Or cp .env.test.devnet.example .env depending on the network you're using
+docker-compose --profile test up -d #Start the needed containers using Docker Compose
 yarn install       # Install dependencies
 yarn build         # Build the project
 yarn test src/test/mastermind.test.ts
@@ -192,15 +197,8 @@ These tests simulate multiple games being created and played simultaneously, han
 #### Steps to run:
 
 ```bash
-# 1. Install dependencies and build the project
-yarn install
-yarn build
-
-# 2. Start the worker containers using Docker Compose
-docker-compose --profile test up -d --build
-
-# 3. Push simulated game jobs into the queue
-yarn dev         # This runs index.ts
+cp .env.simulate.lightnet.example .env #Or cp .env.simulate.devnet.example .env depending on the network you're using
+docker-compose --profile simulate up -d  # Start the needed containers using Docker Compose
 ```
 
 > You can monitor and scale worker containers to test concurrency and performance.

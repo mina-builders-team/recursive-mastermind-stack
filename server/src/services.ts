@@ -16,8 +16,8 @@ import {
   MastermindZkApp,
   StepProgramProof,
   GameState,
+  Clue,
 } from '@navigators-exploration-team/mina-mastermind';
-import { checkGameStatus } from './zkAppHandler.js';
 import { Queue } from 'bullmq';
 import {
   fetchAccount,
@@ -30,6 +30,7 @@ import {
 } from 'o1js';
 import { GameStatus, IGame } from './models/Game.js';
 import { MAX_ATTEMPTS, VERIFIED_REFEREES } from './constants.js';
+import * as Sentry from '@sentry/node';
 
 /**
  * Handles a player joining a game. Adds their WebSocket to the list of active players
@@ -132,28 +133,27 @@ export const handleProof = async (
     if (!validProof) {
       throw new Error('Invalid zkProof!');
     }
-
-    // Extract the turn count from the verified proof
-    receivedTurnCount = Number(receivedProof.publicOutput.turnCount.toString());
-
-    // Reject if the submitted proof does not represent the next turn
-    if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
-      ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
-      return;
-    }
-
-    // If it's the code master's turn (odd turn), check if game is solved
-    if (receivedTurnCount % 2 !== 0) {
-      const { turnCount: turnCount_, isSolved: isSolved_ } =
-        await checkGameStatus(receivedProof);
-
-      turnCount = turnCount_;
-      isSolved = isSolved_;
-    }
   } catch (e) {
     console.error('Error verifying proof:', e);
     ws.send(JSON.stringify({ error: 'Invalid zkProof!' }));
     return;
+  }
+  // Extract the turn count from the verified proof
+  receivedTurnCount = Number(receivedProof.publicOutput.turnCount.toString());
+
+  // Reject if the submitted proof does not represent the next turn
+  if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
+    ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
+    return;
+  }
+
+  // If it's the code master's turn (odd turn), check if game is solved
+  if (receivedTurnCount % 2 !== 0 && receivedTurnCount > 1) {
+    turnCount = Number(receivedProof.publicOutput.turnCount.toString());
+    const deserializedClue = Clue.decompress(
+      receivedProof.publicOutput.lastcompressedClue
+    );
+    isSolved = deserializedClue.isSolved().toBoolean();
   }
 
   // Determine the winner if game is solved or if max attempts are exceeded
@@ -226,7 +226,7 @@ export async function handleGameStart(
   const game = await getGameById(gameId);
 
   // Only proceed if the game has not started yet (no codeBreaker)
-  if (!game?.codeBreaker || game?.status !== GameStatus.ACTIVE) {
+  if (!game?.codeBreaker) {
     const zkAppPublicKey = PublicKey.fromBase58(gameId);
     const zkApp = new MastermindZkApp(zkAppPublicKey);
 
@@ -445,5 +445,7 @@ export async function resumeOnChain(): Promise<void> {
     await resumeOnGoingGames();
   } catch (err) {
     console.log('error resuming games on chain: ', err);
+    Sentry.captureException(err);
+    throw err;
   }
 }

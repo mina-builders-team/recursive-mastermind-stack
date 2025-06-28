@@ -194,6 +194,7 @@ wss.on('connection', (ws) => {
     } catch (err) {
       console.error('Error processing message:', err);
       ws.send(JSON.stringify({ error: 'Internal error!' }));
+      Sentry.captureException(err);
     }
   });
 
@@ -209,6 +210,7 @@ wss.on('connection', (ws) => {
 
   ws.on('error', (err) => {
     console.error('WebSocket error:', err);
+    Sentry.captureException(err);
   });
 });
 
@@ -230,6 +232,8 @@ cron.schedule('*/20 * * * *', async () => {
     Date.now() - Number(gameLifecycleQueuePausedAt) > 1000 * 60 * 20
   ) {
     console.log('Queue stuck in paused state, resuming...');
+    const error = new Error('queue has been paused for over 20 minutes');
+    Sentry.captureException(error);
     await gameLifecycleQueue.resume();
   }
 });

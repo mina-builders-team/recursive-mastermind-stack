@@ -10,10 +10,8 @@
 import { Mina } from 'o1js';
 import dotenv from 'dotenv';
 import {
-  Clue,
   MastermindZkApp,
   StepProgram,
-  StepProgramProof,
 } from '@navigators-exploration-team/mina-mastermind';
 dotenv.config();
 
@@ -45,36 +43,3 @@ export const setupContract = async () => {
   console.timeEnd('zkApp compilation');
   return { stepProgramVerificationKey, contractVerificationKey };
 };
-
-/**
- * Checks the status of a Mastermind game by verifying the latest step proof.
- *
- * This function is primarily used to determine whether a game has been solved and the current turn count,
- * based on the latest submitted `StepProgramProof`.
- *
- * @param zkProof - A deserialized `StepProgramProof` instance containing the game's last move and clue.
- *
- * @returns An object with:
- *  - `turnCount`: The number of turns taken so far in the game.
- *  - `isSolved`: Boolean indicating whether the game has been solved.
- */
-export async function checkGameStatus(zkProof: StepProgramProof) {
-  try {
-    const turnCount = zkProof.publicOutput.turnCount.toString();
-    const deserializedClue = Clue.decompress(
-      zkProof.publicOutput.lastcompressedClue
-    );
-    const isGameSolved = deserializedClue.isSolved();
-    return {
-      turnCount: Number(turnCount),
-      isSolved: isGameSolved.toBoolean(),
-    };
-  } catch (e) {
-    console.log('error : ', e);
-  }
-
-  return {
-    turnCount: null,
-    isSolved: null,
-  };
-}
