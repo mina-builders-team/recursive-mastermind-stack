@@ -298,10 +298,7 @@ const functions = {
   submitGameProof: async (args: { zkProof: string }) => {
     const transaction = await Mina.transaction(async () => {
       const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
-      await state.zkappInstance!.submitGameProof(
-        proof,
-        PublicKey.empty()
-      );
+      await state.zkappInstance!.submitGameProof(proof, PublicKey.empty());
     });
     state.transaction = transaction;
   },
