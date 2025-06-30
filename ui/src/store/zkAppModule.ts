@@ -666,13 +666,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async createDummyGameTransaction() {
       this.loading = true;
       const start = performance.now();
-      await this.zkappWorkerClient!.createInitGameTransaction(
-        this.publicKeyBase58,
-        [1, 2, 3, 4],
-        Field(1).toString(),
-        PublicKey.empty().toBase58(),
-        10
-      );
+      this.zkAppAddress =
+        await this.zkappWorkerClient!.createInitGameTransaction(
+          this.publicKeyBase58,
+          [1, 2, 3, 4],
+          Field(1).toString(),
+          import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
+          10 * 1e9
+        );
       await this.zkappWorkerClient!.proveTransaction();
       this.loading = false;
       const end = performance.now();
@@ -682,7 +683,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.loading = true;
       const start = performance.now();
       const salt = Field(1).toString();
-      const signedData = await this.signFields([...[1, 2, 3, 4], salt]);
+      const signedData = await this.signFields([
+        ...[1, 2, 3, 4],
+        salt,
+        ...PublicKey.fromBase58(this.zkAppAddress as string)
+          .toFields()
+          .map((e) => e.toString()),
+      ]);
       const res = await this.zkappWorkerClient!.sendNewGameProof(
         signedData,
         [1, 2, 3, 4],
@@ -695,7 +702,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async createDummyGuessProof() {
       this.loading = true;
       const start = performance.now();
-      const signedData = await this.signFields([...[1, 2, 3, 4], 1]);
+      const signedData = await this.signFields([
+        ...[1, 2, 3, 4],
+        1,
+        ...PublicKey.fromBase58(this.zkAppAddress as string)
+          .toFields()
+          .map((e) => e.toString()),
+      ]);
       const res = await this.zkappWorkerClient!.createGuessProof(
         signedData,
         [1, 2, 3, 4]
@@ -711,6 +724,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         ...[1, 2, 3, 4],
         Field(1).toString(),
         2,
+        ...PublicKey.fromBase58(this.zkAppAddress as string)
+          .toFields()
+          .map((e) => e.toString()),
       ]);
       const res = await this.zkappWorkerClient!.createGiveClueProof(
         signedData,
