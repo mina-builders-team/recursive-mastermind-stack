@@ -112,10 +112,12 @@ export class MastermindGame {
         authSignature: Signature.create(this.codeMasterKey, [
           ...SOLUTION.digits,
           SALT,
+          ...this.zkAppKey.toPublicKey().toFields(),
         ]),
       },
       SOLUTION,
-      SALT
+      SALT,
+      this.zkAppKey.toPublicKey()
     );
 
     this.codeMasterWebSocket?.send({
@@ -178,10 +180,12 @@ export class MastermindGame {
         authSignature: Signature.create(this.codeBreakerKey, [
           ...guess.digits,
           this.lastReceivedProof!.publicOutput.turnCount.value,
+          ...this.zkAppKey.toPublicKey().toFields(),
         ]),
       },
       this.lastReceivedProof!,
-      guess
+      guess,
+      this.zkAppKey.toPublicKey()
     );
     this.codeBreakerWebSocket?.send({
       action: 'sendProof',
@@ -198,11 +202,13 @@ export class MastermindGame {
           ...SOLUTION.digits,
           SALT,
           this.lastReceivedProof!.publicOutput.turnCount.value,
+          ...this.zkAppKey.toPublicKey().toFields(),
         ]),
       },
       this.lastReceivedProof!,
       SOLUTION,
-      SALT
+      SALT,
+      this.zkAppKey.toPublicKey()
     );
     this.codeMasterWebSocket?.send({
       action: 'sendProof',
