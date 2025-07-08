@@ -144,7 +144,7 @@ Note: You may need to run yarn start multiple times (typically 3–5 times) unti
 ```sh
 
 ├── integration-test/
-│   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed 
+│   ├── index.ts   #Orchestrates the creation of a queue of Mastermind games. Each game is processed
 │   ├              #by an isolated worker,allowing testing of asynchronous and multi-client game play.
 │   ├── games.json #mock game definitions.Each game entry includes codeMaster, codeBreaker and attempts.
 │   ├── .env.simulate.devnet.example #Example env file for Devnet-based simulations
@@ -177,7 +177,7 @@ These are defined in `src/test/mastermind.test.ts` and cover:
 
 ```bash
 # Set up environment variables
-cp .env.example .env                             # Copy root env
+cp .env.example .env  # Copy root env
 cp server/.env.test.lightnet.example server/.env # Or use .env.test.devnet.example depending on the network
 cp worker/.env.test.lightnet.example worker/.env # Or use .env.test.devnet.example depending on the network
 
@@ -187,7 +187,7 @@ cp .env.test.lightnet.example .env #Or use cp .env.test.devnet.example .env depe
 # Start containers
 docker-compose --profile test up -d #Start the needed containers using Docker Compose
  # Install dependencies
-yarn install      
+yarn install
 # Run test
 yarn test src/test/mastermind.test.ts
 ```
@@ -207,7 +207,7 @@ These tests simulate multiple games being created and played simultaneously, han
 
 ```bash
 # Set up environment variables
-cp .env.example .env                             # Copy root env
+cp .env.example .env  # Copy root env
 cp server/.env.test.lightnet.example server/.env # Or use .env.test.devnet.example depending on the network
 cp worker/.env.test.lightnet.example worker/.env # Or use .env.test.devnet.example depending on the network
 
@@ -386,6 +386,7 @@ zk lightnet start
 ## 3. Running the Application
 
 ### Environment Setup
+
 - Duplicate the `.env.example` file located in the root directory and rename the copy to `.env`:
 - Duplicate the `.env.lightnet.example` file in the following directories and rename it to `.env`:
 
@@ -402,6 +403,7 @@ Run the following command to start the application using Docker:
 ```sh
 docker compose --profile dev up -d
 ```
+
 Once the containers are running, the UI will be available at http://localhost:3001.
 
 ## Working with Lightnet Test Accounts
