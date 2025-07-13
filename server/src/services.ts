@@ -81,7 +81,9 @@ export const handleProof = async (
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
   gameLifecycleQueue: Queue,
-  vk: VerificationKey
+  vk: VerificationKey,
+  roomName: string,
+  gameCreationTransactionHash: string
 ) => {
   // Validate that a zkProof has been submitted
   if (!zkProof) {
@@ -195,6 +197,9 @@ export const handleProof = async (
       lastTurnCount === null
         ? VERIFIED_REFEREES.includes(refereePubKeyBase58)
         : undefined,
+    gameCreationTransactionHash:
+      lastTurnCount === null ? gameCreationTransactionHash : undefined,
+    roomName: lastTurnCount === null ? roomName : undefined,
   });
 
   // Notify all connected players in the game about the new proof and game state

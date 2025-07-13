@@ -40,4 +40,6 @@ export interface Game {
   lastCancelTimestamp?: number;
   refereePubKeyBase58: string;
   isRefereeVerified: boolean;
+  roomName?: string;
+  gameCreationTransactionHash?: string;
 }

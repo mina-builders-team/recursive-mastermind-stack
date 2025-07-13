@@ -1,25 +1,28 @@
 <template>
   <div class="d-flex flex-column align-items-center">
-    <div
-      class="exit-game cursor-pointer mb-4 d-flex align-items-center gap-2"
-      @click="handleLeaveGame"
-    >
-      <el-icon class="pt-1 fw-bold"><Back /></el-icon>
-      Exit game
-    </div>
-    <div v-if="zkAppStates" class="w-100">
-      <GameDetail
+    <div class="w-100">
+      <Modal
         v-if="
           !isGameAcceptedOnChain ||
           (!isPlayingOnChain &&
             ['ACTIVE', 'PENDING'].includes(game?.status || ''))
         "
-      />
+      >
+        <GameDetail />
+      </Modal>
       <GameBoard v-else />
     </div>
-    <div v-else class="mt-5">
-      <GameBoardSkeleton />
+    <!--     <div v-else>
+      <Modal>
+        <div class="d-flex flex-column gap-2 snow-white">
+          <div class="d-flex align-items-end gap-2">
+            <div>Setting up game {{ formatAddress(gameId) }} </div>
+            <div class=""><DotsLoader /></div>
+          </div>
+        </div>
+      </Modal>
     </div>
+ -->
   </div>
 </template>
 
@@ -27,12 +30,13 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import GameBoard from '@/components/GameBoard.vue';
 import GameDetail from '@/components/GameDetail.vue';
-import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
+import Modal from '@/components/shared/Modal.vue';
+import DotsLoader from '@/components/shared/DotsLoader.vue';
+import { formatAddress } from '@/utils';
 const route = useRoute();
-const router = useRouter();
 const { compiled, zkAppStates, game, isPlayingOnChain } =
   storeToRefs(useZkAppStore());
 const {
@@ -43,6 +47,8 @@ const {
   clearGame,
   setPlayingOnChain,
   establishConnection,
+  getRole,
+  getGame
 } = useZkAppStore();
 const gameId = route?.params?.id as string;
 const isGameAcceptedOnChain = ref(false);
@@ -50,6 +56,7 @@ const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
     await joinGame(gameId);
+    await getRole();
     intervalId.value = setInterval(async () => {
       await getZkAppStates();
       if (zkAppStates.value && zkAppStates.value.codeBreakerId !== '0') {
@@ -60,11 +67,11 @@ const initializeGame = async () => {
     }, 30000);
   }
 };
-const handleLeaveGame = () => {
-  router.push({ name: 'home' });
-};
 onMounted(async () => {
   await initializeGame();
+  if (!game.value) {
+    await getGame(gameId);
+  }
 });
 watch(
   () => compiled.value,
@@ -102,12 +109,3 @@ onUnmounted(async () => {
   }
 });
 </script>
-<style lang="css" scoped>
-.board__container {
-  border: 1px solid #222;
-  box-shadow: 0 0 10px #00ffcc55;
-}
-.exit-game {
-  color: #00ffcc;
-}
-</style>

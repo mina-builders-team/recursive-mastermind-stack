@@ -1,13 +1,20 @@
 <template>
-  <div class="d-flex align-items-center gap-1">
-    <el-icon
-      v-if="showIcon"
-      :size="25"
-      :class="['cursor-pointer timer-icon', { critical: isCritical }]"
-      ><Timer
-    /></el-icon>
-    <span v-if="!isOnChain">{{ minutes }}:{{ seconds }}</span>
-    <span v-else> < {{ remainingSlot * 3 }} Minutes</span>
+  <div
+    :class="[
+      'd-flex align-items-center gap-1 fw-400  p-10 radius-10 fs-16 fw-600',
+      {
+        'black bg-light-gray': !isCritical,
+        'critical snow-white' : isCritical
+      },
+    ]"
+  >
+    <inline-svg
+      class="me-1"
+      v-if="isCritical"
+      src="/icons/alert.svg"
+    ></inline-svg>
+    <span v-if="!isOnChain"><span v-if="minutes !== '00'">{{ minutes || 0 }} min </span> {{ seconds || 0 }} s</span>
+    <span v-else> < {{ remainingSlot * 3 }} min</span>
   </div>
 </template>
 
@@ -41,6 +48,10 @@ const props = defineProps({
     type: Number,
     required: false,
   },
+  criticalOn: {
+    type: Number,
+    required: false,
+  },
 });
 
 const minutes = ref('00');
@@ -71,7 +82,7 @@ const updateCountdown = () => {
 
   minutes.value = String(m).padStart(2, '0');
   seconds.value = String(s).padStart(2, '0');
-  isCritical.value = timeLeft <= 30000;
+  isCritical.value = props.criticalOn && timeLeft <= props.criticalOn;
 };
 
 const startTimer = () => {
@@ -87,9 +98,10 @@ onMounted(() => {
 onUnmounted(() => clearInterval(interval));
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .critical {
-  color: rgb(217, 103, 103);
+  background:#FF375F4D;
+  border: 1px solid #FF375F;
   animation: blink 0.5s step-start infinite;
 }
 

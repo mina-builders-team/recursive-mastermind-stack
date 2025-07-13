@@ -26,7 +26,7 @@ import { MAX_ATTEMPTS } from './constants/config';
  * @returns The formatted address string.
  */
 export function formatAddress(address: string): string {
-  return `${address?.slice(0, 5)}...${address?.slice(-5)}`;
+  return address ? `${address?.slice(0, 5)}...${address?.slice(-5)}` : '';
 }
 
 /**

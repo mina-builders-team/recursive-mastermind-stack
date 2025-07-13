@@ -29,6 +29,8 @@ export interface IGame extends Document {
   lastCancelTimestamp: number;
   refereePubKeyBase58: string;
   isRefereeVerified: boolean;
+  gameCreationTransactionHash: string;
+  roomName: string;
 }
 
 const gameSchema: Schema = new Schema(
@@ -54,6 +56,8 @@ const gameSchema: Schema = new Schema(
     lastCancelTimestamp: { type: Number, required: false },
     refereePubKeyBase58: { type: String, required: true },
     isRefereeVerified: { type: Boolean, required: true },
+    gameCreationTransactionHash: { type: String, required: true },
+    roomName: { type: String, required: true },
   },
   { timestamps: true }
 );

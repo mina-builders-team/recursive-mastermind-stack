@@ -1,225 +1,70 @@
 <template>
-  <div>
-    <div v-if="isPlayingOnChain" class="mb-4 d-flex gap-2">
-      <div v-if="!isLastProofSubmitted && !isGameEnded" class="w-100">
-        <el-button
-          type="primary"
-          size="large"
-          :loading="loading"
-          @click="submitLastProof"
-          class="multi-line-button w-100 confirm-btn fs-7 fw-500 py-3"
-          >{{ stepDisplay ? stepDisplay : 'Submit last proof' }}</el-button
-        >
-        <div
-          v-if="submitGameTransactionHash"
-          class="transaction-notice d-flex flex-column align-items-start"
-        >
-          <span>Transaction sent.</span><br />
-          <span class="d-flex gap-2 warning-text">
-            <el-icon color="yellow"><WarnTriangleFilled /></el-icon>
-            Avoid re-submitting unless this
-            <a
-              :href="`https://minascan.io/devnet/tx/${submitGameTransactionHash}?type=zk-tx`"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              transaction
-            </a>
-            failed.
-          </span>
+  <div class="d-flex justify-content-center w-100 h-100 mt-2 mb-4">
+    <div class="board__container">
+      <GameResult
+        v-if="isGameEnded"
+        :isWinner="isWinner"
+        :userRole="userRole!"
+        :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
+        :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
+        :gameReward="game?.rewardAmount!"
+        :finalTransaction="lastTransactionLink"
+      />
+      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3" v-else>
+        <div class="board-title mb-4">
+          <div class="gray fs-14">Welcome</div>
+          <span v-if="userRole === 'CODE_BREAKER'">Code Breaker</span>
+          <span v-else-if="userRole === 'CODE_MASTER'">Code Master</span>
         </div>
-        <div
-          v-else
-          class="transaction-notice d-flex flex-column align-items-start"
-        >
-          <span class="d-flex gap-2 warning-text">
-            <el-icon color="yellow" class="mt-1"
-              ><WarnTriangleFilled
-            /></el-icon>
-            Connection to the server was lost. <br />Please submit your proof to
-            continue playing on-chain.
-          </span>
-        </div>
-      </div>
-      <div
-        v-if="isWinner && (currentSlot || 0) > zkAppStates.finalizeSlot"
-        class="w-100"
-      >
-        <el-button
-          type="primary"
-          size="large"
-          @click="claimReward"
-          :loading="loading"
-          class="multi-line-button w-100 confirm-btn fs-7 fw-500 py-3"
-          >{{ stepDisplay ? stepDisplay : 'Claim reward' }}</el-button
-        >
-        <div
-          v-if="claimRewardTransactionHash"
-          class="transaction-notice d-flex flex-column align-items-start"
-        >
-          <span>Transaction sent.</span><br />
-          <span class="d-flex align-items-center gap-2 warning-text">
-            <el-icon color="yellow"><WarnTriangleFilled /></el-icon>
-            Avoid re-submitting unless this
-            <a
-              :href="`https://minascan.io/devnet/tx/${claimRewardTransactionHash}?type=zk-tx`"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              transaction
-            </a>
-            failed.
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="d-flex justify-content-between">
-      <div v-for="el in cluesColors" :key="el.color">
-        <RoundedColor
-          :bgColor="el.color"
-          :value="el.value"
-          :title="el.title"
-          width="24px"
-          height="24px"
-          :showValue="false"
-        />
-      </div>
-    </div>
-    <div
-      class="gameplay__container d-flex flex-column align-items-center w-100 h-100 mt-2 mb-4"
-    >
-      <div class="w-100 d-flex justify-content-start w-100">
-        <div class="d-flex flex-start gap-2 py-3">
-          Game: {{ formatAddress(zkAppAddress as string) }}
-          <CopyToClipBoard :text="zkAppAddress || ''" />
-        </div>
-      </div>
-      <div class="w-100">
-        <template v-if="isGameEnded">
-          <div class="w-100 d-flex align-items-center justify-content-between">
-            <div
-              class="mb-4 w-100 d-flex justify-content-between align-items-center"
-            >
-              <div>
-                <span v-if="!isCodeMasterWinner">Code breaker has won!</span>
-                <span v-else>Code master has won!</span>
-              </div>
-              <div v-if="isWinner && !isPlayingOnChain">
-                <div
-                  class="ms-1 d-flex align-items-end gap-2"
-                  v-if="!lastTransactionLink"
-                >
-                  Generating transaction
-                  <DotsLoader />
-                </div>
-                <div v-else>
-                  <a
-                    :href="`https://minascan.io/devnet/tx/${lastTransactionLink}?type=zk-tx`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Transaction Hash
-                  </a>
-                </div>
-              </div>
-            </div>
+        <div class="d-flex gap-5">
+          <div
+            class="game-reward d-flex align-items-center gap-2 fw-400 f-14 snow-white p-2 fit-content"
+          >
+            <inline-svg src="/icons/cash.svg"></inline-svg> 100 MINA
           </div>
-        </template>
-        <div
-          v-else-if="
-            isPlayingOnChain && isLastProofSubmitted && lastTurnTransactionHash
-          "
-          class="transaction-notice d-flex flex-column align-items-start"
-        >
-          <span>Transaction sent.</span><br />
-          <span class="d-flex align-items-center gap-2 warning-text">
-            <el-icon color="yellow"><WarnTriangleFilled /></el-icon>
-            Avoid re-submitting unless this
-            <a
-              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              transaction
-            </a>
-            failed.
-          </span>
+          <div class="d-flex gap-2">
+            <RoundedColor
+              :editable="false"
+              v-for="code in gameSecret.secretCode"
+              :value="code.value"
+            />
+          </div>
         </div>
-      </div>
-      <div class="d-flex mt-1 w-100">
-        <div class="board__container d-flex w-100">
-          <div>
-            <div
-              class="d-flex align-items-center justify-content-between w-100 ms-3"
-            >
-              <div
-                class="w-100 d-flex justify-content-between p-3 ps-0 gap-2 align-items-center"
-                v-if="!isGameEnded && !isTurnTimeExceeded"
-              >
-                <span v-if="isCodeMasterTurn">Code Master Turn</span>
-                <span v-else>Code Breaker Turn</span>
-                <div
-                  class="pe-2"
-                  v-if="
-                    !isTurnPlayed && (!isPlayingOnChain || isLastProofSubmitted)
-                  "
-                >
-                  <Timer
-                    :duration="
-                      isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5
-                    "
-                    :remainingSlot="remainingSlot"
-                    :isOnChain="isPlayingOnChain"
-                    :startTimestamp="game?.timestamp"
-                    @timeEnded="handleTurnEnded"
-                  />
-                </div>
-              </div>
-              <div
-                v-else-if="
-                  !isGameEnded && isTurnTimeExceeded && !isPlayingOnChain
-                "
-                class="d-flex align-items-end gap-2 my-3"
-              >
-                Proof must reach server in
-                <Timer
-                  :duration="60 * 1000 * 2.5"
-                  :startTimestamp="game?.timestamp"
-                  :notifyOnCritical="false"
-                  :showIcon="false"
-                />
-                to avoid penalty!
-              </div>
-            </div>
 
-            <div v-for="(guess, row) in guesses">
-              <Guess
-                :attemptNo="row"
-                @setColor="handleSetColor($event, row)"
-                :guess="guess"
-                :clue="clues?.[row]"
-                :show-btn="
-                  !(
-                    isGameEnded ||
-                    (isPlayingOnChain &&
-                      zkAppStates?.turnCount < zkProofStates?.turnCount)
-                  )
-                "
-              />
-            </div>
+        <div v-if="!isGameEnded && !isTurnTimeExceeded">
+          <div
+            v-if="!isTurnPlayed && (!isPlayingOnChain || isLastProofSubmitted)"
+          ></div>
+        </div>
+
+        <div
+          class="c-idle mt-2 radius-10 p-2 d-flex flex-column gap-2 align-items-center snow-white"
+        >
+          <div>
+            <span v-if="isCurrentUserTurn">
+              Waiting for your next move in
+            </span>
+            <span v-else> Opponents Turn </span>
+          </div>
+          <Timer
+            :duration="isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5"
+            :remainingSlot="remainingSlot"
+            :isOnChain="isPlayingOnChain"
+            :startTimestamp="game?.timestamp"
+            :criticalOn="30000"
+            @timeEnded="handleTurnEnded"
+          />
+        </div>
+        <div class="mt-3 d-flex flex-column-reverse">
+          <div v-for="(guess, row) in guesses">
+            <Guess
+              :attemptNo="row"
+              @setColor="handleSetColor($event, row)"
+              :guess="guess"
+              :clue="clues?.[row]"
+            />
           </div>
         </div>
-      </div>
-      <div
-        class="color-picker__container d-flex justify-content-between w-100 gap-2 p-2 mt-4"
-      >
-        <RoundedColor
-          height="40px"
-          width="40px"
-          v-for="el in availableColors"
-          :bg-color="el.color"
-          :value="el.value"
-        />
       </div>
     </div>
   </div>
@@ -273,10 +118,31 @@ const {
   claimRewardTransactionHash,
 } = storeToRefs(useZkAppStore());
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
+import GameResult from './GameResult.vue';
 const { playSound } = usePreloadedSound('/sounds/notification.mp3');
 
 const remainingSlot = ref<number>(PER_TURN_GAME_DURATION);
 const onChainInterval = ref<null | number>(null);
+const initialSecret = () => {
+  let storedGames = localStorage.getItem('games');
+  if (storedGames) {
+    const jsonGames = JSON.parse(storedGames);
+    if (jsonGames?.[zkAppAddress?.value as string]?.secretCode) {
+      return {
+        secretCode: jsonGames[zkAppAddress.value as string].secretCode,
+        randomSalt: jsonGames[zkAppAddress.value as string].randomSalt,
+      };
+    }
+  }
+  return {
+    secretCode: Array.from({ length: 4 }, () => ({
+      color: '#fff',
+      value: '?',
+    })),
+    randomSalt: '',
+  };
+};
+const gameSecret = ref(initialSecret());
 
 const guesses = ref<Array<AvailableColor[]>>(
   zkProofStates.value?.guessesHistory || zkAppStates.value?.guessesHistory
@@ -295,19 +161,6 @@ const handleTurnEnded = () => {
     !isPlayingOnChain.value
   ) {
     penalizePlayer();
-  }
-};
-const claimReward = async () => {
-  await claimRewardTransaction();
-  if (error.value) {
-    ElMessage.error({ message: error.value, duration: 6000 });
-  } else {
-    ElNotification({
-      title: 'Success',
-      message: `Transaction Hash : ${claimRewardTransactionHash.value}`,
-      type: 'success',
-      duration: 5000,
-    });
   }
 };
 const handleSetColor = (
@@ -357,55 +210,16 @@ const isGameEnded = computed(() => {
         zkProofStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
         game.value?.status === 'PENALIZED';
 });
+const isLastProofSubmitted = computed(() => {
+  return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
+});
 const lastTransactionLink = computed(() => {
   return isPlayingOnChain.value
     ? currentTransactionLink.value
     : game.value?.penalizationTransactionHash ||
         game.value?.settlementTransactionHash;
 });
-const isLastProofSubmitted = computed(() => {
-  return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
-});
-const playOnChain = async () => {
-  const handler = async () => {
-    await fetchCurrentSlot();
-    await getZkAppStates();
-    remainingSlot.value =
-      zkAppStates.value?.lastPlayedSlot +
-      PER_TURN_GAME_DURATION -
-      currentSlot.value!;
-    if (remainingSlot.value < 0) {
-      isTurnTimeExceeded.value = true;
-      if (onChainInterval.value && zkAppStates.value.rewardAmount === 0) {
-        clearInterval(onChainInterval.value);
-      }
-    }
-  };
-  await handler();
-  if (!isLastProofSubmitted.value) {
-    guesses.value = zkProofStates.value?.guessesHistory;
-  }
-  onChainInterval.value = setInterval(handler, 10000);
-};
-const submitLastProof = async () => {
-  const game: any = getStoredGame(zkAppAddress.value as string);
-  const proof = game?.lastProof;
-  if (proof) {
-    await submitGameProof(proof);
-    if (error.value) {
-      ElMessage.error({ message: error.value, duration: 6000 });
-    } else {
-      ElNotification({
-        title: 'Success',
-        message: `Transaction Hash : ${submitGameTransactionHash.value}`,
-        type: 'success',
-        duration: 5000,
-      });
-    }
-  } else {
-    ElMessage.error({ message: 'Proof is not available!', duration: 6000 });
-  }
-};
+
 watch(
   () => zkProofStates.value?.turnCount,
   () => {
@@ -416,35 +230,11 @@ watch(
     }
   }
 );
-watch(
-  () => zkAppStates.value?.turnCount,
-  () => {
-    if (isPlayingOnChain.value) {
-      guesses.value = zkAppStates.value.guessesHistory;
-      isTurnTimeExceeded.value = false;
-      setTurnPlayed(false);
-      setLastTurnTransactionHash(null);
-      playSound();
-    }
-  }
-);
-watch(
-  () => isPlayingOnChain.value,
-  async () => {
-    if (isPlayingOnChain.value) {
-      await playOnChain();
-      playSound();
-    }
-  }
-);
+
 onMounted(async () => {
   await getRole();
   setLoading(false);
   setStepDisplay('');
-  if (isPlayingOnChain.value) {
-    await playOnChain();
-    getStoredTransactionsHash();
-  }
   if (!isGameEnded.value) {
     playSound();
   }
@@ -455,17 +245,19 @@ onUnmounted(() => {
   }
 });
 </script>
-<style scoped>
-.board__container {
+<style scoped lang="scss">
+@import '@/style';
+
+.game-reward {
+  @extend .c-disabled;
   border-radius: 10px;
-  box-shadow: 0 0 10px #00ffcc55;
-}
-.color-picker__container {
-  border-radius: 10px;
-  box-shadow: 0 0 10px #00ffcc55;
-  min-width: 467px;
+  padding: 5px 10px;
 }
 
+.board__container {
+  border-radius: 20px;
+  width: 430px;
+}
 :deep(.el-popper) {
   width: 70% !important;
 }
@@ -503,5 +295,9 @@ onUnmounted(() => {
 .warning-text {
   font-size: 12px;
   text-align: start;
+}
+.board-title {
+  font-weight: 400;
+  font-size: 21px;
 }
 </style>

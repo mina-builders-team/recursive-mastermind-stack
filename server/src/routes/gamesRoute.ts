@@ -155,4 +155,31 @@ router.post('/cancel/:id', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /games/:id
+ *
+ * Retrieves a specific game by its ID.
+ *
+ * @route GET /games/:id
+ * @param {string} req.params.id - The game ID
+ * @returns {Game} 200 - The requested game
+ * @returns {Error} 404 - Game not found
+ * @returns {Error} 500 - Failed to fetch game
+ */
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const gameId = req.params.id;
+    const game = await getGameById(gameId);
+
+    if (!game) {
+      res.status(404).json({ message: 'Game not found' });
+      return
+    }
+
+    res.status(200).json({ game });
+  } catch (error) {
+    console.error('Error fetching game:', error);
+    res.status(500).json({ message: 'Failed to fetch game' });
+  }
+});
 export default router;

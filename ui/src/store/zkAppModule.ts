@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Field, Poseidon, PublicKey } from 'o1js';
+import { fetchTransactionStatus, Field, Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -187,7 +187,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       separatedSecretCombination: number[],
       salt: string,
       refereePubKeyBase58: string,
-      rewardAmount: number
+      rewardAmount: number,
+      roomName: string
     ) {
       try {
         this.loading = true;
@@ -241,6 +242,19 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           separatedSecretCombination,
           salt
         );
+        this.game = {
+          status: 'PENDING',
+          _id: this.zkAppAddress,
+          lastProof: JSON.stringify(res),
+          timestamp: Date.now(),
+          rewardAmount: rewardAmount,
+          turnCount: 1,
+          codeMaster: this.publicKeyBase58,
+          refereePubKeyBase58,
+          isRefereeVerified: true,
+          roomName,
+          gameCreationTransactionHash: hash,
+        };
         this.webSocketInstance?.send({
           action: 'sendProof',
           gameId: this.zkAppAddress,
@@ -248,6 +262,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           rewardAmount,
           refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
+          roomName,
+          gameCreationTransactionHash: hash,
         });
         this.stepDisplay = '';
         this.error = null;
@@ -413,7 +429,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         return this.zkAppAddress;
       }
     },
-
     async submitGameProof(proof: string) {
       try {
         this.loading = true;
@@ -557,6 +572,18 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         await this.getZkAppStates();
       }
       this.game = game;
+    },
+    async getGame(gameId: string) {
+      try {
+        const res = await axios.get(SERVER_URL + `/games/${gameId}`);
+        if (res?.data?.game) {
+          console.log(res?.data.game)
+          this.setGame(res?.data?.game);
+        }
+      } catch (err: any) {
+        this.error = err?.message || err;
+        console.log('error ', err);
+      }
     },
     startGame() {
       this.webSocketInstance?.send({

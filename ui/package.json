@@ -25,12 +25,14 @@
     "pinia": "^2.2.6",
     "prettier": "^3.5.3",
     "vue": "^3.5.12",
+    "vue-inline-svg": "^4.0.1",
     "vue-router": "^4.4.5",
     "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
     "@vitejs/plugin-vue": "^5.1.4",
+    "sass": "^1.89.2",
     "typescript": "~5.6.2",
     "vite": "^5.4.10",
     "vue-tsc": "^2.1.8"

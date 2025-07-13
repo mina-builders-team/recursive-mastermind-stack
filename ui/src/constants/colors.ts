@@ -10,9 +10,9 @@ export const availableColors = [
 ];
 
 export const cluesColors = [
-  { color: '#ff8787', value: 0, title: 'Miss' },
-  { color: '#ffd800', value: 1, title: 'Blow' },
-  { color: '#66FF00', value: 2, title: 'Hit' },
+  { color: '#3B3D3F14', value: 0, title: 'Miss' },
+  { color: '#F5F5F5', value: 1, title: 'Blow' },
+  { color: '#5BC56B', value: 2, title: 'Hit' },
 ];
 
 export const initialColor = { color: '#222', value: 9 };

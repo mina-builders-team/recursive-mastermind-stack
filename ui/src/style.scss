@@ -1,0 +1,158 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+.flex-1 {
+  flex: 1 1 0;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  font-family: Outfit;
+  color: #fefefe;
+}
+.white {
+  color: #fff !important;
+}
+.bg-white {
+  background-color: #fefefe !important;
+}
+
+.gray {
+  color: #98989d !important;
+}
+.bg-gray {
+  background-color: #98989d !important;
+}
+.h-50 {
+  height: 50px !important;
+}
+.w-50 {
+  width: 50px !important;
+}
+.fw-400 {
+  font-weight: 400 !important;
+}
+.fw-500 {
+  font-weight: 500 !important;
+}
+.fw-600 {
+  font-weight: 600 !important;
+}
+.fs-14 {
+  font-size: 14px !important;
+}
+.fs-12 {
+  font-size: 12px !important;
+}
+.fs-16 {
+  font-size: 16px !important;
+}
+.fs-21 {
+  font-size: 21px !important;
+}
+.p-10 {
+  padding: 10px !important;
+}
+.p-20 {
+  padding: 20px!important;
+}
+.p-5-10 {
+  padding: 5px 10px !important;
+}
+.p-10-30 {
+  padding: 10px 30px !important;
+}
+
+.black {
+  color: #000 !important;
+}
+.bg-light-gray {
+  background: #c7c7c7 !important;
+}
+.snow-white {
+  color: #fefefe !important;
+}
+.bg-snow-white {
+  background: #fefefe !important;
+}
+
+.blend-multiply {
+  background-blend-mode: multiply !important;
+}
+.blend-darken {
+  background-blend-mode: darken !important;
+}
+.backdrop-blur-10 {
+  backdrop-filter: blur(10px) !important;
+}
+.backdrop-blur-15 {
+  backdrop-filter: blur(15px) !important;
+}
+.default-border {
+  border: 1px solid rgba(59, 61, 63, 0.5) !important;
+}
+.radius-10 {
+  border-radius: 10px !important;
+}
+.radius-12 {
+  border-radius: 12px !important;
+}
+.radius-20 {
+  border-radius: 20px !important;
+}
+.fit-content {
+  width: fit-content !important;
+}
+.blend-screen {
+  background-blend-mode: screen;
+}
+.c-idle {
+  background: $color-600;
+  color: $alpha-8-300-8;
+  border: 1px solid $alpha-50-300-50;
+  background-blend-mode: plus-lighter;
+}
+.c-idle-filtered {
+  background: $color-600;
+  color: $alpha-8-300-8;
+  border: 1px solid $alpha-50-300-50;
+  background-blend-mode: plus-lighter;
+  filter: drop-shadow(0px 40px 80px rgba(0, 0, 0, 0.3))
+    drop-shadow(0px 7px 10px rgba(0, 0, 0, 0.09));
+  backdrop-filter: blur(10px);
+}
+
+.c-highlighted {
+  border-radius: 10px;
+  border: 1px solid $alpha-20-300-20;
+  background:
+    linear-gradient(0deg, $alpha-8-000-8 0%, $alpha-8-000-8 100%),
+    $alpha-20-300-20;
+  background-blend-mode: screen;
+}
+
+.c-disabled {
+  background: $alpha-20-300-20;
+  border: 1px solid $alpha-20-300-20;
+  background-blend-mode: multiply;
+}
+.c-disabled-filtered {
+  background: $alpha-20-300-20;
+  border: 1px solid $alpha-20-300-20;
+  background-blend-mode: multiply;
+  filter: drop-shadow(0px 40px 80px rgba(0, 0, 0, 0.3))
+    drop-shadow(0px 7px 10px rgba(0, 0, 0, 0.09));
+  backdrop-filter: blur(10px);
+}
+.text-underline {
+  text-decoration: underline;
+}
+.link {
+  color: inherit!important;
+  text-decoration: none!important;
+}

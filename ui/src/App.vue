@@ -1,14 +1,20 @@
 <template>
-  <div class="h-100 w-100 d-flex flex-column align-items-center">
-    <div class="m-3 mb-0 w-100 game-title fs-1">Mina Mastermind</div>
-    <router-view />
+  <MatrixBackground />
+  <div class="d-flex justify-content-center">
+    <div class="h-100 main-container">
+      <Menu></Menu>
+      <div class="w-100">
+        <router-view />
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-
+import MatrixBackground from './components/MatrixBackground.vue';
+import Menu from '@/components/shared/Menu.vue';
 const { zkappWorkerClient, hasBeenSetup, accountExists } =
   storeToRefs(useZkAppStore());
 const { checkAccountExists, setupZkApp } = useZkAppStore();
@@ -44,22 +50,13 @@ watch(
   }
 );
 </script>
-<style>
-#app {
-  font-family: 'Roboto Mono', Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: white;
-}
-
-.app-container {
+<style scoped>
+.main-container {
+  padding: 5%;
   display: flex;
-  justify-content: center;
-  color: white;
-  padding-top: 20px;
-}
-.game-title {
-  color: #00ffcc;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  width: 69%;
 }
 </style>

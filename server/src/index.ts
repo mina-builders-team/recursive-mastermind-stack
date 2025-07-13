@@ -154,6 +154,8 @@ wss.on('connection', (ws) => {
         rewardAmount,
         playerPubKeyBase58,
         refereePubKeyBase58,
+        roomName,
+        gameCreationTransactionHash,
       } = data;
       console.log('action : ', action);
       if (!gameId || !action) {
@@ -175,7 +177,9 @@ wss.on('connection', (ws) => {
           activePlayers,
           ws,
           gameLifecycleQueue,
-          verificationKeys.stepProgramVerificationKey
+          verificationKeys.stepProgramVerificationKey,
+          roomName,
+          gameCreationTransactionHash
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');

@@ -1,56 +1,42 @@
 <template>
-  <div class="d-flex align-items-center gap-2">
+  <div class="code">
     <div
-      class="rounded__color d-flex align-items-center justify-content-center fs-3"
-      :class="{ blinkColor: blinkColor }"
+      :class="[
+        {
+          'code-item w-50 h-50 radius-10 default-border snow-white fs-21 d-flex align-items-center justify-content-center':
+            type !== 'CLUE',
+          'quarter-circle': type === 'CLUE',
+          tl: type === 'CLUE' && index === 0,
+          tr: type === 'CLUE' && index === 1,
+          bl: type === 'CLUE' && index === 2,
+          br: type === 'CLUE' && index === 3,
+        },
+      ]"
       v-if="!editable"
     >
-      <span class="rounded__value" v-if="showValue && value !== 9">{{
-        value
-      }}</span>
+      <div v-if="showValue && value !== 9">{{ value }}</div>
     </div>
-    <template v-else>
+    <div v-else>
       <el-input
         :model-value="value === 9 ? null : value"
-        class="code-input"
+        class="w-50 h-50 radius-10 default-border code-input"
         maxlength="1"
         @input="handleInput"
         @keydown.delete="handleDelete"
         ref="inputRef"
       />
-    </template>
-
-    <span v-if="title" class="ms-2">{{ title }}</span>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { availableColors, initialColor } from '../constants/colors';
 import { ElMessage } from 'element-plus';
 
 const props = defineProps({
   value: {
-    required: true,
-  },
-  bgColor: {
-    type: String,
-    required: true,
-  },
-  width: {
-    type: String,
-    required: true,
-  },
-  height: {
-    type: String,
-    required: true,
-  },
-  blinkColor: {
-    type: String,
     required: false,
-  },
-  title: {
-    type: String,
-    required: false,
+    default: 9,
   },
   editable: {
     type: Boolean,
@@ -60,6 +46,18 @@ const props = defineProps({
   showValue: {
     type: Boolean,
     default: true,
+  },
+  bgColor: {
+    type: String,
+    required: false,
+  },
+  type: {
+    type: String,
+    default: 'GUESS',
+  },
+  index: {
+    type: Number,
+    required: false,
   },
 });
 const emit = defineEmits(['input', 'focusNext', 'focusPrev']);
@@ -74,7 +72,6 @@ const focus = () => {
     }
   });
 };
-
 defineExpose({ focus });
 
 const handleInput = (value: string) => {
@@ -99,57 +96,65 @@ const handleDelete = () => {
   }
 };
 </script>
-<style scoped>
-:deep(.el-input__wrapper) {
-  background: v-bind(bgColor);
-  border-radius: 50%;
+<style lang="scss" scoped>
+@import '@/style';
+
+.quarter-circle {
+  width: 25px;
+  height: 25px;
+  background: v-bind(bgColor) !important;
+}
+.tl {
+  border-top-left-radius: 100%;
+  border-top-right-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+.tr {
+  border-top-right-radius: 100%;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+.bl {
+  border-bottom-left-radius: 100%;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+.br {
+  border-bottom-right-radius: 100%;
+  border-bottom-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
 }
 
+.code-item {
+  width: 50px;
+  height: 50px;
+  padding: 10px;
+}
 .code-input {
-  width: 40px;
-  height: 40px;
+  outline: none;
   text-align: center;
   font-size: 20px;
-  border-radius: 50%;
-  outline: none;
+  background: v-bind(bgColor) !important;
+  background-blend-mode: multiply;
 }
 
 :deep(.el-input__inner) {
   padding-left: 3px;
 }
-
-.rounded__color {
-  background-color: v-bind(bgColor);
-  border-radius: 50%;
-  min-width: 16px;
-  min-height: 16px;
-  width: v-bind(width);
-  height: v-bind(height);
-  cursor: pointer;
-  border: 1px solid #6b6969;
+:deep(.el-input__wrapper) {
+  outline: none !important;
+  background: v-bind(bgColor) !important;
+  background-blend-mode: multiply;
+  box-shadow: unset;
+  border-radius: 10px;
 }
-
-.rounded__color:hover {
-  opacity: 0.8;
-}
-
-.rounded__value {
-  font-size: 16px;
-  color: #444444;
-}
-
-.blinkColor {
-  background-color: v-bind(blinkColor);
-  animation: blink 1s infinite alternate;
-}
-
-@keyframes blink {
-  0% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.2;
-  }
+.code {
+  color: #ae84a3;
+  font-weight: 400;
+  font-size: 21px;
 }
 </style>
