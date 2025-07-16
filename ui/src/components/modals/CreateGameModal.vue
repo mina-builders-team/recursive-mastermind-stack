@@ -1,6 +1,13 @@
 <template>
-  <Modal @close="handleModalClose">
-    <div class="d-flex flex-column gap-4">
+  <Modal
+    @close="handleModalClose"
+    background="transparent"
+    border="unset"
+    padding="0px"
+  >
+    <div
+      class="d-flex flex-column gap-4 default-border radius-20 bg-alpha-50-900-50 p-20"
+    >
       <el-carousel
         arrow="never"
         height="auto"
@@ -74,10 +81,9 @@
           Set a code using 4 numbers, each between 0 and 7.
         </div>
 
-        <div class="d-flex gap-1">
-          <CodePickerForm
-            isRandomSalt
-            :hideOnMount="false"
+        <div>
+          <CodePicker
+            editable
             @change="handleSecretChange"
           />
         </div>
@@ -182,10 +188,9 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue';
-import Modal from '../shared/Modal.vue';
-import CodePickerForm from '../forms/CodePickerForm.vue';
-import Button from '../shared/Button.vue';
-import RoundedColor from '../RoundedColor.vue';
+import Modal from '@/components/shared/Modal.vue';
+import Button from '@/components/shared/Button.vue';
+import RoundedColor from '@/components/shared/RoundedColor.vue';
 import { initialColor } from '@/constants/colors';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
@@ -195,6 +200,7 @@ import { ElMessage } from 'element-plus';
 import { ElNotification } from 'element-plus';
 import { updateLocalStorageGames } from '@/utils';
 import { useRouter } from 'vue-router';
+import CodePicker from '@/components/shared/CodePicker.vue';
 
 const router = useRouter();
 const { createInitGameTransaction } = useZkAppStore();

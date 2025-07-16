@@ -72,7 +72,7 @@
 </template>
 <script setup lang="ts">
 import { computed } from 'vue';
-import Button from './shared/Button.vue';
+import Button from '@/components/shared/Button.vue';
 import { formatAddress } from '@/utils';
 const props = defineProps({
   isWinner: {

@@ -12,8 +12,8 @@ const props = defineProps({
   size: {
     type: String,
     required: false,
-    default:''
-  }
+    default: '',
+  },
 });
 const handleClick = () => {
   emit('click');
@@ -21,41 +21,94 @@ const handleClick = () => {
 </script>
 <style lang="scss" scoped>
 @import '@/style';
-.cta-1 {
+.button-1 {
   border-radius: 60px;
+  gap: 10px;
   padding: 16px 20px;
-  color: $color-100;
-  border: 1px solid $alpha-50-000-50;
+  background: $color-100;
+  border: 1px solid $alpha-8-300-8;
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
+  font-family: Outfit;
   font-weight: 700;
+  font-style: Bold;
   font-size: 14px;
-  color: #000;
+  color: black;
 }
-.cta-2 {
-  padding: 16px 20px;
+.button-2 {
   border-radius: 60px;
+  gap: 10px;
+  padding: 16px 20px;
   background: $color-600;
   border: 1px solid $alpha-8-000-8;
   box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
+  font-weight: 400;
+  font-size: 14px;
   color: $snow-white;
 }
-.cta-2:hover {
-  border: 1px solid $alpha-20-000-20;
-  box-shadow: 0px 2px 35px 0px $color-200 inset;
+.button-3 {
+  border-width: 1px;
+  gap: 10px;
+  padding: 16px 20px;
+  background: $snow-white;
+  border: 1px solid;
+
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  color: $color-500;
 }
-.cta-3 {
-  @extend .c-idle-filtered;
+.button-4 {
   border-radius: 10px;
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
+  gap: 10px;
   padding: 10px 30px;
+  background: linear-gradient(
+    180deg,
+    $alpha-50-300-50 0%,
+    $alpha-50-700-50 100%
+  );
+  background-blend-mode: color-dodge;
+  border: 1px solid;
+
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
+  backdrop-filter: blur(10px);
+  font-weight: 400;
+  font-size: 14px;
   color: $snow-white;
 }
-.cta-3:hover {
-  @extend .c-highlighted;
-  box-shadow: 0px 2px 35px 0px $color-200 inset;
+.button-5 {
+  border-radius: 10px;
+  gap: 10px;
+  padding: 10px 30px;
+  border: 1px solid;
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  font-weight: 400;
+  font-size: 14px;
+  color: $snow-white;
 }
-.modal-secondary-btn {
-  background: transparent;
+.button-6 {
+  border-radius: 10px;
+  gap: 10px;
+  padding: 10px 30px;
+  background: $snow-white;
+  border: 1px solid black;
+  font-weight: 400;
+  font-size: 14px;
+  background: black;
 }
+
 </style>

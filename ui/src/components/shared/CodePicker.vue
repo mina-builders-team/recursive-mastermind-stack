@@ -14,10 +14,10 @@
             />
             <template v-else>
               <RoundedColor
+                v-for="(secret, index) in secretCode"
                 height="40px"
                 width="40px"
-                editable
-                v-for="(secret, index) in secretCode"
+                :editable="editable && editOnly.includes(index)"
                 :value="secret.value"
                 :bgColor="secret.value === 9 ? '#3b3d3f80' : '#3b3d3f33'"
                 @input="handleSetSecretCode($event, index)"
@@ -28,7 +28,7 @@
             </template>
           </div>
         </div>
-        <el-icon :size="25" class="cursor-pointer" @click="toggleSecret">
+        <el-icon :size="25" class="cursor-pointer" @click="toggleSecret" v-if="hideable">
           <View v-if="isSecretHidden" />
           <Hide v-else />
         </el-icon>
@@ -39,23 +39,34 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
 import { AvailableColor } from '@/types';
-import RoundedColor from '@/components/RoundedColor.vue';
-import { generateRandomSalt } from '../../utils';
-import { storeToRefs } from 'pinia';
-import { useZkAppStore } from '@/store/zkAppModule';
+import RoundedColor from '@/components/shared/RoundedColor.vue';
 import { initialColor } from '@/constants/colors';
 
-const { zkAppAddress } = storeToRefs(useZkAppStore());
-
 const props = defineProps({
-  isRandomSalt: {
+  hideable: {
     type: Boolean,
-    required: true,
+    required: false,
+    default: false,
   },
   hideOnMount: {
     type: Boolean,
     required: false,
-    default: true,
+    default: false,
+  },
+  secret: {
+    type: Array<AvailableColor>,
+    required: false,
+    default: Array.from({ length: 4 }, () => initialColor),
+  },
+  editOnly: {
+    type: Array<number>,
+    required: false,
+    default: [0, 1, 2, 3],
+  },
+  editable: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 });
 const emit = defineEmits(['change']);
@@ -75,30 +86,7 @@ const focusPrevInput = (index: number) => {
     nextTick(() => inputRefs.value[index - 1]?.focus());
   }
 };
-const initialSecret = () => {
-  if (props.isRandomSalt) {
-    return {
-      secretCode: Array.from({ length: 4 }, () => initialColor),
-      randomSalt: generateRandomSalt(20),
-    };
-  } else {
-    let storedGames = localStorage.getItem('games');
-    if (storedGames) {
-      const jsonGames = JSON.parse(storedGames);
-      if (jsonGames && jsonGames[zkAppAddress.value as string]) {
-        return {
-          secretCode: jsonGames[zkAppAddress.value as string].secretCode,
-          randomSalt: jsonGames[zkAppAddress.value as string].randomSalt,
-        };
-      }
-    }
-    return {
-      secretCode: Array.from({ length: 4 }, () => initialColor),
-      randomSalt: '',
-    };
-  }
-};
-const secretCode = ref<Array<AvailableColor>>(initialSecret().secretCode);
+const secretCode = ref<Array<AvailableColor>>(props.secret);
 const hiddenSecret = Array.from({ length: 4 }, () => ({
   color: '#fff',
   value: '*',

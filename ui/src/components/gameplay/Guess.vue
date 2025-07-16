@@ -5,33 +5,16 @@
       { 'flex-row-reverse': userRole === 'CODE_MASTER' },
     ]"
   >
-    <div class="clue__container">
-      <RoundedColor
-        v-for="(el, index) in clue"
-        :bgColor="el.color"
-        :value="el.value"
-        :showValue="false"
-        type="CLUE"
-        :index="index"
-      />
-    </div>
-    <div class="d-flex gap-2 guesses">
-      <RoundedColor
-        v-for="(el, index) in guess"
-        :bgColor="el.value === 9 ? '#3b3d3f80' : '#3b3d3f33'"
-        :value="el.value"
-        width="40px"
-        height="40px"
-        :editable="
-          isCurrentRound && !isCodeMasterTurn && userRole === 'CODE_BREAKER'
-        "
-        @input="handleSetColor($event, index)"
-        @focusNext="focusNextInput(index)"
-        @focusPrev="focusPrevInput(index)"
-        ref="inputRefs"
-      />
-    </div>
-    <div class="btn-container w-100 h-100">
+    <Clue :clue="clue" />
+    <CodePicker
+      :editable="
+        editable ||
+        (isCurrentRound && !isCodeMasterTurn && userRole === 'CODE_BREAKER')
+      "
+      :secret="guess"
+      @change="handleSetColor"
+    />
+    <div class="btn-container w-100 h-100" v-if="showBtn">
       <Button
         @click="handleGiveClue"
         v-if="
@@ -69,14 +52,20 @@
         class="button-placeholder default-border radius-10 d-flex"
         size="large"
       >
-        <div v-if="loading && isCurrentRound" class="fs-12 d-flex align-items-center p-1">
+        <div
+          v-if="loading && isCurrentRound"
+          class="fs-12 d-flex align-items-center p-1"
+        >
           <inline-svg
             src="/icons/processing-proof.svg"
             class="me-1"
           ></inline-svg>
           Processing...
         </div>
-        <div v-else-if="isOldRound" class="d-flex justify-content-around align-items-center alpha-20-000-20 p-2 old-proof">
+        <div
+          v-else-if="isOldRound"
+          class="d-flex justify-content-around align-items-center alpha-20-000-20 p-2 old-proof"
+        >
           <span>Recursive Proof Generated</span>
           <inline-svg
             width="10"
@@ -89,15 +78,16 @@
   </div>
 </template>
 <script setup lang="ts">
-import RoundedColor from '@/components/RoundedColor.vue';
-import { computed, nextTick, ref } from 'vue';
-import { AvailableColor, CodePicker } from '@/types';
+import { computed, ref } from 'vue';
+import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { validateColorCombination } from '../utils';
+import { validateColorCombination } from '@/utils';
 import { ElMessage } from 'element-plus';
-import Button from './shared/Button.vue';
+import Button from '@/components/shared/Button.vue';
 import { initialColor } from '@/constants/colors';
+import CodePicker from '@/components/shared/CodePicker.vue';
+import Clue from '@/components/shared/Clue.vue';
 const {
   createGuessProof,
   createGiveClueProof,
@@ -115,7 +105,6 @@ const {
   zkAppAddress,
 } = storeToRefs(useZkAppStore());
 
-const inputRefs = ref<(InstanceType<typeof RoundedColor> | null)[]>([]);
 const emit = defineEmits(['setColor']);
 const props = defineProps({
   attemptNo: {
@@ -131,6 +120,16 @@ const props = defineProps({
     type: Array<AvailableColor>,
     required: false,
   },
+  showBtn: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  editable: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 });
 const handleSubmitGuess = async () => {
   const code = props.guess.map((e: AvailableColor) => e.value);
@@ -141,16 +140,6 @@ const handleSubmitGuess = async () => {
   }
   if (error.value) {
     ElMessage.error({ message: error.value, duration: 6000 });
-  }
-};
-const focusNextInput = (index: number) => {
-  if (index < inputRefs.value.length - 1) {
-    nextTick(() => inputRefs.value[index + 1]?.focus());
-  }
-};
-const focusPrevInput = (index: number) => {
-  if (index > 0) {
-    nextTick(() => inputRefs.value[index - 1]?.focus());
   }
 };
 const initializeSecret = () => {
@@ -186,9 +175,9 @@ const handleGiveClue = async () => {
     ElMessage.error({ message: error.value, duration: 6000 });
   }
 };
-const handleSetColor = (selectedColor: AvailableColor, index: number) => {
-  if (isCurrentRound.value && !isCodeMasterTurn.value) {
-    emit('setColor', { index, selectedColor });
+const handleSetColor = (secretCode: AvailableColor[]) => {
+  if (props.editable || (isCurrentRound.value && !isCodeMasterTurn.value)) {
+    emit('setColor', { secretCode });
   }
 };
 const isCodeMasterTurn = computed(() => {
@@ -213,12 +202,6 @@ const combinationValidation = computed(() => {
 <style scoped lang="scss">
 .old-proof {
   font-size: 8px;
-}
-.clue__container {
-  display: grid;
-  grid-template-columns: repeat(2, 25px);
-  grid-template-rows: repeat(2, 25px);
-  gap: 1px;
 }
 .multi-line-button {
   white-space: normal;

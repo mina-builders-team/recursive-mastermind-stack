@@ -7,6 +7,9 @@
           (!isPlayingOnChain &&
             ['ACTIVE', 'PENDING'].includes(game?.status || ''))
         "
+        background="transparent"
+        border="unset"
+        padding="0px"
       >
         <GameDetail />
       </Modal>
@@ -31,11 +34,9 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
-import GameBoard from '@/components/GameBoard.vue';
-import GameDetail from '@/components/GameDetail.vue';
+import GameBoard from '@/components/gameplay/GameBoard.vue';
+import GameDetail from '@/components/gameplay/GameDetail.vue';
 import Modal from '@/components/shared/Modal.vue';
-import DotsLoader from '@/components/shared/DotsLoader.vue';
-import { formatAddress } from '@/utils';
 const route = useRoute();
 const { compiled, zkAppStates, game, isPlayingOnChain } =
   storeToRefs(useZkAppStore());
@@ -48,7 +49,7 @@ const {
   setPlayingOnChain,
   establishConnection,
   getRole,
-  getGame
+  getGame,
 } = useZkAppStore();
 const gameId = route?.params?.id as string;
 const isGameAcceptedOnChain = ref(false);

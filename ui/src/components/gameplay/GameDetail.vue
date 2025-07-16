@@ -1,24 +1,28 @@
 <template>
-  <div
-    class="w-100 d-flex flex-column align-items-center gap-3"
-    v-if="isGameCancelled"
-  >
-    <div class="snow-white">Game has been cancelled</div>
-    <Button class="cta-3" size="large"> Return to Lobby </Button>
+  <div class="d-flex flex-column gap-2">
+    <div
+      class="w-100 d-flex flex-column align-items-center gap-3 default-border radius-20 bg-alpha-50-900-50 p-20"
+      v-if="isGameCancelled"
+    >
+      <div class="snow-white">Game has been cancelled</div>
+      <Button class="cta-3" size="large"> Return to Lobby </Button>
+    </div>
+    <div v-else class="default-border radius-20 bg-alpha-50-900-50 p-20">
+      <CodeMasterGameDetail v-if="isCodeMaster" />
+      <CodeBreakerGameDetail v-else />
+    </div>
+    <MiniPuzzle />
   </div>
-  <CodeMasterGameDetail v-else-if="isCodeMaster" />
-  <CodeBreakerGameDetail v-else />
 </template>
 <script lang="ts" setup>
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { ElMessage } from 'element-plus';
-import { updateLocalStorageGames } from '@/utils';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import CodeMasterGameDetail from './CodeMasterGameDetail.vue';
-import Button from './shared/Button.vue';
+import Button from '@/components/shared/Button.vue';
 import CodeBreakerGameDetail from './CodeBreakerGameDetail.vue';
+import MiniPuzzle from '@/components/shared/MiniPuzzle.vue';
 
 const { zkAppStates, publicKeyBase58, userRole, game } =
   storeToRefs(useZkAppStore());

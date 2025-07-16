@@ -76,7 +76,7 @@ import { useRoute, useRouter } from 'vue-router';
 import CodeMasterGameDetail from './CodeMasterGameDetail.vue';
 import Button from './shared/Button.vue';
 import CodeBreakerGameDetail from './CodeBreakerGameDetail.vue';
-import Timer from './shared/Timer.vue';
+import Timer from '@/components/shared/Timer.vue';
 
 const { zkAppStates, error, zkAppAddress, currentTransactionLink, game } =
   storeToRefs(useZkAppStore());

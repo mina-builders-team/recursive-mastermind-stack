@@ -29,8 +29,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
-import { availableColors, initialColor } from '../constants/colors';
+import {  nextTick, ref } from 'vue';
+import { availableColors, initialColor } from '@/constants/colors';
 import { ElMessage } from 'element-plus';
 
 const props = defineProps({
@@ -133,6 +133,7 @@ const handleDelete = () => {
   width: 50px;
   height: 50px;
   padding: 10px;
+  background: v-bind(bgColor) !important;
 }
 .code-input {
   outline: none;

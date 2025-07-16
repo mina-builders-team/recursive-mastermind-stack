@@ -50,14 +50,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import Timer from './shared/Timer.vue';
-import Button from './shared/Button.vue';
+import Timer from '@/components/shared/Timer.vue';
+import Button from '@/components/shared/Button.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { formatAddress } from '@/utils';
 import { computed, onMounted, ref } from 'vue';
 import { checkZkappTransaction, fetchTransactionStatus } from 'o1js';
-import DotsLoader from './shared/DotsLoader.vue';
+import DotsLoader from '@/components/shared/DotsLoader.vue';
 import { useRoute } from 'vue-router';
 
 const { zkAppStates, game, compiled } = storeToRefs(useZkAppStore());

@@ -350,6 +350,109 @@ const functions = {
       return false;
     }
   },
+  benchmark: async (args: { feePayer: string }) => {
+    const zkAppPrivateKey = PrivateKey.random();
+    const zkAppAddress = zkAppPrivateKey.toPublicKey();
+    const feePayerPubKey = PublicKey.fromBase58(args.feePayer);
+    const codeMasterKey = PrivateKey.random();
+    const codeMasterPublicKey = codeMasterKey.toPublicKey();
+    const codeBreakerKey = PrivateKey.random();
+    const refereePubKey = PublicKey.empty();
+    const secret = Combination.from([1, 2, 3, 4]);
+    const salt = Field.random();
+    try {
+      // Init Game Tx
+      const beginInitGameTx = performance.now();
+      const zkApp = new MastermindZkApp(zkAppAddress);
+      const transaction = await Mina.transaction(feePayerPubKey, async () => {
+        AccountUpdate.fundNewAccount(feePayerPubKey);
+        zkApp.deploy();
+        await zkApp.initGame(
+          secret,
+          salt,
+          refereePubKey,
+          UInt64.from(10 * 1e9)
+        );
+      });
+      transaction.sign([zkAppPrivateKey]);
+      await transaction.prove();
+      const endInitGameTx = performance.now();
+      // Create Game Proof
+      const beginCreateGameProof = performance.now();
+      const signature = Signature.create(codeMasterKey, [
+        ...secret.digits,
+        salt,
+        ...zkAppAddress.toFields(),
+      ]);
+      const baseProof = await StepProgram.createGame(
+        {
+          authPubKey: codeMasterPublicKey,
+          authSignature: signature,
+        },
+        secret,
+        salt,
+        zkAppAddress
+      );
+      const endCreateGameProof = performance.now();
+      /// Create Guess Proof
+      const beginGuessProof = performance.now();
+      const guessCombination = Combination.from([1, 2, 3, 4]);
+      const guessProof = await StepProgram.makeGuess(
+        {
+          authPubKey: codeBreakerKey.toPublicKey(),
+          authSignature: Signature.create(codeBreakerKey, [
+            ...guessCombination.digits,
+            baseProof.proof.publicOutput.turnCount.value,
+            ...zkAppAddress.toFields(),
+          ]),
+        },
+        baseProof.proof,
+        guessCombination,
+        zkAppAddress
+      );
+      const endGuessProof = performance.now();
+
+      // Give Clue Proof
+      const beginClueProof = performance.now();
+      await StepProgram.giveClue(
+        {
+          authPubKey: codeMasterKey.toPublicKey(),
+          authSignature: Signature.create(codeMasterKey, [
+            ...secret.digits,
+            salt,
+            guessProof.proof.publicOutput.turnCount.value,
+            ...zkAppAddress.toFields(),
+          ]),
+        },
+        guessProof.proof,
+        secret,
+        salt,
+        zkAppAddress
+      );
+      const endClueProof = performance.now();
+      return {
+        initGameTxDuration: ((endInitGameTx - beginInitGameTx) / 1000).toFixed(
+          2
+        ),
+        createGameProofDuration: (
+          (endCreateGameProof - beginCreateGameProof) /
+          1000
+        ).toFixed(2),
+        guessProofDuration: ((endGuessProof - beginGuessProof) / 1000).toFixed(
+          2
+        ),
+        clueProofDuration: ((endClueProof - beginClueProof) / 1000).toFixed(2),
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        initGameTxDuration: 0,
+        createGameProofDuration: 0,
+        guessProofDuration: 0,
+        clueProofDuration: 0,
+      };
+    }
+  },
 };
 
 // ---------------------------------------------------------------------------------------

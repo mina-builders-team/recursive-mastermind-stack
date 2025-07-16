@@ -1,157 +1,116 @@
 <template>
-  <div
-    class="d-flex gap-5 justify-content-center flex-wrap p-4 lobby-container"
-  >
-    <el-table :data="games" stripe>
-      <el-table-column label="Game ID" width="180">
-        <template #default="scope">
-          <div class="d-flex align-items-center gap-2">
-            <span>{{ formatAddress(scope.row._id) }}</span>
-            <CopyToClipBoard :text="scope.row._id || ''" />
-          </div>
-        </template>
-      </el-table-column>
 
-      <el-table-column label="Game Reward" prop="gameRewardAmount" width="150">
-        <template #default="scope">
-          <div class="d-flex align-items-center gap-2">
-            <span>{{ scope.row.gameRewardAmount / 1e9 }} MINA</span>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="Last Accepted At"
-        prop="lastAcceptanceDate"
-        width="180"
-      >
-      </el-table-column>
-      <el-table-column label="Referee" prop="refereePubKeyBase58" width="180">
-        <template #default="scope">
-          <div class="d-flex align-items-center gap-2">
-            <span>{{ formatAddress(scope.row.refereePubKeyBase58) }}</span>
-            <CopyToClipBoard :text="scope.row.refereePubKeyBase58 || ''" />
-          </div>
-          <div >
-            <span class="d-flex align-items-center gap-2" v-if="scope.row.isRefereeVerified">
-              (Verified) <el-icon class="check-icon"><CircleCheckFilled /></el-icon>
-            </span>
-            <span v-else class="d-flex align-items-center gap-2">
-              (Not verified) <el-icon class="close-icon"><CircleCloseFilled /></el-icon>
-            </span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Action" width="250">
-        <template #default="scope">
-          <div class="d-flex">
-            <el-button
-              color="#00ADB5"
-              size="large"
-              type="primary"
-              class="me-3"
-              @click="handleJoinGame(scope.row._id)"
-              >JOIN</el-button
-            >
-            <el-button
-              v-if="
-                scope.row.codeMaster === publicKeyBase58 &&
-                scope.row.status === 'ACTIVE'
-              "
-              :disabled="isCancelBtnLoading"
-              :loading="isCancelBtnLoading"
-              color="#9d2c2c"
-              size="large"
-              type="primary"
-              class="me-3"
-              @click="handleCancelGame(scope.row._id)"
-              >{{ compiled ? 'Cancel' : 'Compiling' }}</el-button
-            >
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
+  <div class="w-100 lobby-container">
+    <h2 class="fw-bold play-title">PLAY</h2>
+    <div class="d-flex justify-content-between align-items-end">
+      <div>
+        <div>Discover and join available Mina Mastermind games.</div>
+      </div>
+      <div class="d-flex gap-2">
+        <Button class="cta-1" @click="handleJoinWithCode">
+          <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
+          Join with Code
+        </Button>
+        <Button class="cta-2" @click="handleCreateChallenge">
+          <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
+          Create a Challenge
+        </Button>
+      </div>
+    </div>
+    <div
+      class="mt-5 p-1 d-flex w-100 justify-content-between align-items-center lobby-tab"
+    >
+      <div class="d-flex">
+        <div class="lobby-all">ALL</div>
+        <div class="option">BREAKER</div>
+        <div class="option">SOLVER</div>
+      </div>
+      <div class="d-flex gap-2 me-3 filter-icons">
+        <div class="sort-icon">
+          <inline-svg src="/icons/sort.svg"></inline-svg>
+        </div>
+        <div class="sort-icon">
+          <inline-svg src="/icons/upload.svg"></inline-svg>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-3 flex-wrap mt-4">
+      <GameCard v-for="e in [1, 2, 3, 4, 5, 6, 7, 8]" />
+    </div>
+    <JoinWithCodeModal
+      v-if="showJoinWithCodeModal"
+      @close="handleJoinWithCodeClose"
+    />
+    <CreateGameModal
+      v-if="showCreateChallengeModal"
+      @close="handleCloseChallenge"
+    />
   </div>
 </template>
-<script lang="ts" setup>
-import { Game } from '@/types';
-import { dateToDayHourMin, formatAddress } from '@/utils';
-import axios from 'axios';
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
-import { useZkAppStore } from '@/store/zkAppModule';
-import { storeToRefs } from 'pinia';
-import { ElMessage, ElNotification } from 'element-plus';
-
-const { publicKeyBase58, loading, error, currentTransactionLink, compiled } =
-  storeToRefs(useZkAppStore());
-const { cancelGame } = useZkAppStore();
-
-const router = useRouter();
-const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-const games = ref<Array<Game>>([]);
-const handleJoinGame = (game: string) => {
-  router.push({ name: 'gameplay', params: { id: game } });
+<script setup lang="ts">
+import GameCard from '@/components/GameCard.vue';
+import CreateGameModal from '@/components/modals/CreateGameModal.vue';
+import JoinWithCodeModal from '@/components/modals/JoinWithCodeModal.vue';
+import Button from '@/components/shared/Button.vue';
+import { ref } from 'vue';
+const showJoinWithCodeModal = ref(false);
+const showCreateChallengeModal = ref(false);
+const handleJoinWithCode = () => {
+  showJoinWithCodeModal.value = true;
 };
-const getActiveGames = async () => {
-  const res = await axios.get(SERVER_URL + '/games/active-games');
-  games.value = res?.data?.map((game: Game) => {
-    return {
-      _id: game?._id,
-      gameRewardAmount: game?.rewardAmount,
-      codeMaster: game?.codeMaster,
-      status: game.status,
-      lastAcceptanceDate: dateToDayHourMin(game?.lastAcceptTimestamp),
-      refereePubKeyBase58: game?.refereePubKeyBase58,
-      isRefereeVerified: game?.isRefereeVerified,
-    };
-  });
+const handleJoinWithCodeClose = () => {
+  showJoinWithCodeModal.value = false;
 };
-const handleCancelGame = async (gameId: string) => {
-  await cancelGame(gameId);
-  if (error.value) {
-    ElMessage.error({ message: error.value, duration: 6000 });
-  } else {
-    ElNotification({
-      title: 'Success',
-      message: `Transaction Hash :  ${currentTransactionLink.value}`,
-      type: 'success',
-      duration: 5000,
-    });
-    games.value = games.value.filter((game: Game) => game._id !== gameId);
-  }
+const handleCreateChallenge = () => {
+  showCreateChallengeModal.value = true;
 };
-const isCancelBtnLoading = computed(() => {
-  return loading.value || !compiled.value;
-});
-onMounted(async () => {
-  await getActiveGames();
-});
+const handleCloseChallenge = () => {
+  showCreateChallengeModal.value = false;
+};
 </script>
-<style lang="css" scoped>
-:deep(.el-table__row) {
-  background: #171d24 !important;
-  color: white;
+<style scoped>
+.play-title {
+  letter-spacing: 10px;
+  font-size: 32px;
 }
-:deep(
-  .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell
-) {
-  background: #1f242b !important;
+.challenge-btn {
+  border-radius: 60px;
+  padding: 20px;
+  box-shadow: 0px 2px 15px 0px #1e1f22 inset;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1e1f22;
 }
-:deep(.el-table) {
-  --el-table-row-hover-bg-color: unset;
-  width: fit-content;
+.lobby-tab {
+  border-radius: 26px;
+  background: rgba(59, 61, 63, 0.08);
+  border: 1px solid #2f3135;
+  backdrop-filter: blur(10px);
 }
-.lobby-container {
-  position: absolute;
-  left: 0%;
-  width: 100vw;
+.lobby-all {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 0%,
+    rgba(25, 27, 29, 0.5) 100%
+  );
+  background-blend-mode: color-dodge;
+  border: 1px solid #333436;
+  padding: 10px 35px;
+  border-radius: 60px;
+  box-shadow: 0px -4px 4px 0px #2c2e30 inset;
 }
-.check-icon {
-  color: rgb(31, 250, 31);
+.option {
+  padding: 10px 35px;
 }
-.close-icon {
-  color: rgb(213, 72, 72);
+.sort-icon {
+  background: #1e1f22;
+  box-shadow: 0px 2px 15px 0px #1e1f22 inset;
+  backdrop-filter: blur(10px);
+  border: 1px solid #333539;
+  border-radius: 10px;
+  padding: 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

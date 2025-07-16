@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { fetchTransactionStatus, Field, Poseidon, PublicKey } from 'o1js';
+import { Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -64,6 +64,12 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     isTurnPlayed: false,
     isPlayingOnChain: false,
     currentSlot: null as null | number,
+    benchmark: null as null | {
+      initGameTxDuration: number;
+      createGameProofDuration: number;
+      guessProofDuration: number;
+      clueProofDuration: number;
+    },
   }),
   getters: {},
   actions: {
@@ -86,7 +92,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.accountExists = res.error === null;
           await this.zkappWorkerClient.loadContract();
           this.stepDisplay = 'Compiling zkApp...';
-
           await this.zkappWorkerClient.compileContract();
           this.stepDisplay = '';
           this.compiled = true;
@@ -577,7 +582,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       try {
         const res = await axios.get(SERVER_URL + `/games/${gameId}`);
         if (res?.data?.game) {
-          console.log(res?.data.game)
           this.setGame(res?.data?.game);
         }
       } catch (err: any) {
@@ -690,79 +694,10 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setLastTurnTransactionHash(hash: string | null) {
       this.lastTurnTransactionHash = hash ? hash : '';
     },
-    async createDummyGameTransaction() {
-      this.loading = true;
-      const start = performance.now();
-      this.zkAppAddress =
-        await this.zkappWorkerClient!.createInitGameTransaction(
-          this.publicKeyBase58,
-          [1, 2, 3, 4],
-          Field(1).toString(),
-          import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
-          10 * 1e9
-        );
-      await this.zkappWorkerClient!.proveTransaction();
-      this.loading = false;
-      const end = performance.now();
-      return { duration: ((end - start) / 1000).toFixed(2) };
-    },
-    async createDummyGameProof() {
-      this.loading = true;
-      const start = performance.now();
-      const salt = Field(1).toString();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        salt,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.sendNewGameProof(
-        signedData,
-        [1, 2, 3, 4],
-        salt
+    async startBenchmark() {
+      this.benchmark = await this.zkappWorkerClient!.benchmark(
+        this.publicKeyBase58
       );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
-    },
-    async createDummyGuessProof() {
-      this.loading = true;
-      const start = performance.now();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        1,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.createGuessProof(
-        signedData,
-        [1, 2, 3, 4]
-      );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
-    },
-    async createDummyClueProof() {
-      this.loading = true;
-      const start = performance.now();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        Field(1).toString(),
-        2,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.createGiveClueProof(
-        signedData,
-        [1, 2, 3, 4],
-        Field(1).toString()
-      );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
     },
     async establishConnection() {
       if (!this.webSocketInstance?.connected) {

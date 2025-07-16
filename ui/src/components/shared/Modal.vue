@@ -5,7 +5,7 @@
     width="700"
     header-class="dialog-header"
     :show-close="false"
-    class="white dialog-custom-class"
+    class="white"
     modal-class="mask-class"
     @close="handleClose"
   >
@@ -13,6 +13,23 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
+const props = defineProps({
+  border: {
+    required: false,
+    type: String,
+    default:'1px solid #2c2f31'
+  },
+  background: {
+    required: false,
+    type: String,
+    default:'#0c0e1180'
+  },
+  padding: {
+    required: false,
+    type: String,
+    default:'20px'
+  },
+});
 const emit = defineEmits(['close']);
 const handleClose = () => {
   emit('close');
@@ -23,18 +40,18 @@ const handleClose = () => {
   display: none !important;
 }
 .el-dialog {
-  background: $alpha-50-900-50;
+  background: v-bind(background);
   background-blend-mode: darken !important;
   color: #fefefe;
   border-radius: 20px;
-  border: 1px solid #2c2f31;
+  border: v-bind(border);
   padding: 0px;
 }
 .el-dialog__body {
-  background: $alpha-50-900-50 !important;
+  background: v-bind(background)!important;
   background-blend-mode: darken !important;
   border-radius: 20px;
-  padding: 20px;
+  padding: v-bind(padding);
 }
 .mask-class {
   background: linear-gradient(

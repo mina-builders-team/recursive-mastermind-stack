@@ -20,7 +20,8 @@
           <div
             class="game-reward d-flex align-items-center gap-2 fw-400 f-14 snow-white p-2 fit-content"
           >
-            <inline-svg src="/icons/cash.svg"></inline-svg> 100 MINA
+            <inline-svg src="/icons/cash.svg"></inline-svg>
+            {{ game?.rewardAmount! / 1e9 }} MINA
           </div>
           <div class="d-flex gap-2">
             <RoundedColor
@@ -72,19 +73,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import Guess from '@/components/Guess.vue';
-import RoundedColor from '@/components/RoundedColor.vue';
-import { availableColors } from '@/constants/colors';
+import Guess from '@/components/gameplay/Guess.vue';
+import RoundedColor from '@/components/shared/RoundedColor.vue';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { formatAddress, getStoredGame } from '@/utils';
-import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
-import { cluesColors } from '@/constants/colors';
-import DotsLoader from '@/components/shared/DotsLoader.vue';
 import Timer from '@/components/shared/Timer.vue';
 import { MAX_ATTEMPTS, PER_TURN_GAME_DURATION } from '@/constants/config';
-import { ElMessage, ElNotification } from 'element-plus';
 
 const {
   getRole,
@@ -163,11 +158,8 @@ const handleTurnEnded = () => {
     penalizePlayer();
   }
 };
-const handleSetColor = (
-  payload: { index: number; selectedColor: AvailableColor },
-  row: number
-) => {
-  guesses.value[row][payload.index] = { ...payload.selectedColor };
+const handleSetColor = (secretCode: AvailableColor[], row: number) => {
+  guesses.value[row] = [...secretCode];
 };
 const isCodeMasterTurn = computed(() => {
   return isPlayingOnChain.value
