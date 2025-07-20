@@ -1,9 +1,9 @@
 <template>
     <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white w-450"
 
   >
-    <div class="fs-21 fw-700 mb-3">Congratulations! You're Ready!</div>
+    <div class="fs-24 fw-700 mb-3">Congratulations! You're Ready!</div>
     <div class="d-flex gap-2 w-100 mb-4">
       <div class="c-idle radius-10 gray p-2 w-50">
         <div
@@ -16,7 +16,7 @@
           <inline-svg src="/icons/binary.svg"></inline-svg>
         </div>
         <div class="snow-white fs-12 mt-2">
-          Crack the secret codes of other players and earn Mina rewards!
+          Crack codes. Earn Mina.
         </div>
       </div>
       <div class="c-idle radius-10 gray p-2 w-50">
@@ -30,35 +30,33 @@
           <inline-svg src="/icons/dice.svg"></inline-svg>
         </div>
         <div class="snow-white fs-12 mt-2">
-          Create unbreakable codes and earn Mina rewards when others fail to
-          guess them.
+          Create codes. Earn Mina.
         </div>
       </div>
     </div>
     <div class="d-flex">
-      You've learned all the core strategies. Now it's time to play for real
-      rewards on Mainnet!
+      Now it's time to play for real rewards on Mainnet!
     </div>
     <div class="my-4">Here is mainnet rules:</div>
     <div class="d-flex gap-2 my-3">
       <inline-svg src="/icons/alarm.svg"></inline-svg>
       <div>
-        Each turn is timed at 2.5 minutes; running out of time is a loss.
+        2.5 Minute Turn Timer
       </div>
     </div>
     <div class="d-flex gap-2 my-3">
       <inline-svg src="/icons/ordered-list.svg"></inline-svg>
       <div>
-        The code must be solved within 7 guesses for the Codebreaker to win.
+        7 Guesses to Win
       </div>
     </div>
     <div class="d-flex gap-2 my-3">
       <inline-svg src="/icons/key.svg"></inline-svg>
-      <div>The code is created using numbers from 1 to 8.</div>
+      <div>Numbers 0-7, No Repeats</div>
     </div>
 
     <div>
-      <div class="radius-10 my-4 fs-12 info-container">
+      <div class="my-4 fs-12 info-container">
         On the decentralized Mina blockchain, each of your actions remains
         private, while the game's integrity is recursively proven using advanced
         recursive proofs.
@@ -82,4 +80,5 @@ const goToPlay = () => {
 </script>
 
 <style lang="scss" scoped>
+
 </style>

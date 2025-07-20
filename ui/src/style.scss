@@ -28,12 +28,6 @@ body {
 .bg-gray {
   background-color: #98989d !important;
 }
-.h-50 {
-  height: 50px !important;
-}
-.w-50 {
-  width: 50px !important;
-}
 .fw-400 {
   font-weight: 400 !important;
 }
@@ -64,6 +58,9 @@ body {
 .fs-30 {
   font-size: 30px !important;
 }
+.fs-32 {
+  font-size: 32px !important;
+}
 .p-10 {
   padding: 10px !important;
 }
@@ -77,6 +74,10 @@ body {
   padding: 10px 30px !important;
 }
 
+.p-20-10 {
+    padding: 20px 10px !important;
+
+}
 .black {
   color: #000 !important;
 }
@@ -164,4 +165,49 @@ body {
 .link {
   color: inherit !important;
   text-decoration: none !important;
+}
+.h-fit-content {
+  height: fit-content;
+}
+.michroma {
+  font-family: Michroma;
+}
+.letter-spacing-3 {
+  letter-spacing: 3px;
+}
+.game-reward {
+  border-radius: 10px;
+  padding-top: 5px;
+  padding-right: 10px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  background: $alpha-20-700-20;
+  background-blend-mode: multiply;
+  border: 1px solid $alpha-20-300-20;
+  display: flex;
+  align-items: center;
+  color: $snow-white;
+  gap: 5px;
+}
+.modal-background {
+  background-blend-mode: darken;
+  background: $alpha-50-900-50;
+}
+.w-500 {
+  width: 500px!important;
+}
+.w-400 {
+  width: 400px!important;
+} 
+.w-450 {
+  width: 450px!important;
+} 
+.info-container {
+  background: rgba(139, 220, 151, 0.2) 100%;
+  border: 1px solid #8bdc97;
+  padding: 10px;
+  border-radius: 4px;
+}
+.radius-4 {
+  border-radius: 4px!important;
 }

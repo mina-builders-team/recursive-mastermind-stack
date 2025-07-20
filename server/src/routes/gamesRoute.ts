@@ -10,51 +10,119 @@ import { Router, Request, Response } from 'express';
 import {
   createOrUpdateGame,
   getGameById,
-  getGamesByStatus,
   getUserGames,
 } from '../repositories/game.js';
-import { GameStatus } from '../models/Game.js';
+import Game, { GameStatus } from '../models/Game.js';
 import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
+import redisClient from '../redisClient.js';
 
 dotenv.config();
 const router = Router();
 
-/**
- * GET /active-games
- *
- * Retrieves all games with status "ACTIVE".
- *
- * @route GET /games/active-games
- * @returns {Game[]} 200 - List of active games
- * @returns {Error} 500 - Failed to fetch games
- */
-router.get('/active-games', async (req: Request, res: Response) => {
+router.get('/active-games/:userId', async (req: Request, res: Response) => {
+  const { userId } = req.params;
+
+  const filter = req.query.filter === 'own' ? 'own' : 'public'; // 'own' | 'public'
+  const sortBy = req.query.sortBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt'; // 'createdAt' by default
+  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1; // 'desc' by default
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
+  const includeInProgress = req.query.includeInProgress === 'true'; // default: false
+
+  const baseMatch: any = {
+    status: GameStatus.ACTIVE,
+  };
+
+  if (filter === 'own') {
+    baseMatch.codeMaster = userId;
+  } else {
+    baseMatch.codeMaster = { $ne: userId };
+  }
+
+  const cacheKey = `active:${userId}:${filter}:${sortBy}:${sortOrder}:${page}:${limit}`;
+
   try {
-    const games = await getGamesByStatus(GameStatus.ACTIVE);
-    res.status(200).json(games);
-  } catch (error) {
-    console.error('Error fetching game  list:', error);
-    res.status(500).json({ message: 'Failed to find game list' });
+    // Try to get from cache
+    const cachedActive = await redisClient.get(cacheKey);
+
+    let filteredActiveGames: any[] = [];
+    let totalActiveCount = 0;
+
+    if (cachedActive) {
+      const parsed = JSON.parse(cachedActive);
+      filteredActiveGames = parsed.filteredActiveGames;
+      totalActiveCount = parsed.totalActiveCount;
+    } else {
+      // Fetch filtered ACTIVE games
+      const [games, count] = await Promise.all([
+        Game.find(baseMatch)
+          .sort({ [sortBy]: sortOrder })
+          .skip(skip)
+          .limit(limit)
+          .select('_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp')
+          .lean(),
+        Game.countDocuments(baseMatch),
+      ]);
+
+      filteredActiveGames = games;
+      totalActiveCount = count;
+
+      // Cache filtered list
+      await redisClient.set(
+        cacheKey,
+        JSON.stringify({ filteredActiveGames, totalActiveCount }),
+        {
+          expiration: {
+            type: 'EX',
+            value: 60,
+          },
+        }
+      );
+    }
+
+    // Only fetch in-progress if requested
+    let inProgressGames: any[] = [];
+    if (includeInProgress) {
+      inProgressGames = await Game.find({
+        status: GameStatus.IN_PROGRESS,
+        $or: [{ codeMaster: userId }, { codeBreaker: userId }],
+      })
+        .select('_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp')
+        .lean();
+    }
+
+    res.status(200).json({
+      filteredActiveGames,
+      totalActiveCount,
+      ...(includeInProgress && { inProgressGames }),
+      page,
+      limit,
+    });
+  } catch (err) {
+    console.error('Error fetching active/in-progress games:', err);
+    res.status(500).json({ message: 'Failed to fetch game list' });
   }
 });
+
 
 /**
  * POST /accept/:id
  *
- * Accepts a game by updating its lastAcceptTimestamp.
+ * Accepts a game by updating its lastAcceptTimestamp and lastJoinAttemptBy.
  *
- * @route POST /games/accept/:id
- * @param {string} req.params.id - The game ID
+ * @route POST /games/accept
  * @returns {Game} 200 - The updated game
  * @returns {Error} 500 - Failed to accept the game
  */
-router.post('/accept/:id', async (req: Request, res: Response) => {
+router.post('/accept', async (req: Request, res: Response) => {
   try {
     const jsonGame = req.body;
     const game = await createOrUpdateGame({
       _id: jsonGame.gameId,
       lastAcceptTimestamp: Date.now(),
+      lastJoinAttemptBy: jsonGame.userId
     });
     res.status(200).json({ game });
   } catch (error) {
@@ -81,6 +149,185 @@ router.get('/user/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching game  list:', error);
     res.status(500).json({ message: 'Failed to find game list' });
+  }
+});
+
+router.get('/lobby/:pubKey', async (req, res) => {
+  const { pubKey } = req.params;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
+
+  const orderBy =
+    req.query.orderBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
+  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+  const playedAs = req.query.playedAs; // 'codeMaster' | 'codeBreaker' | undefined
+  const onlyPlayedGames = req.query.onlyPlayedGames === 'true';
+
+  try {
+    const baseMatch = {
+      $and: [
+        { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+        {
+          $or: [
+            ...(playedAs === 'codeMaster' ? [{ codeMaster: pubKey }] : []),
+            ...(playedAs === 'codeBreaker' ? [{ codeBreaker: pubKey }] : []),
+            ...(playedAs
+              ? []
+              : [{ codeMaster: pubKey }, { codeBreaker: pubKey }]),
+          ],
+        },
+      ],
+    };
+
+    if (onlyPlayedGames) {
+      const [playedGames, totalPlayedCount] = await Promise.all([
+        Game.find(baseMatch)
+          .sort({ [orderBy]: sortOrder })
+          .skip(skip)
+          .limit(limit)
+          .select('_id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster')
+          .lean(),
+        Game.countDocuments(baseMatch),
+      ]);
+
+      res.json({ playedGames, totalPlayedCount, page, limit });
+      return;
+    }
+
+    // Full initial fetch with cache
+    const statsCacheKey = `lobby:${pubKey}:stats`;
+    const activeGamesCacheKey = `lobby:${pubKey}:activeGames`;
+
+    const [cachedStats, cachedActiveGames] = await Promise.all([
+      redisClient.get(statsCacheKey),
+      redisClient.get(activeGamesCacheKey),
+    ]);
+
+    let stats, activeGames;
+
+    if (cachedStats && cachedActiveGames) {
+      stats = JSON.parse(cachedStats);
+      activeGames = JSON.parse(cachedActiveGames);
+    } else {
+      // --- Stats aggregation ---
+      const statsResult = await Game.aggregate([
+        {
+          $match: {
+            $and: [
+              { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+              { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            isWinner: { $eq: ['$winnerPublicKeyBase58', pubKey] },
+            isCodeMaster: { $eq: ['$codeMaster', pubKey] },
+            isCodeBreaker: { $eq: ['$codeBreaker', pubKey] },
+            rewardSigned: {
+              $cond: [
+                { $eq: ['$winnerPublicKeyBase58', pubKey] },
+                '$rewardAmount',
+                {
+                  $cond: [
+                    {
+                      $or: [
+                        { $eq: ['$codeMaster', pubKey] },
+                        { $eq: ['$codeBreaker', pubKey] },
+                      ],
+                    },
+                    { $multiply: [-1, '$rewardAmount'] },
+                    0,
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalPlayed: { $sum: 1 },
+            winsAsCodeBreaker: {
+              $sum: {
+                $cond: [{ $and: ['$isWinner', '$isCodeBreaker'] }, 1, 0],
+              },
+            },
+            winsAsCodeMaster: {
+              $sum: {
+                $cond: [{ $and: ['$isWinner', '$isCodeMaster'] }, 1, 0],
+              },
+            },
+            balance: { $sum: '$rewardSigned' },
+          },
+        },
+      ]);
+
+      stats = statsResult[0] || {
+        totalPlayed: 0,
+        winsAsCodeBreaker: 0,
+        winsAsCodeMaster: 0,
+        balance: 0,
+      };
+
+      // --- Active games ---
+      activeGames = await Game.find({
+        $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }],
+        status: GameStatus.ACTIVE,
+      })
+        .sort({ timestamp: -1 })
+        .lean();
+
+      await Promise.all([
+        redisClient.set(statsCacheKey, JSON.stringify(stats), {
+          expiration: {
+            type: 'EX',
+            value: 60,
+          },
+        }),
+        redisClient.set(activeGamesCacheKey, JSON.stringify(activeGames), {
+          expiration: {
+            type: 'EX',
+            value: 60,
+          },
+        }),
+      ]);
+    }
+
+    // --- Played games (default filters) ---
+    const [playedGames, totalPlayedCount] = await Promise.all([
+      await Game.find({
+        $and: [
+          { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+          { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
+        ],
+      })
+        .sort({ [orderBy]: sortOrder })
+        .skip(skip)
+        .limit(limit)
+        .select('_id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster')
+        .lean(),
+      Game.countDocuments({
+        $and: [
+          { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+          { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
+        ],
+      }),
+    ]);
+
+    res.json({
+      stats,
+      activeGames,
+      playedGames,
+      page,
+      limit,
+      totalPlayedCount,
+    });
+    return;
+  } catch (err) {
+    console.error('Error fetching lobby data:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -173,7 +420,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     if (!game) {
       res.status(404).json({ message: 'Game not found' });
-      return
+      return;
     }
 
     res.status(200).json({ game });

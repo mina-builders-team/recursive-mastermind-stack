@@ -19,49 +19,110 @@
         </div>
       </div>
     </div>
-    <div>
+    <div
+      v-if="!compiled"
+      class="d-flex justify-content-center align-items-end gap-2 blend-screen bg-alpha-20-300-20 radius-10 p-10 fs-12 fw-600"
+    >
+      Compiling <DotsLoader />
+    </div>
+    <div
+      class="d-flex justify-content-center align-items-end gap-2 blend-screen bg-alpha-20-300-20 radius-10 p-10 fs-12 fw-600"
+      v-else-if="!zkAppStates"
+    >
+      Setting Up Game <DotsLoader />
+    </div>
+    <div v-else>
       <div class="blend-screen bg-alpha-20-300-20 radius-10 p-10 fs-12 fw-600">
         <div class="d-flex justify-content-between mb-2">
-          <span> Last Join Attempt: </span>
-          <span class="gray fw-400 fs-12">(You)</span>
+          <div>Last Join Attempt:</div>
+          <div class="gray fw-400 fs-12">
+            <span
+              v-if="
+                !game?.lastJoinAttemptBy &&
+                !acceptedGame?.lastAcceptTransactionHash
+              "
+              >-</span
+            >
+            <span
+              v-else-if="
+                game?.lastJoinAttemptBy === publicKeyBase58 ||
+                (!game?.lastJoinAttemptBy &&
+                  acceptedGame?.lastAcceptTransactionHash)
+              "
+              >(You)</span
+            >
+            <span v-else>{{
+              formatAddress(game?.lastJoinAttemptBy || '')
+            }}</span>
+          </div>
         </div>
-        <div>Last Cancel Attempt:</div>
         <div class="d-flex justify-content-between mb-2">
-          <span> Last Accept Game Transaction Hash: </span>
-          <span class="gray fw-400 fs-12">421...b3143</span>
+          <div>Last Cancel Attempt:</div>
+          <div class="gray fw-400 fs-12">
+            <span v-if="game?.lastCancelTimestamp">{{
+              dayjs(game.lastCancelTimestamp).fromNow()
+            }}</span>
+            <span v-else>-</span>
+          </div>
         </div>
-        <div class="d-flex justify-content-between mb-2">
-          <span>
-            Please check this transaction before the accepting game:
-          </span>
-          <el-button class="default-border radius-10 bg-alpha-8-300-8">
-            <span class="gray me-2">421...b3143</span>
-            <span class="snow-white">Check</span>
-          </el-button>
+        <div v-if="acceptedGame?.lastAcceptTransactionHash">
+          <div class="d-flex justify-content-between mb-2">
+            <span> Last Accept Game Transaction Hash: </span>
+            <span class="gray fw-400 fs-12">{{
+              formatAddress(acceptedGame?.lastAcceptTransactionHash)
+            }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>
+              Make sure that Tx has failed before making new join attempts:
+            </span>
+            <a
+              class="link d-flex gap-1 align-items-center"
+              :href="`https://minascan.io/devnet/tx/${acceptedGame?.lastAcceptTransactionHash}?type=zk-tx`"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button class="default-border radius-10 bg-alpha-8-300-8">
+                <span class="gray me-2">{{
+                  formatAddress(acceptedGame?.lastAcceptTransactionHash)
+                }}</span>
+                <span class="snow-white">Check</span>
+              </Button>
+            </a>
+          </div>
         </div>
       </div>
-      <div class="d-flex flex-column align-items-center gap-2">
+      <div
+        class="d-flex flex-column align-items-center gap-2"
+        v-if="
+          acceptedGame?.lastAcceptTransactionHash && !isAcceptGameTimeElapsed
+        "
+      >
         <div class="w-100 d-flex justify-content-center fs-12">
           Game should start anytime before:
         </div>
         <Timer
+          :key="timerKey"
           :duration="MINA_APPROX_SLOT_DURATION"
-          :startTimestamp="Date.now()"
+          :startTimestamp="timerStartTime"
+          @timeEnded="timerEnded"
         />
       </div>
     </div>
+
     <div class="d-flex justify-content-between join-modal-footer">
-      <el-button
+      <Button
         size="large"
         class="snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
         @click="handleClose"
-        >Back</el-button
+        >Back</Button
       >
-      <el-button
+      <Button
+        v-if="isGameReady"
         size="large"
         class="fw-400 black bg-light-gray search-btn"
         @click="handleAcceptGame"
-        >Play Game</el-button
+        >Play Game</Button
       >
     </div>
   </div>
@@ -70,17 +131,26 @@
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { ElMessage, ElNotification } from 'element-plus';
-import { updateLocalStorageGames } from '@/utils';
-import { computed, onMounted, ref } from 'vue';
+import { formatAddress, updateLocalStorageGames } from '@/utils';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import CodeMasterGameDetail from './CodeMasterGameDetail.vue';
-import Button from './shared/Button.vue';
-import CodeBreakerGameDetail from './CodeBreakerGameDetail.vue';
+import Button from '@/components/shared/Button.vue';
 import Timer from '@/components/shared/Timer.vue';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import DotsLoader from '../shared/DotsLoader.vue';
+dayjs.extend(relativeTime);
 
-const { zkAppStates, error, zkAppAddress, currentTransactionLink, game } =
-  storeToRefs(useZkAppStore());
-const { acceptGame, cancelGame, getZkAppStates } = useZkAppStore();
+const {
+  publicKeyBase58,
+  error,
+  zkAppAddress,
+  currentTransactionLink,
+  game,
+  compiled,
+  zkAppStates,
+} = storeToRefs(useZkAppStore());
+const { acceptGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -98,10 +168,21 @@ const isAcceptGameTimeElapsed = ref(
   Date.now() - acceptedGame.value?.lastAcceptTimestamp >
     MINA_APPROX_SLOT_DURATION
 );
-
+const timerKey = ref(0);
+const timerStartTime = ref(
+  acceptedGame.value?.lastAcceptTimestamp || Date.now()
+);
+const resetTimer = () => {
+  timerKey.value += 1;
+  timerStartTime.value = Date.now();
+};
+const timerEnded = async () => {
+  await getZkAppStates();
+  isAcceptGameTimeElapsed.value = true;
+};
 const handleClose = () => {
   router.push({
-    name: 'home',
+    name: 'lobby',
   });
 };
 const handleAcceptGame = async () => {
@@ -117,6 +198,7 @@ const handleAcceptGame = async () => {
       ...acceptedGame.value,
     });
     isAcceptGameTimeElapsed.value = false;
+    resetTimer();
     ElNotification({
       title: 'Success',
       message: `Transaction Hash :  ${currentTransactionLink.value}`,
@@ -125,10 +207,9 @@ const handleAcceptGame = async () => {
     });
   }
 };
-const handleAcceptTimeElapsed = async () => {
-  await getZkAppStates();
-  isAcceptGameTimeElapsed.value = true;
-};
+const isGameReady = computed(() => {
+  return compiled.value && zkAppStates.value;
+});
 </script>
 <style scoped lang="scss">
 .search-btn {

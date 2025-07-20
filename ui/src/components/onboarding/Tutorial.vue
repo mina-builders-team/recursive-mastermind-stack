@@ -1,15 +1,15 @@
 <template>
   <div
-    class="default-border radius-20 bg-alpha-50-900-50 p-20 snow-white"
+    class="default-border radius-20 bg-alpha-50-900-50 p-2 snow-white w-500"
   >
-    <div class="fw-700 fs-24 w-100 d-flex justify-content-center">
+    <div class="fw-700 fs-24 w-100 d-flex justify-content-center my-4">
       {{ title }}
     </div>
     <div class="d-flex gap-2">
       <div
         class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 p-2 w-100 flex-1"
       >
-        <Clue :clue="[hitClue, missClue, missClue, missClue]" />
+        <Clue :clue="[hitClue, type ==='GREEN' ? hitClue : missClue, type ==='GREEN' ? hitClue : missClue, type ==='GREEN' ? hitClue : missClue]" />
         <div class="fs-12 fw-400">
           <div>Green Clue</div>
           <div>Right Number, Right Spot.</div>
@@ -32,7 +32,7 @@
       <inline-svg src="/icons/key.svg" />
       <div>Numbers are 0-7. No repeats.</div>
     </div>
-    <div class="default-border radius-10 bg-alpha-50-900-50 d-flex w-100">
+    <div class="default-border radius-10 bg-alpha-50-900-50 d-flex w-100 mt-3">
       <div class="w-100 p-2">
         <div
           v-for="(guess, row) in guesses"
@@ -50,7 +50,7 @@
                 <span>{{ tooltips[row] }}</span>
               </template>
               <div
-                class="d-flex align-items-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3"
+                class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100"
               >
                 <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
                 Hover For Tip
@@ -61,7 +61,7 @@
       </div>
 
       <div
-        class="button-placeholder default-border radius-10 d-flex cursor-pointer"
+        class="button-placeholder default-border radius-10 d-flex cursor-pointer w-100"
         size="large"
         v-if="type !== 'GREEN'"
       >
@@ -70,7 +70,7 @@
             <slot name="tooltip"> </slot>
           </template>
           <div
-            class="d-flex align-items-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3"
+            class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100"
           >
             <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
             Hover For Tip
@@ -95,17 +95,17 @@
           <Clue :clue="[hitClue, hitClue, hitClue, hitClue]" />
           <CodePicker :secret="secret" />
         </div>
-        <Button
-          class="cta-1 radius-10 w-100"
+      </div>
+      <Button
+          class="cta-1 mt-2 radius-10 w-100"
           size="large"
           @click="handleNextStep"
         >
           <inline-svg src="/icons/rocket.svg" class="me-2" /> Next
         </Button>
-      </div>
     </div>
 
-    <div v-else class="my-3">
+    <div v-else class="mt-3">
       <div class="text-center fw-600 mb-2">Enter Your Answer here:</div>
       <div class="d-flex gap-2 w-100">
         <Clue :clue="clue" />
@@ -126,7 +126,7 @@
           >
         </div>
       </div>
-      <Button size="large" class="cta-3 w-100 mt-3" @click="generateClue(true)">
+      <Button size="large" class="button-9 w-100 mt-3" @click="generateClue(true)">
         Show me Me Answer
       </Button>
     </div>

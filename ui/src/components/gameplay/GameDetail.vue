@@ -17,8 +17,7 @@
 <script lang="ts" setup>
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 import CodeMasterGameDetail from './CodeMasterGameDetail.vue';
 import Button from '@/components/shared/Button.vue';
 import CodeBreakerGameDetail from './CodeBreakerGameDetail.vue';
@@ -26,26 +25,7 @@ import MiniPuzzle from '@/components/shared/MiniPuzzle.vue';
 
 const { zkAppStates, publicKeyBase58, userRole, game } =
   storeToRefs(useZkAppStore());
-const route = useRoute();
-const MINA_APPROX_SLOT_DURATION = Number(
-  import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
-);
-let storedAcceptedGames = localStorage.getItem('games')
-  ? JSON.parse(localStorage.getItem('games')!)
-  : {};
-const acceptedGame = ref(
-  storedAcceptedGames?.[route?.params?.id as string] || null
-);
 
-const isAcceptGameTimeElapsed = ref(
-  Date.now() - acceptedGame.value?.lastAcceptTimestamp >
-    MINA_APPROX_SLOT_DURATION
-);
-
-const isCancelGameTimeElapsed = ref(
-  game.value?.lastCancelTimestamp &&
-    Date.now() - game.value?.lastCancelTimestamp > MINA_APPROX_SLOT_DURATION
-);
 const isGameCancelled = computed(() => {
   return zkAppStates.value?.rewardAmount === 0;
 });

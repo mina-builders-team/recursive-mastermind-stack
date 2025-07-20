@@ -31,6 +31,7 @@ export interface IGame extends Document {
   isRefereeVerified: boolean;
   gameCreationTransactionHash: string;
   roomName: string;
+  lastJoinAttemptBy: string;
 }
 
 const gameSchema: Schema = new Schema(
@@ -58,6 +59,7 @@ const gameSchema: Schema = new Schema(
     isRefereeVerified: { type: Boolean, required: true },
     gameCreationTransactionHash: { type: String, required: true },
     roomName: { type: String, required: true },
+    lastJoinAttemptBy: { type: String, required: false },
   },
   { timestamps: true }
 );

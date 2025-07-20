@@ -8,6 +8,8 @@
     class="white"
     modal-class="mask-class"
     @close="handleClose"
+    :destroy-on-close="true"
+    :close-on-press-escape="false"
   >
     <slot></slot>
   </el-dialog>

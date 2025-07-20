@@ -177,7 +177,7 @@ const handleGiveClue = async () => {
 };
 const handleSetColor = (secretCode: AvailableColor[]) => {
   if (props.editable || (isCurrentRound.value && !isCodeMasterTurn.value)) {
-    emit('setColor', { secretCode });
+    emit('setColor', secretCode);
   }
 };
 const isCodeMasterTurn = computed(() => {

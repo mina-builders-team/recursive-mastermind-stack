@@ -66,25 +66,27 @@ const handleClick = () => {
 .button-4 {
   border-radius: 10px;
   gap: 10px;
-  padding: 10px 30px;
+  padding: 10px;
   background: linear-gradient(
     180deg,
     $alpha-50-300-50 0%,
     $alpha-50-700-50 100%
   );
   background-blend-mode: color-dodge;
-  border: 1px solid;
-
-  border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 100%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
+  border: 1px solid rgba(59, 61, 63, 0.5);
   box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
   font-weight: 400;
   font-size: 14px;
+  color: $gray;
+}
+.button-4:hover {
+  box-shadow: 0px 2px 35px 0px $color-200 inset;
   color: $snow-white;
+  background: linear-gradient(0deg, $alpha-20-300-20 $alpha-20-300-20)
+    linear-gradient(0deg, $alpha-8-000-8, $alpha-8-000-8);
+  background-blend-mode: screen;
+  box-shadow: 0px 2px 35px 0px $color-200 inset;
 }
 .button-5 {
   border-radius: 10px;
@@ -111,4 +113,42 @@ const handleClick = () => {
   background: black;
 }
 
+.button-7 {
+  border-radius: 10px;
+  padding: 20px 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  background-blend-mode: screen;
+  border: 1px solid;
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  font-weight: 400;
+  font-size: 14px;
+}
+.button-8 {
+  border-radius: 10px;
+  padding: 10px 30px;
+  background-color: $red;
+  border: 1px solid;
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
+  backdrop-filter: blur(10px);
+  color: $snow-white;
+}
+.button-9 {
+  border-radius: 10px;
+  padding: 10px 30px;
+  background: $alpha-8-300-8;
+  border: 1px solid rgba(59, 61, 63, 0.5);
+}
 </style>

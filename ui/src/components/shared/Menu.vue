@@ -1,21 +1,22 @@
 <template>
-  <div
-    class="menu-container d-flex justify-content-between align-items-center w-100"
-  >
-    <!--Todo: change font-weight-->
-    <span class="game-title">MASTERMIND</span>
+  <div class="menu-container d-flex justify-content-between align-items-center w-100">
+    <img class="game-title" src="/logo.png"></img>
     <div class="d-flex gap-4 align-items-center">
-      <span class="fs-14 fw-600">Play</span>
-      <span class="fs-14 fw-600">MyGames</span>
-      <span class="fs-14 fw-600">Learn</span>
-      <span class="fs-14 fw-600">Rank</span>
-      <div
-        class="d-flex justify-content-center align-items-center gap-2 gray fs-14 wallet-btn"
-      >
-        <inline-svg src="/icons/wallet.svg" width="14" height="14" />
-        <span v-if="publicKeyBase58">{{ formatAddress(publicKeyBase58) }}</span>
-        <span v-else>Connect</span>
-      </div>
+      <span class="fs-14 fw-600 cursor-pointer" v-for="link in links" @click="handleLinkClick(link)">
+        {{ link.title }}</span>
+      <Button class="w-100 h-100 p-2 button-4 wallet-btn" @click="handleConnect">
+        <div>
+          <div class="d-flex align-items-center ps-2">
+            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
+            <span v-if="publicKeyBase58">{{ formatAddress(publicKeyBase58) }}</span>
+            <span v-else class="me-2">Connect</span>
+          </div>
+          <Button class="d-flex align-items-center mt-2 button-4 px-3" @click="handleDisconnect" v-if="publicKeyBase58">
+            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
+            <span>Click to Disconnect</span>
+          </Button>
+        </div>
+      </Button>
     </div>
   </div>
 </template>
@@ -23,7 +24,32 @@
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { formatAddress } from '@/utils';
+import { useRouter } from 'vue-router';
+import Button from './Button.vue';
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
+const { disconnect,connect } = useZkAppStore();
+
+const router = useRouter();
+const links = [
+  { title: 'Play', name: 'lobby' },
+  { title: 'MyGames', name: 'my-games' },
+  { title: 'Learn', name: 'onboarding' },
+  { title: 'Rank', name: 'leaderboard' },
+];
+const handleLinkClick = (item: { title: string; name: string }) => {
+  router.push({
+    name: item.name,
+  });
+};
+const handleDisconnect = () => {
+  disconnect()
+}
+const handleConnect = async () => {
+  if (!publicKeyBase58.value) {
+    await connect()
+  }
+}
+
 </script>
 <style scoped lang="scss">
 .game-title {
@@ -31,16 +57,16 @@ const { publicKeyBase58 } = storeToRefs(useZkAppStore());
   font-size: 15px;
   font-weight: 100;
 }
-.wallet-btn {
-  padding: 8px 16px;
-  border-radius: 10px;
-  background: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 0%,
-    rgba(25, 27, 29, 0.5) 100%
-  );
+
+.wallet-btn:hover {
+  background: linear-gradient(180deg,
+      $alpha-50-300-50 0%,
+      $alpha-50-700-50 100%);
   background-blend-mode: color-dodge;
-  box-shadow: 2px 2px 12px 2px #1e1f22 inset;
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 61, 63, 0.5);
+  color: $gray;
+
 }
 </style>

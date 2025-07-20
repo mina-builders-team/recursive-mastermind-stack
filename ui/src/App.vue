@@ -2,7 +2,7 @@
   <MatrixBackground />
   <div class="d-flex justify-content-center">
     <div class="h-100 main-container">
-      <Menu></Menu>
+      <Menu v-if="showMenu"></Menu>
       <div class="w-100">
         <router-view />
       </div>
@@ -10,14 +10,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { storeToRefs } from 'pinia';
 import MatrixBackground from './components/MatrixBackground.vue';
 import Menu from '@/components/shared/Menu.vue';
-const { zkappWorkerClient, hasBeenSetup, accountExists } =
-  storeToRefs(useZkAppStore());
-const { checkAccountExists, setupZkApp } = useZkAppStore();
+import { useRoute } from 'vue-router';
+const { setupZkApp } = useZkAppStore();
 onMounted(async () => {
   await setupZkApp();
   removePastGames();
@@ -37,15 +35,15 @@ const removePastGames = () => {
     }
   }
 };
+const route = useRoute();
+const showMenu = ref(true);
 watch(
-  [
-    () => zkappWorkerClient.value,
-    () => hasBeenSetup.value,
-    () => accountExists.value,
-  ],
-  async () => {
-    if (hasBeenSetup.value && !accountExists.value) {
-      await checkAccountExists();
+  () => route.name,
+  () => {
+    if (route.name === 'onboarding') {
+      showMenu.value = false;
+    } else {
+      showMenu.value = true;
     }
   }
 );
@@ -57,6 +55,6 @@ watch(
   flex-direction: column;
   align-items: center;
   font-size: 14px;
-  width: 69%;
+  width: 90%;
 }
 </style>

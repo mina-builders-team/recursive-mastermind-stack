@@ -19,6 +19,18 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "gameplay" */ '@/views/Lobby.vue'),
   },
   {
+    path: '/my-games',
+    name: 'my-games',
+    component: () =>
+      import(/* webpackChunkName: "gameplay" */ '@/views/myGames.vue'),
+  },
+    {
+    path: '/rank',
+    name: 'leaderboard',
+    component: () =>
+      import(/* webpackChunkName: "gameplay" */ '@/views/Leaderboard.vue'),
+  },
+  {
     path: '/:id',
     name: 'gameplay',
     component: () =>

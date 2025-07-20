@@ -5,30 +5,26 @@
         <div class="board__container w-100">
           <div class="d-flex gap-2 justify-content-center w-100">
             <RoundedColor
+              v-for="(secret, index) in code"
               height="40px"
               width="40px"
-              v-for="secret in hiddenSecret"
-              bgColor="#3b3d3f33"
+              :editable="editable && editOnly.includes(index)"
               :value="secret.value"
-              v-if="isSecretHidden"
+              :bgColor="secret.color"
+              :index="index"
+              @input="handleSetSecretCode($event, index)"
+              @focusNext="focusNextInput(index)"
+              @focusPrev="focusPrevInput(index)"
+              ref="inputRefs"
             />
-            <template v-else>
-              <RoundedColor
-                v-for="(secret, index) in secretCode"
-                height="40px"
-                width="40px"
-                :editable="editable && editOnly.includes(index)"
-                :value="secret.value"
-                :bgColor="secret.value === 9 ? '#3b3d3f80' : '#3b3d3f33'"
-                @input="handleSetSecretCode($event, index)"
-                @focusNext="focusNextInput(index)"
-                @focusPrev="focusPrevInput(index)"
-                ref="inputRefs"
-              />
-            </template>
           </div>
         </div>
-        <el-icon :size="25" class="cursor-pointer" @click="toggleSecret" v-if="hideable">
+        <el-icon
+          :size="25"
+          class="cursor-pointer"
+          @click="toggleSecret"
+          v-if="hideable"
+        >
           <View v-if="isSecretHidden" />
           <Hide v-else />
         </el-icon>
@@ -37,7 +33,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { AvailableColor } from '@/types';
 import RoundedColor from '@/components/shared/RoundedColor.vue';
 import { initialColor } from '@/constants/colors';
@@ -86,13 +82,19 @@ const focusPrevInput = (index: number) => {
     nextTick(() => inputRefs.value[index - 1]?.focus());
   }
 };
-const secretCode = ref<Array<AvailableColor>>(props.secret);
 const hiddenSecret = Array.from({ length: 4 }, () => ({
-  color: '#fff',
+  color: '#3b3d3f33',
   value: '*',
 }));
 const handleSetSecretCode = (selectedColor: AvailableColor, index: number) => {
-  secretCode.value[index] = { ...selectedColor };
-  emit('change', secretCode.value);
+
+  const newSecret = props.secret.map((color, i) =>
+    i === index ? { ...selectedColor } : color
+  );
+  emit('change', newSecret);
 };
+
+const code = computed(() => {
+  return isSecretHidden.value ? hiddenSecret : props.secret;
+});
 </script>

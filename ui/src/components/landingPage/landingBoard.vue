@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div class="landing-board__container">
     <div class="board-title mb-4">
-      <div class="gray fs-14">Welcome</div>
-      <span>Code Breaker</span>
+      <div class="gray michroma fs-16 letter-spacing-3">WELCOME</div>
+      <span class="fs-21 michroma fw-400 snow-white letter-spacing-3"
+        >CodeBreaker</span
+      >
     </div>
     <div class="d-flex gap-5">
-      <div
-        class="game-reward d-flex align-items-center gap-2 fw-400 f-14 snow-white p-2 fit-content"
-      >
+      <div class="game-reward">
         <inline-svg src="/icons/cash.svg"></inline-svg>
         100 MINA
       </div>
@@ -23,18 +23,18 @@
     <div class="d-flex flex-column-reverse align-items-center mt-2 py-2">
       <div
         v-for="(guess, row) in guesses"
-        class="d-flex gap-2 align-items-center my-1"
+        class="d-flex gap-2 align-items-center my-1 w-100"
       >
         <Clue :clue="clues?.[row]" />
         <CodePicker
           :secret="guess"
           :editable="row === lastGuessIndex"
-          @setColor="handleSetColor($event, row)"
+          @change="handleSetColor($event, row)"
         />
         <div class="btn-container w-100 h-100">
           <Button
             @click="generateClue"
-            class="multi-line-button w-100 h-100 fs-7 fw-500 py-3 cta-1 radius-10 d-flex align-items-center gap-1 ps-0"
+            class="button-3 black radius-10 w-100 ps-0"
             size="large"
             v-if="row === lastGuessIndex && !isGameSolved"
           >
@@ -42,27 +42,27 @@
             <span>Send</span>
           </Button>
           <div
-            class="button-placeholder default-border radius-10 d-flex px-5"
+            class="button-placeholder radius-10  px-5"
             v-else
           ></div>
         </div>
       </div>
     </div>
   </div>
-  <Modal v-if="isGameSolved || lastGuessIndex === 7">
-    <div>
-      <div class="d-flex justify-content-between">
+  <Modal v-if="isGameSolved || lastGuessIndex === 7" class="w-500">
+    <div class="snow-white">
+      <div class="d-flex justify-content-between bg-alpha-8-300-8 radius-10 py-2 px-3 default-border mb-3 fw-700 fs-16">
         <span v-if="isGameSolved"> Well Played! </span>
         <span v-else> That Was Just a Practice Run</span>
 
         <inline-svg src="/icons/diamond.svg"></inline-svg>
       </div>
-      <div>
-        <span v-if="isGameSolved">You've passed the test.</span>
-        <span v-else>Don't worry, that's what practice is for.</span>
-        <div>Let's begin the tutorial and learn the winning strategies.</div>
+      <div class="mt-2 fs-16²">
+        <div v-if="isGameSolved">You've passed the test.</div>
+        <div v-else>Don't worry, that's what practice is for.</div>
+        <div class="my-3">Let's begin the tutorial and learn the winning strategies.</div>
       </div>
-      <Button> Go to Tutorial!</Button>
+      <Button class="radius-10 w-100 black" size="large" @click="startOnboarding"> Go to Tutorial!</Button>
     </div>
   </Modal>
 </template>
@@ -75,6 +75,7 @@ import Modal from '@/components/shared/Modal.vue';
 import { cluesColors, initialColor } from '@/constants/colors';
 import { AvailableColor } from '@/types';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const generateSecret = (): Array<number> => {
   const solution: Array<number> = [];
@@ -86,6 +87,7 @@ const generateSecret = (): Array<number> => {
   }
   return solution;
 };
+const router = useRouter()
 const hitColor = cluesColors.find((c) => c.value === 2);
 const blowColor = cluesColors.find((c) => c.value === 1);
 const missColor = cluesColors.find((c) => c.value === 0);
@@ -127,15 +129,26 @@ const generateClue = () => {
     isGameSolved.value = true;
   }
 };
+const startOnboarding = () => {
+  router.push({name:'onboarding'})
+}
 </script>
 <style lang="scss" scoped>
 .btn-container {
   width: 96px;
   height: 46px;
 }
+
 .button-placeholder {
   background-blend-mode: luminosity;
   background: #0000001a;
   height: 45px;
+  border: 1px solid #3B3D3F80;
+}
+.landing-board__container {
+  background: $color-800;
+  border: 2px solid rgba(59, 61, 63, 0.5);
+  padding: 15px;
+  border-radius: 20px;
 }
 </style>

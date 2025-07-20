@@ -17,7 +17,7 @@
         <CodePicker
           :secret="guess"
           :editable="row === lastGuessIndex"
-          @setColor="handleSetColor($event, row)"
+          @change="handleSetColor($event, row)"
         />
       </div>
       <div class="d-flex mt-3">

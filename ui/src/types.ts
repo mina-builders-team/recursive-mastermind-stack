@@ -1,6 +1,6 @@
 export interface AvailableColor {
   color: string;
-  value: number;
+  value: number | string;
   title?: string;
 }
 
@@ -42,4 +42,5 @@ export interface Game {
   isRefereeVerified: boolean;
   roomName?: string;
   gameCreationTransactionHash?: string;
+  lastJoinAttemptBy?: string;
 }

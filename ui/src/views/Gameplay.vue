@@ -1,6 +1,16 @@
 <template>
   <div class="d-flex flex-column align-items-center">
-    <div class="w-100">
+    <div v-if="isLoading">
+      <Modal class="w-500">
+        <GameBoardSkeleton />
+      </Modal>
+    </div>
+    <div v-else-if="isNotAvailableGame">
+      <Modal class="w-400">
+        <NotFound />
+      </Modal>
+    </div>
+    <div v-else class="w-100">
       <Modal
         v-if="
           !isGameAcceptedOnChain ||
@@ -15,30 +25,21 @@
       </Modal>
       <GameBoard v-else />
     </div>
-    <!--     <div v-else>
-      <Modal>
-        <div class="d-flex flex-column gap-2 snow-white">
-          <div class="d-flex align-items-end gap-2">
-            <div>Setting up game {{ formatAddress(gameId) }} </div>
-            <div class=""><DotsLoader /></div>
-          </div>
-        </div>
-      </Modal>
-    </div>
- -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router';
 import GameBoard from '@/components/gameplay/GameBoard.vue';
 import GameDetail from '@/components/gameplay/GameDetail.vue';
 import Modal from '@/components/shared/Modal.vue';
+import GameBoardSkeleton from '@/components/gameplay/skeleton/GameBoardSkeleton.vue';
+import NotFound from '@/views/NotFound.vue';
 const route = useRoute();
-const { compiled, zkAppStates, game, isPlayingOnChain } =
+const { compiled, zkAppStates, game, isPlayingOnChain, publicKeyBase58 } =
   storeToRefs(useZkAppStore());
 const {
   initZkappInstance,
@@ -53,6 +54,7 @@ const {
 } = useZkAppStore();
 const gameId = route?.params?.id as string;
 const isGameAcceptedOnChain = ref(false);
+const isLoading = ref(true);
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
@@ -73,7 +75,16 @@ onMounted(async () => {
   if (!game.value) {
     await getGame(gameId);
   }
+  isLoading.value = false;
 });
+const isNotAvailableGame = computed(() => {
+  return (
+    !game.value ||
+    (game.value?.status === 'PENDING' &&
+      game.value?.codeMaster !== publicKeyBase58.value)
+  );
+});
+
 watch(
   () => compiled.value,
   async () => {
@@ -110,3 +121,4 @@ onUnmounted(async () => {
   }
 });
 </script>
+<style lang="scss" scoped></style>

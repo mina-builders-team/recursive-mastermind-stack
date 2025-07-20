@@ -26,8 +26,8 @@ const props = defineProps({
 <style lang="scss" scoped>
 .clue__container {
   display: grid;
-  grid-template-columns: repeat(2, 25px);
-  grid-template-rows: repeat(2, 25px);
+  grid-template-columns: repeat(2, 22px);
+  grid-template-rows: repeat(2, 22px);
   gap: 1px;
 }
 </style>

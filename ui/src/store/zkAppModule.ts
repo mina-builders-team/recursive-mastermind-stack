@@ -29,6 +29,7 @@ interface MinaWallet {
   on: (event: string, handler: Function) => void;
   switchChain: (args: ChainInfoArgs) => Promise<ChainInfoArgs | ProviderError>;
   requestNetwork: () => Promise<ChainInfoArgs>;
+  getAccounts: () => Promise<string[]>;
 }
 
 declare global {
@@ -74,70 +75,28 @@ export const useZkAppStore = defineStore('useZkAppModule', {
   getters: {},
   actions: {
     async setupZkApp() {
-      if (window.mina) {
-        try {
-          this.requestedConnexion = true;
-          this.stepDisplay = 'Loading web worker...';
-          this.zkappWorkerClient = new ZkappWorkerClient();
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          this.stepDisplay = 'Setting Mina instance...';
-          await this.zkappWorkerClient.setMinaActiveInstance();
-          await this.syncMinaChain();
-          const accounts = await window.mina.requestAccounts();
-          this.publicKeyBase58 = accounts[0];
-          this.stepDisplay = 'Checking if fee payer account exists...';
-          const res = await this.zkappWorkerClient.fetchAccount(
-            this.publicKeyBase58
-          );
-          this.accountExists = res.error === null;
-          await this.zkappWorkerClient.loadContract();
-          this.stepDisplay = 'Compiling zkApp...';
-          await this.zkappWorkerClient.compileContract();
-          this.stepDisplay = '';
-          this.compiled = true;
-          this.hasBeenSetup = true;
-          this.hasWallet = true;
-          window.mina?.on('accountsChanged', async (accounts: string[]) => {
-            if (accounts.length) {
-              this.publicKeyBase58 = accounts[0];
-            } else {
-              const newAccounts = await window.mina?.requestAccounts();
-              this.publicKeyBase58 = newAccounts?.[0];
-            }
-            await this.getRole();
-          });
-          console.log('setup completed...');
-          this.error = null;
-        } catch (error: any) {
-          return { message: error.message };
-        }
-      } else {
-        this.hasWallet = false;
-        this.stepDisplay = 'Mina Wallet not detected';
-
-        this.error = {
-          message: 'Mina Wallet not detected. Please install Auro Wallet.',
-        };
-        return;
-      }
-    },
-    async checkAccountExists() {
       try {
-        for (;;) {
-          const res = await this.zkappWorkerClient!.fetchAccount(
-            this.publicKeyBase58
-          );
-          const accountExists = res.error == null;
-          if (accountExists) {
-            break;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+        this.requestedConnexion = true;
+        this.stepDisplay = 'Loading web worker...';
+        this.zkappWorkerClient = new ZkappWorkerClient();
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        let accounts = await window.mina?.getAccounts();
+        if (accounts?.[0]) {
+          this.publicKeyBase58 = accounts?.[0];
         }
+        this.stepDisplay = 'Setting Mina instance...';
+        await this.zkappWorkerClient.setMinaActiveInstance();
+        await this.zkappWorkerClient.loadContract();
+        this.stepDisplay = 'Compiling zkApp...';
+        await this.zkappWorkerClient.compileContract();
+        this.stepDisplay = '';
+        this.compiled = true;
+        this.hasBeenSetup = true;
+        console.log('setup completed...');
+        this.error = null;
       } catch (error: any) {
-        this.stepDisplay = `Error checking account: ${error.message}`;
+        return { message: error.message };
       }
-      this.accountExists = true;
-      this.error = null;
     },
     async syncMinaChain() {
       const currentMinaNetworkId: ChainInfoArgs = await window.mina
@@ -519,8 +478,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         await this.joinGame();
         this.stepDisplay = '';
         this.error = null;
-        await axios.post(SERVER_URL + `/games/accept/${this.publicKeyBase58}`, {
+        await axios.post(SERVER_URL + `/games/accept`, {
           gameId: this.zkAppAddress,
+          userId: this.publicKeyBase58,
         });
       } catch (err: any) {
         this.error = err?.message || err;
@@ -582,7 +542,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       try {
         const res = await axios.get(SERVER_URL + `/games/${gameId}`);
         if (res?.data?.game) {
-          this.setGame(res?.data?.game);
+          await this.setGame(res?.data?.game);
         }
       } catch (err: any) {
         this.error = err?.message || err;
@@ -706,6 +666,36 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (this.isPlayingOnChain) {
           this.isPlayingOnChain = false;
         }
+      }
+    },
+    async disconnect() {
+      this.publicKeyBase58 = null;
+    },
+    async connect() {
+      if (window.mina) {
+        await this.syncMinaChain();
+        const accounts = await window.mina?.requestAccounts();
+        this.publicKeyBase58 = accounts?.[0];
+        this.stepDisplay = 'Checking if fee payer account exists...';
+        const res = await this.zkappWorkerClient?.fetchAccount(
+          this.publicKeyBase58
+        );
+        this.accountExists = res?.error === null;
+        window.mina?.on('accountsChanged', async (accounts: string[]) => {
+          if (accounts.length) {
+            this.publicKeyBase58 = accounts[0];
+          } else {
+            const newAccounts = await window.mina?.requestAccounts();
+            this.publicKeyBase58 = newAccounts?.[0];
+          }
+          await this.getRole();
+        });
+      } else {
+        this.hasWallet = false;
+        this.error = {
+          message: 'Mina Wallet not detected. Please install Auro Wallet.',
+        };
+        return;
       }
     },
   },

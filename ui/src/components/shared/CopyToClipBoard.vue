@@ -4,7 +4,7 @@
     content="Copied!"
     placement="top"
   >
-    <el-icon :size="25" class="cursor-pointer" @click="copyToClipBoard">
+    <el-icon :size="25" class="cursor-pointer" :color="color" @click="copyToClipBoard">
       <CopyDocument />
     </el-icon>
   </el-tooltip>
@@ -16,6 +16,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  color: {
+    type: String,
+    required:false
+  }
 });
 const copyTextTooltipVisible = ref(false);
 const copyToClipBoard = async () => {

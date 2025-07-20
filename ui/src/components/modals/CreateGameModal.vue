@@ -82,10 +82,7 @@
         </div>
 
         <div>
-          <CodePicker
-            editable
-            @change="handleSecretChange"
-          />
+          <CodePicker editable @change="handleSecretChange" :secret="game.secret" />
         </div>
       </div>
 
@@ -293,7 +290,7 @@ const handleInfoChange = (current: number, prev: number) => {
   currentInfo.value = current;
 };
 const handleSecretChange = (newSecret: Array<AvailableColor>) => {
-  game.value.secret = newSecret;
+  game.value.secret = [...newSecret];
 };
 </script>
 <style lang="scss" scoped>

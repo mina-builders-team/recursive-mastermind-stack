@@ -29,14 +29,17 @@
         <Timer
           :key="timerKey"
           :duration="gameStatus.waitTime"
-          :startTimestamp="Date.now()"
+          :startTimestamp="timerStartTime"
+          @timeEnded="resetTimer"
         />
       </div>
     </div>
     <div v-if="game?.status === 'ACTIVE'">
       <div class="default-border my-2"></div>
       <div class="d-flex justify-content-between">
-        <Button class="cta-3" size="large"> Return to Lobby </Button>
+        <Button class="cta-3" size="large" @click="returnToLobby">
+          Return to Lobby
+        </Button>
         <Button class="cta-3" size="large">
           <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
           <span>Invite your friend to challange</span>
@@ -55,45 +58,53 @@ import Button from '@/components/shared/Button.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { formatAddress } from '@/utils';
-import { computed, onMounted, ref } from 'vue';
-import { checkZkappTransaction, fetchTransactionStatus } from 'o1js';
+import { computed, ref, watch } from 'vue';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const { zkAppStates, game, compiled } = storeToRefs(useZkAppStore());
 const { getGame } = useZkAppStore();
 const route = useRoute();
+const router = useRouter();
 const gameId = route?.params?.id as string;
-
-const checkGamedeploymentInterval = ref<number | null>(null);
-const gameDeploymentTxStatus = ref('pending');
+const timerKey = ref(0);
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
 );
-const serverCheckInterval = ref<number | null>(null);
-const timerKey = ref(0);
 const gameStatus = computed(() =>
   !compiled.value
-    ? { state: 'COMPILING', text: 'Compiling...' }
+    ? { state: 'COMPILING', text: 'Compiling' }
     : !zkAppStates.value
       ? {
           state: 'DEPLOYING',
-          text: 'Deploying',
+          text: 'Checking For Game Deployment',
           waitTime: MINA_APPROX_SLOT_DURATION,
         }
       : game.value?.status === 'PENDING'
         ? {
             state: 'VERIFYING',
-            text: 'Verifying game on server...',
+            text: 'Verifying Game On Server',
             waitTime: 60 * 1000,
           }
-        : { state: 'WAITING', text: 'Waiting for code breaker' }
+        : { state: 'WAITING', text: 'Waiting For Code Breaker' }
 );
-onMounted(async () => {
-  if (gameStatus.value.state === 'VERIFYING') {
-    serverCheckInterval.value = setInterval(async () => {
+const timerStartTime = ref(Date.now());
+const resetTimer = async () => {
+  timerStartTime.value = Date.now();
+  timerKey.value += 1;
+  await getGame(gameId);
+};
+const returnToLobby = () => {
+  router.push({ name: 'lobby' });
+};
+watch(
+  () => gameStatus.value.state,
+  async () => {
+    timerStartTime.value = Date.now();
+    timerKey.value += 1;
+    if (gameStatus.value.state === 'VERIFYING') {
       await getGame(gameId);
-    },60 * 1000);
+    }
   }
-});
+);
 </script>

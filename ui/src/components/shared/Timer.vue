@@ -102,12 +102,6 @@ onUnmounted(() => clearInterval(interval));
 .critical {
   background:#FF375F4D;
   border: 1px solid #FF375F;
-  animation: blink 0.5s step-start infinite;
 }
 
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
 </style>
