@@ -1,26 +1,26 @@
 <template>
-  <div class="snow-white d-flex flex-column gap-2">
+  <div class="color-snow-white d-flex flex-column gap-2">
     <div class="d-flex justify-content-between align-items-center">
       <div>
         <div class="mb-2">Game Room Name</div>
         <div>🪶 {{ game?.roomName }}</div>
       </div>
       <div
-        class="c-highlighted p-5-10 snow-white default-border d-flex align-items-center gap-1"
+        class="c-highlighted p-5-10 color-snow-white default-border d-flex align-items-center gap-1"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ (game?.rewardAmount || 0) / 1e9 }} Mina
       </div>
     </div>
     <div
-      class="c-idle p-5-10 default-border radius-10 snow-white d-flex flex-column align-items-center"
+      class="c-idle p-5-10 default-border radius-10 color-snow-white d-flex flex-column align-items-center"
     >
       <div class="d-flex gap-2 align-items-end">
         {{ gameStatus.text }} <DotsLoader />
       </div>
       <div
         v-if="gameStatus.waitTime"
-        class="c-idle p-5-10 default-border radius-10 snow-white d-flex align-items-center justify-content-center mt-2 gap-3 fit-content"
+        class="c-idle p-5-10 default-border radius-10 color-snow-white d-flex align-items-center justify-content-center mt-2 gap-3 fit-content"
       >
         <div v-if="!zkAppStates">
           Tx Hash: {{ formatAddress(game?.gameCreationTransactionHash || '') }}
@@ -44,10 +44,11 @@
           <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
           <span>Invite your friend to challange</span>
         </Button>
-        <Button class="cta-1 radius-10" size="large">
-          <inline-svg src="/icons/twitter.svg"></inline-svg>
-          Share on X
-        </Button>
+        <ShareButton
+          :message="'Lets play now https://www.minamastermind.com/' + game?._id"
+          hashtag="Mina MASTERMIND"
+          class="radius-10"
+        />
       </div>
     </div>
   </div>
@@ -61,6 +62,7 @@ import { formatAddress } from '@/utils';
 import { computed, ref, watch } from 'vue';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
 import { useRoute, useRouter } from 'vue-router';
+import ShareButton from '../shared/ShareButton.vue';
 
 const { zkAppStates, game, compiled } = storeToRefs(useZkAppStore());
 const { getGame } = useZkAppStore();

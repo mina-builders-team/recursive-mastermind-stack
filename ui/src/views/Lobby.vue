@@ -6,11 +6,11 @@
         <div>Discover and join available Mina Mastermind games.</div>
       </div>
       <div class="d-flex gap-2">
-        <Button class="button-1" @click="handleJoinWithCode">
+        <Button class="btn-cta1" @click="handleJoinWithCode">
           <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
           Join with Code
         </Button>
-        <Button class="button-2" @click="handleCreateChallenge">
+        <Button class="btn-cta2" @click="handleCreateChallenge">
           <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
           Create a Challenge
         </Button>

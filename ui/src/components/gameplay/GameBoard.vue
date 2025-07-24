@@ -18,7 +18,7 @@
         </div>
         <div class="d-flex gap-5">
           <div
-            class="game-reward d-flex align-items-center gap-2 fw-400 f-14 snow-white p-2 fit-content"
+            class="game-reward d-flex align-items-center gap-2 fw-400 f-14 color-snow-white p-2 fit-content"
           >
             <inline-svg src="/icons/cash.svg"></inline-svg>
             {{ game?.rewardAmount! / 1e9 }} MINA
@@ -39,15 +39,21 @@
         </div>
 
         <div
-          class="c-idle mt-2 radius-10 p-2 d-flex flex-column gap-2 align-items-center snow-white"
+          class="c-idle mt-2 radius-10 p-2 d-flex flex-column gap-2 align-items-center color-snow-white"
         >
           <div>
-            <span v-if="isCurrentUserTurn">
-              Waiting for your next move in
-            </span>
+            <div v-if="isCurrentUserTurn">
+              <span v-if="!isTurnTimeExceeded"
+                >Waiting for your next move in</span
+              >
+              <span v-else
+                >Make Your Move ASAP. You Have May Lost Anytime.</span
+              >
+            </div>
             <span v-else> Opponents Turn </span>
           </div>
           <Timer
+            v-if="!isTurnTimeExceeded"
             :duration="isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5"
             :remainingSlot="remainingSlot"
             :isOnChain="isPlayingOnChain"
@@ -55,6 +61,13 @@
             :criticalOn="30000"
             @timeEnded="handleTurnEnded"
           />
+          <div
+            v-else
+            class="d-flex align-items-center gap-1 fw-400 p-10 radius-10 fs-16 fw-600 critical"
+          >
+            <inline-svg class="me-1" src="/icons/alert.svg"></inline-svg>
+            URGENT
+          </div>
         </div>
         <div class="mt-3 d-flex flex-column-reverse">
           <div v-for="(guess, row) in guesses">
@@ -241,7 +254,6 @@ onUnmounted(() => {
 @import '@/style';
 
 .game-reward {
-  @extend .c-disabled;
   border-radius: 10px;
   padding: 5px 10px;
 }
@@ -291,5 +303,9 @@ onUnmounted(() => {
 .board-title {
   font-weight: 400;
   font-size: 21px;
+}
+.critical {
+  background: #ff375f4d;
+  border: 1px solid #ff375f;
 }
 </style>

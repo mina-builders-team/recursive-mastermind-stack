@@ -20,135 +20,91 @@ const handleClick = () => {
 };
 </script>
 <style lang="scss" scoped>
-@import '@/style';
-.button-1 {
-  border-radius: 60px;
-  gap: 10px;
-  padding: 16px 20px;
-  background: $color-100;
-  border: 1px solid $alpha-8-300-8;
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
-  font-family: Outfit;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 14px;
-  color: black;
-}
-.button-2 {
-  border-radius: 60px;
-  gap: 10px;
-  padding: 16px 20px;
+// buttons
+  // cta3
+.btn-cta3 {
   background: $color-600;
-  border: 1px solid $alpha-8-000-8;
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
-  font-weight: 400;
-  font-size: 14px;
-  color: $snow-white;
-}
-.button-3 {
-  border-width: 1px;
-  gap: 10px;
-  padding: 16px 20px;
-  background: $snow-white;
-  border: 1px solid;
-
-  border-image-source: linear-gradient(
+  border: 1px solid ;
+/*   border-image: linear-gradient(
     180deg,
-    rgba(59, 61, 63, 0.5) 100%,
+    rgba(59, 61, 63, 0.5) 1,
     rgba(255, 255, 255, 0.5) 100%
   );
-  backdrop-filter: blur(10px);
-  font-size: 14px;
-  color: $color-500;
-}
-.button-4 {
-  border-radius: 10px;
-  gap: 10px;
-  padding: 10px;
-  background: linear-gradient(
-    180deg,
-    $alpha-50-300-50 0%,
-    $alpha-50-700-50 100%
-  );
-  background-blend-mode: color-dodge;
-  border: 1px solid rgba(59, 61, 63, 0.5);
+ */  border-image-slice: 1;
   box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
-  font-weight: 400;
-  font-size: 14px;
-  color: $gray;
+  border-radius: 10px;
 }
-.button-4:hover {
-  box-shadow: 0px 2px 35px 0px $color-200 inset;
-  color: $snow-white;
-  background: linear-gradient(0deg, $alpha-20-300-20 $alpha-20-300-20)
+.btn-cta3:hover {
+  color: rgba(255, 255, 255, 0.5);
+  background:
+    linear-gradient(0deg, $alpha-20-300-20, $alpha-20-300-20),
     linear-gradient(0deg, $alpha-8-000-8, $alpha-8-000-8);
   background-blend-mode: screen;
   box-shadow: 0px 2px 35px 0px $color-200 inset;
-}
-.button-5 {
-  border-radius: 10px;
-  gap: 10px;
-  padding: 10px 30px;
-  border: 1px solid;
-  border-image-source: linear-gradient(
+  border: 1px solid rgba(255, 255, 255, 0.5);
+/*   border-image-source: linear-gradient(
     180deg,
-    rgba(59, 61, 63, 0.5) 100%,
+    rgba(59, 61, 63, 0.5) 1,
     rgba(255, 255, 255, 0.5) 100%
   );
-  font-weight: 400;
-  font-size: 14px;
-  color: $snow-white;
-}
-.button-6 {
-  border-radius: 10px;
-  gap: 10px;
-  padding: 10px 30px;
-  background: $snow-white;
-  border: 1px solid black;
-  font-weight: 400;
-  font-size: 14px;
-  background: black;
-}
-
-.button-7 {
-  border-radius: 10px;
-  padding: 20px 10px;
-  background: linear-gradient(
+ */}
+.btn-cta3:active {
+  color: rgba(255, 255, 255, 0.5);
+  background: $color-400;
+  box-shadow: 0px 4px 14px 0px #00000033 inset;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+/*   border-image-source: linear-gradient(
     180deg,
-    rgba(59, 61, 63, 0.5) 100%,
+    rgba(59, 61, 63, 0.5) 1,
     rgba(255, 255, 255, 0.5) 100%
   );
-  background-blend-mode: screen;
-  border: 1px solid;
-  border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 100%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
-  font-weight: 400;
-  font-size: 14px;
-}
-.button-8 {
-  border-radius: 10px;
-  padding: 10px 30px;
-  background-color: $red;
-  border: 1px solid;
-  border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 100%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
+ */}
+  // cta2
+.btn-cta2 {
+  background: $color-600;
+  border: 1px solid $alpha-8-000-8;
+  border-radius: 60px;
   box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
-  color: $snow-white;
 }
-.button-9 {
-  border-radius: 10px;
-  padding: 10px 30px;
-  background: $alpha-8-300-8;
-  border: 1px solid rgba(59, 61, 63, 0.5);
+.btn-cta2:hover {
+  background: $color-600;
+  border: 1px solid $alpha-20-000-20;
+  box-shadow: 0px 2px 35px 0px $color-200 inset;
 }
+.btn-cta2:active {
+  background: $color-400;
+  border: 2px solid rgba(68, 68, 68, 0.1) 100%;
+  box-shadow: 0px 4px 14px 0px #00000033 inset;
+}
+  // cta1
+.btn-cta1 {
+  background: $color-100;
+  border: 1px solid $alpha-50-000-50;
+  border-radius: 60px;
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
+  backdrop-filter: blur(10px);
+}
+.btn-cta1:hover {
+  background: $color-100;
+  border: 1px solid rgba(68, 68, 68, 0.1);
+/*   border-image-source: linear-gradient(
+    180deg,
+    rgba(68, 68, 68, 0.3) 0%,
+    rgba(68, 68, 68, 0.1) 100%
+  );
+ */  box-shadow: 0px 2px 35px 0px $color-200 inset;
+}
+.btn-cta1:active {
+  background: $snow-white;
+  border: 1px solid  rgba(68, 68, 68, 0.1);
+  /* border-image-source: linear-gradient(
+    180deg,
+    rgba(68, 68, 68, 0.3) 0%,
+    rgba(68, 68, 68, 0.1) 100%
+  ); */
+  box-shadow: 0px 4px 14px 0px #00000033 inset;
+}
+
 </style>

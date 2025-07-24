@@ -35,7 +35,7 @@
                         color="#27282a"
                         :text="game?._id || ''"
                       />
-                      <div class="fs-12 snow-white">
+                      <div class="fs-12 color-snow-white">
                         ID: {{ formatAddress(game?._id) }}
                       </div>
                     </div>
@@ -51,7 +51,7 @@
                 </div>
               </div>
             </div>
-            <div v-else class="snow-white ps-3 py-1">
+            <div v-else class="color-snow-white ps-3 py-1">
               <div class="fw-700 fs-16">You Haven’t Created a Game</div>
               <div class="fs-12">Launch a game as a Codemaster</div>
             </div>
@@ -188,7 +188,7 @@ const loadMorePlayedGames = async () => {
 };
 const getInitialLobbyData = async () => {
   const res = await axios.get(
-    `${SERVER_URL}/games/lobby/${publicKeyBase58.value}`
+    `${SERVER_URL}/games/my-games/${publicKeyBase58.value}`
   );
   if (res?.data) {
     myGames.value = {
@@ -210,7 +210,7 @@ const getPlayedGames = async () => {
   if (sortOrder.value) query.append('sortOrder', sortOrder.value);
 
   const res = await axios.get(
-    `${SERVER_URL}/games/lobby/${publicKeyBase58.value}?${query.toString()}`
+    `${SERVER_URL}/games/my-games/${publicKeyBase58.value}?${query.toString()}`
   );
   myGames.value.playedGames =
     currentPage.value === 1
@@ -254,6 +254,6 @@ onMounted(async () => {
   justify-content: center;
 }
 .infinite-list {
-    overflow: scroll;
+  overflow: scroll;
 }
 </style>

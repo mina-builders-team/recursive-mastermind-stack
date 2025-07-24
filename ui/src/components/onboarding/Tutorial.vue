@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-20 bg-alpha-50-900-50 p-2 snow-white w-500"
+    class="default-border radius-20 bg-alpha-50-900-50 p-2 color-snow-white w-450"
   >
     <div class="fw-700 fs-24 w-100 d-flex justify-content-center my-4">
       {{ title }}
@@ -9,10 +9,17 @@
       <div
         class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 p-2 w-100 flex-1"
       >
-        <Clue :clue="[hitClue, type ==='GREEN' ? hitClue : missClue, type ==='GREEN' ? hitClue : missClue, type ==='GREEN' ? hitClue : missClue]" />
-        <div class="fs-12 fw-400">
-          <div>Green Clue</div>
-          <div>Right Number, Right Spot.</div>
+        <Clue
+          :clue="[
+            hitClue,
+            type === 'GREEN' ? hitClue : missClue,
+            type === 'GREEN' ? hitClue : missClue,
+            type === 'GREEN' ? hitClue : missClue,
+          ]"
+        />
+        <div>
+          <div class="fs-16 fw-600">Green Clue</div>
+          <div class="fs-12 fw-400">Right Number, Right Spot.</div>
         </div>
       </div>
       <div
@@ -27,7 +34,7 @@
       </div>
     </div>
     <div
-      class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 w-100 justify-content-center my-2 py-2"
+      class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 w-100 justify-content-center align-items-center my-2 py-2"
     >
       <inline-svg src="/icons/key.svg" />
       <div>Numbers are 0-7. No repeats.</div>
@@ -36,12 +43,18 @@
       <div class="w-100 p-2">
         <div
           v-for="(guess, row) in guesses"
-          class="d-flex gap-2 align-items-center my-2 justify-content-center"
+          class="d-flex gap-2 align-items-center justify-content-center"
         >
-          <Clue :clue="clues?.[row]" />
-          <CodePicker :secret="guess" @change="handleSetColor" />
+          <div>
+            <Round
+              :clue="clues?.[row]"
+              :guess="guess"
+              @change="handleSetColor"
+              :showBtn="false"
+            />
+          </div>
           <div
-            class="button-placeholder default-border radius-10 d-flex cursor-pointer flex-1"
+            class="tips-placeholder radius-10 d-flex cursor-pointer flex-1 bg-black"
             size="large"
             v-if="type === 'GREEN'"
           >
@@ -50,7 +63,7 @@
                 <span>{{ tooltips[row] }}</span>
               </template>
               <div
-                class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100"
+                class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100 color-gray"
               >
                 <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
                 Hover For Tip
@@ -61,7 +74,7 @@
       </div>
 
       <div
-        class="button-placeholder default-border radius-10 d-flex cursor-pointer w-100"
+        class="tips-placeholder radius-10 d-flex cursor-pointer w-100 m-2"
         size="large"
         v-if="type !== 'GREEN'"
       >
@@ -70,7 +83,7 @@
             <slot name="tooltip"> </slot>
           </template>
           <div
-            class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100"
+            class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-3 py-3 w-100 color-gray"
           >
             <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
             Hover For Tip
@@ -83,51 +96,48 @@
       class="default-border radius-10 bg-alpha-50-900-50 my-3 p-3"
       v-if="isWrongAnswer"
     >
-      <div class="fs-5">Try Again!</div>
+      <div class="fw-600 fs-20">Try Again!</div>
       <div class="fs-12">
         <slot name="tryAgainText"></slot>
       </div>
     </div>
     <div v-if="isWrongAnswer === false">
-      <div class="default-border radius-10 bg-alpha-50-900-50 p-3 w-100 mt-3">
-        <div class="text-center fw-600 fs-21">Congrats!</div>
+      <div class="idle-container p-3 w-100 mt-3">
+        <div class="text-center fw-600 fs-20">Congrats!</div>
         <div class="d-flex gap-2 w-100 my-3 justify-content-center">
           <Clue :clue="[hitClue, hitClue, hitClue, hitClue]" />
           <CodePicker :secret="secret" />
         </div>
       </div>
       <Button
-          class="cta-1 mt-2 radius-10 w-100"
-          size="large"
-          @click="handleNextStep"
-        >
-          <inline-svg src="/icons/rocket.svg" class="me-2" /> Next
-        </Button>
+        class="cta-1 mt-2 radius-10 w-100 py-4 color-black"
+        size="large"
+        @click="handleNextStep"
+      >
+        <inline-svg src="/icons/rocket.svg" class="me-2" /> Next
+      </Button>
     </div>
 
     <div v-else class="mt-3">
-      <div class="text-center fw-600 mb-2">Enter Your Answer here:</div>
-      <div class="d-flex gap-2 w-100">
-        <Clue :clue="clue" />
-        <div class="d-flex gap-2 w-100">
-          <div class="d-flex gap-2">
-            <CodePicker
-              :secret="guess"
-              @change="handleSetColor"
-              editable
-              :editOnly="type === 'GREEN' ? [3] : undefined"
-            />
-          </div>
-          <Button
-            size="large"
-            class="cta-1 radius-10 h-100 flex-1"
-            @click="generateClue"
-            >Send</Button
-          >
-        </div>
-      </div>
-      <Button size="large" class="button-9 w-100 mt-3" @click="generateClue(true)">
-        Show me Me Answer
+      <div class="text-center fw-600 fs-16 mb-2">Enter Your Answer here:</div>
+      <Round
+        :clue="clue"
+        :guess="guess"
+        @change="handleSetColor"
+        editable
+        :editOnly="type === 'GREEN' ? [3] : undefined"
+        :isCodeMasterTurn="false"
+        isCurrentRound
+        currentUserRole="CODE_BREAKER"
+        @turnPlayed="submitGuess"
+      />
+
+      <Button
+        size="large"
+        class="btn-cta3 bg-alpha-8-300-8 w-100 mt-3 p-4"
+        @click="submitGuess(true)"
+      >
+        <span class="color-snow-white">Show me Me Answer</span>
       </Button>
     </div>
   </div>
@@ -139,6 +149,8 @@ import { ref } from 'vue';
 import Button from '@/components/shared/Button.vue';
 import Clue from '@/components/shared/Clue.vue';
 import CodePicker from '@/components/shared/CodePicker.vue';
+import Round from '../shared/Round.vue';
+import { generateClue } from '@/utils';
 const props = defineProps({
   title: {
     type: String,
@@ -178,38 +190,24 @@ const missClue = cluesColors.find((c) => c.value === 0)!;
 const isWrongAnswer = ref<Boolean | null>(null);
 const guess = ref(props.initialGuess);
 const clue = ref<Array<AvailableColor>>(
-  Array.from({ length: 4 }, () => initialColor)
+  Array.from({ length: 4 }, () => missClue)
 );
 
 const handleSetColor = (selectedCode: AvailableColor[]) => {
   guess.value = [...selectedCode];
 };
 
-const generateClue = (solved?: boolean) => {
+const submitGuess = (solved?: boolean) => {
   if (solved) {
     isWrongAnswer.value = false;
     return;
   }
-  let hits = 0;
-  let blows = 0;
-  guess.value.map((e, index) => {
-    if (props.secret.map((e) => e.value).includes(e.value)) {
-      if (props.secret.map((e) => e.value)[index] === e.value) {
-        hits++;
-      } else {
-        blows++;
-      }
-    }
-  });
-  clue.value = [
-    ...Array.from({ length: Number(hits) }, () => hitClue!),
-    ...Array.from({ length: Number(blows) }, () => blowClue!),
-    ...Array.from(
-      { length: 4 - (Number(hits) + Number(blows)) },
-      () => missClue!
-    ),
-  ];
-  isWrongAnswer.value = hits !== 4;
+  const { isSolved,   clue : receivedClue } = generateClue(
+    guess.value,
+    props.secret.map((e) => Number(e.value))
+  );
+  clue.value = receivedClue;
+  isWrongAnswer.value = !isSolved;
 };
 
 const handleNextStep = () => {
@@ -237,5 +235,8 @@ const handleNextStep = () => {
   height: 100%;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+.tips-placeholder {
+  border: 1px solid rgba(170, 170, 170, 0.1);
 }
 </style>

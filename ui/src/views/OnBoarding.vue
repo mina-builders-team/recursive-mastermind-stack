@@ -1,31 +1,6 @@
 <template>
-  <div class="d-flex justify-content-center">
-    <div
-      class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white mt-5 w-400"
-      v-if="step === 0"
-    >
-      <div class="fw-bolder fs-24 text-center">
-        Welcome to Mastermind on Mina!
-      </div>
-      <div class="fs-14 snow-white">
-        <div class="mt-3">This isn't standard Mastermind.</div>
-        <div class="mt-4">
-          This is where strategy meets privacy, powered by ZK. We'll make you an
-          expert codebreaker in just 3 simple steps.
-        </div>
-        <div class="mt-4">No waiting. Just learning, then winning.</div>
-      </div>
-      <div class="w-100 d-flex justify-content-center mt-4">
-        <Button
-          size="large"
-          class="cta-1 radius-10 px-5"
-          @click="handleNextStep"
-        >
-          <inline-svg src="/icons/rocket.svg" class="me-2"></inline-svg>
-          <span class="fs-14 fw-400">Enter the Journey!</span>
-        </Button>
-      </div>
-    </div>
+  <WelcomePage v-if="step === 0" @next="handleNextStep" />
+  <div class="h-100 w-100 d-flex justify-content-center mt-5">
     <Tutorial
       :title="greenClue.title"
       :type="greenClue.type"
@@ -38,9 +13,9 @@
       v-if="step === 1"
     >
       <template #tryAgainText>
-        You're so close! Remember what we learned: the numbers are 1-3 are not
-        correct. since the example 2 & 3, we see likely 4 & 5 are in correct
-        position. What else remaining?
+        You're so close! Remember: 5, 6, 7, and 0 are not in the code at all.
+        And when we tried 1 2 3 7, we got three greens—so the code likely ends
+        with a digit that's not 0, 5, 6, or 7. What else remaining?
       </template>
     </Tutorial>
     <Tutorial
@@ -68,13 +43,13 @@
       </template>
 
       <template #tryAgainText>
-        <ol>
-          <li>Your guess 4 3 1 2 earned you two 🟢 clues.</li>
-          <li>
-            You then swapped 4 and 3, and both🟢 clues vanished. This is
+        <div class="mb-3">
+          <div>1. Your guess 4 3 1 2 earned you two 🟢 clues.</div>
+          <div>
+            2. You then swapped 4 and 3, and both🟢 clues vanished. This is
             definitive proof that the code begins with 4 3 _ _.
-          </li>
-        </ol>
+          </div>
+        </div>
         You now know the first two 2tmbers for certain.
       </template>
     </Tutorial>
@@ -110,13 +85,13 @@
       </template>
 
       <template #tryAgainText>
-        <ol>
-          <li>
-            The score is always 🟢 ⚪ each guess has exactly two correct
+        <div class="fs-12 mt-2" >
+          <div>
+            1. The score is always 🟢 ⚪ each guess has exactly two correct
             numbers.
-          </li>
-          <li>
-            Compare rows with the same score:
+          </div>
+          <div>
+            2. Compare rows with the same score:
             <ul>
               <li>
                 Swapping 1 <> 7 (rows 1 & 2) keeps the score → both are correct.
@@ -126,12 +101,12 @@
                 correct.
               </li>
             </ul>
-          </li>
-          <li>
-            Conclusion: The secret code includes 1, 2, 3, 7. Others like 5 and 6
+          </div>
+          <div>
+            3. Conclusion: The secret code includes 1, 2, 3, 7. Others like 5 and 6
             are incorrect.
-          </li>
-        </ol>
+          </div>
+        </div>
       </template>
     </Tutorial>
     <BenchmarkResult @next="handleNextStep" v-if="step === 4" />
@@ -140,7 +115,6 @@
 </template>
 <script setup lang="ts">
 import { availableColors, cluesColors, initialColor } from '@/constants/colors';
-import Button from '@/components/shared/Button.vue';
 import Tutorial from '@/components/onboarding/Tutorial.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 
@@ -153,6 +127,7 @@ import BenchmarkResult from '@/components/onboarding/BenchmarkResult.vue';
 import FinalOnBoarding from '@/components/onboarding/FinalOnBoarding.vue';
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
+import WelcomePage from '@/components/onboarding/welcomePage.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -169,9 +144,9 @@ const greenClue = {
     availableColors[4],
   ],
   tooltips: [
-    'Zero greens. This confirms the numbers 1, 2, and 3 are all incorrect.',
-    'Two greens. Two of these three numbers are in the correct spot.',
-    'The score is unchanged. This proves the first spot is wrong, so the code must end in 5 4.',
+    'two greens. This confirms that 2 numbers are in the correct spot',
+    'Three greens. This confirms that 3 numbers are in the correct spot.',
+    'Zero greens: The digits 5, 6, 7, and 0 do not appear anywhere in the code.',
   ],
   guesses: [
     [
@@ -312,5 +287,4 @@ watch(
   }
 );
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

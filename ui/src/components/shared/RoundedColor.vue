@@ -3,7 +3,7 @@
     <div
       :class="[
         {
-          'code-item radius-10 snow-white fs-21 d-flex align-items-center justify-content-center':
+          'code-item radius-10 fs-14 d-flex align-items-center justify-content-center':
             type !== 'CLUE',
           'quarter-circle': type === 'CLUE',
           tl: type === 'CLUE' && index === 0,
@@ -25,7 +25,7 @@
     <div v-else class="char-box" @click="focusInput">
       <el-input
         :model-value="value === 9 ? null : value"
-        :class="['radius-10 code-input', { isFocused: isFocused }]"
+        :class="['radius-10 code-input michroma', { isFocused: isFocused }]"
         maxlength="1"
         @input="handleInput"
         @keydown.delete="handleDelete"
@@ -122,8 +122,8 @@ const handleDelete = () => {
 @import '@/style';
 
 .quarter-circle {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   background: v-bind(bgColor);
 }
 .tl {
@@ -169,9 +169,7 @@ const handleDelete = () => {
 
 }
 
-:deep(.el-input__inner) {
-  padding-left: 3px;
-}
+
 :deep(.el-input__wrapper) {
   outline: none !important;
   background: v-bind(bgColor) !important;
@@ -192,10 +190,6 @@ const handleDelete = () => {
   border: 1px solid (59, 61, 63, 0.5);
 }
 
-.code {
-  font-weight: 400;
-  font-size: 21px;
-}
 
 .char-box {
   position: relative;
@@ -247,9 +241,11 @@ const handleDelete = () => {
   font-weight: 400;
 }
 .played {
-  color: #aeb4a3;
-  background: var(--ALPHA-20-700-20, #191b1d33);
+  color: #aeb4a3!important;
+  background: $alpha-20-700-20;
   background-blend-mode: multiply;
   border: 1px solid $alpha-20-300-20;
+  font-family: michroma;
+  font-size: 21px!important;
 }
 </style>

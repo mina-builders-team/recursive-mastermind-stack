@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Poseidon, PublicKey } from 'o1js';
+import { Poseidon, PrivateKey, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -656,8 +656,11 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     async startBenchmark() {
       this.benchmark = await this.zkappWorkerClient!.benchmark(
-        this.publicKeyBase58
+        import.meta.env.VITE_SERVER_PUBLIC_KEY
       );
+      if (this.benchmark?.initGameTxDuration &&this.benchmark?.clueProofDuration && this.benchmark?.guessProofDuration && this.benchmark?.createGameProofDuration ) {
+        localStorage.setItem('benchmark', JSON.stringify(this.benchmark));
+      }
     },
     async establishConnection() {
       if (!this.webSocketInstance?.connected) {

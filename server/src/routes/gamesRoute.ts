@@ -16,6 +16,7 @@ import Game, { GameStatus } from '../models/Game.js';
 import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
 import redisClient from '../redisClient.js';
+import Player from '../models/Player.js';
 
 dotenv.config();
 const router = Router();
@@ -23,14 +24,15 @@ const router = Router();
 router.get('/active-games/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
 
-  const filter = req.query.filter === 'own' ? 'own' : 'public'; // 'own' | 'public'
-  const sortBy = req.query.sortBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt'; // 'createdAt' by default
-  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1; // 'desc' by default
+  const filter = req.query.filter === 'own' ? 'own' : 'public';
+  const sortBy =
+    req.query.sortBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
+  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
   const skip = (page - 1) * limit;
-  const includeInProgress = req.query.includeInProgress === 'true'; // default: false
-
+  const includeInProgress = req.query.includeInProgress === 'true';
+  const includeBadges = req.query.includeBadges === 'true';
   const baseMatch: any = {
     status: GameStatus.ACTIVE,
   };
@@ -55,13 +57,14 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
       filteredActiveGames = parsed.filteredActiveGames;
       totalActiveCount = parsed.totalActiveCount;
     } else {
-      // Fetch filtered ACTIVE games
       const [games, count] = await Promise.all([
         Game.find(baseMatch)
           .sort({ [sortBy]: sortOrder })
           .skip(skip)
           .limit(limit)
-          .select('_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp')
+          .select(
+            '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
+          )
           .lean(),
         Game.countDocuments(baseMatch),
       ]);
@@ -69,34 +72,43 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
       filteredActiveGames = games;
       totalActiveCount = count;
 
-      // Cache filtered list
+      // Cache result
       await redisClient.set(
         cacheKey,
         JSON.stringify({ filteredActiveGames, totalActiveCount }),
         {
-          expiration: {
-            type: 'EX',
-            value: 60,
-          },
+          expiration: { type: 'EX', value: 60 },
         }
       );
     }
 
-    // Only fetch in-progress if requested
     let inProgressGames: any[] = [];
     if (includeInProgress) {
       inProgressGames = await Game.find({
         status: GameStatus.IN_PROGRESS,
         $or: [{ codeMaster: userId }, { codeBreaker: userId }],
       })
-        .select('_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp')
+        .select(
+          '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
+        )
         .lean();
+    }
+
+    let playerBadges = undefined;
+    if (includeBadges) {
+      const stats = await Player.findOne({
+        _id: userId,
+      })
+        .select('badges')
+        .lean();
+      playerBadges = stats?.badges ?? [];
     }
 
     res.status(200).json({
       filteredActiveGames,
       totalActiveCount,
       ...(includeInProgress && { inProgressGames }),
+      ...(includeBadges && { playerBadges }),
       page,
       limit,
     });
@@ -106,6 +118,130 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/leaderboard/:userId', async (req: Request, res: Response) => {
+  const userId = req.params.userId;
+  const limit = parseInt(req.query.limit as string) || 10;
+
+  try {
+    const leaderboard = await Player.find()
+      .sort({ totalScore: -1 })
+      .limit(limit)
+      .select('_id winsAsCodeMaster winsAsCodeBreaker totalScore')
+      .lean();
+
+    const userStats = await Player.findOne({ _id: userId })
+      .select('_id winsAsCodeBreaker winsAsCodeMaster totalScore')
+      .lean();
+
+    let userRank = null;
+    if (userStats) {
+      userRank =
+        (await Player.countDocuments({
+          totalScore: { $gt: userStats?.totalScore || 0 },
+        })) + 1;
+    }
+
+    res.status(200).json({
+      leaderboard,
+      user: userStats ? { ...userStats, rank: userRank } : null,
+    });
+  } catch (err) {
+    console.error('Error fetching leaderboard:', err);
+    res.status(500).json({ message: 'Failed to fetch leaderboard' });
+  }
+});
+
+router.get('/my-games/:pubKey', async (req, res) => {
+  const { pubKey } = req.params;
+  const onlyPlayedGames = req.query.onlyPlayedGames === 'true';
+  const page = parseInt((req.query.page as string) || '1', 10);
+  const limit = parseInt((req.query.limit as string) || '10', 10);
+  const skip = (page - 1) * limit;
+  const orderBy =
+    req.query.sortOrder === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
+  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
+  const playedAs = req.query.playedAs;
+  try {
+    const playedGamesQuery = {
+      $and: [
+        { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+        {
+          $or: [
+            ...(playedAs === 'codeMaster' ? [{ codeMaster: pubKey }] : []),
+            ...(playedAs === 'codeBreaker' ? [{ codeBreaker: pubKey }] : []),
+            ...(playedAs
+              ? []
+              : [{ codeMaster: pubKey }, { codeBreaker: pubKey }]),
+          ],
+        },
+      ],
+    };
+
+    const [playedGames, totalPlayedCount] = await Promise.all([
+      await Game.find(playedGamesQuery)
+        .sort({ [orderBy]: sortOrder })
+        .skip(skip)
+        .limit(limit)
+        .select(
+          ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster'
+        )
+        .lean(),
+      await Game.countDocuments(playedGamesQuery),
+    ]);
+
+    if (onlyPlayedGames) {
+      res.status(200).json({
+        totalPlayedCount,
+        page,
+        limit,
+        playedGames,
+      });
+      return;
+    }
+
+    const statsCacheKey = `my-games:${pubKey}:stats`;
+    let stats = null;
+
+    const cachedStats = await redisClient.get(statsCacheKey);
+    if (cachedStats) {
+      stats = JSON.parse(cachedStats);
+    } else {
+      const playerStats = await Player.findOne({ _id: pubKey }).lean();
+
+      stats = {
+        totalPlayed: playerStats?.gamesPlayed || 0,
+        winsAsCodeBreaker: playerStats?.winsAsCodeBreaker || 0,
+        winsAsCodeMaster: playerStats?.winsAsCodeMaster || 0,
+        balance: playerStats?.netRewards || 0,
+        badges: playerStats?.badges || [],
+      };
+
+      await redisClient.set(statsCacheKey, JSON.stringify(stats), {
+        expiration: { type: 'EX', value: 60 },
+      });
+    }
+
+    //Active games
+    const activeGames = await Game.find({
+      codeMaster: pubKey,
+      status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
+    })
+      .sort({ timestamp: -1 })
+      .lean();
+    res.json({
+      stats,
+      activeGames,
+      playedGames,
+      page,
+      limit,
+      totalPlayedCount,
+    });
+    return;
+  } catch (error) {
+    console.error('Error in /my-games:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 /**
  * POST /accept/:id
@@ -122,7 +258,7 @@ router.post('/accept', async (req: Request, res: Response) => {
     const game = await createOrUpdateGame({
       _id: jsonGame.gameId,
       lastAcceptTimestamp: Date.now(),
-      lastJoinAttemptBy: jsonGame.userId
+      lastJoinAttemptBy: jsonGame.userId,
     });
     res.status(200).json({ game });
   } catch (error) {
@@ -149,185 +285,6 @@ router.get('/user/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching game  list:', error);
     res.status(500).json({ message: 'Failed to find game list' });
-  }
-});
-
-router.get('/lobby/:pubKey', async (req, res) => {
-  const { pubKey } = req.params;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
-  const skip = (page - 1) * limit;
-
-  const orderBy =
-    req.query.orderBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
-  const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
-  const playedAs = req.query.playedAs; // 'codeMaster' | 'codeBreaker' | undefined
-  const onlyPlayedGames = req.query.onlyPlayedGames === 'true';
-
-  try {
-    const baseMatch = {
-      $and: [
-        { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
-        {
-          $or: [
-            ...(playedAs === 'codeMaster' ? [{ codeMaster: pubKey }] : []),
-            ...(playedAs === 'codeBreaker' ? [{ codeBreaker: pubKey }] : []),
-            ...(playedAs
-              ? []
-              : [{ codeMaster: pubKey }, { codeBreaker: pubKey }]),
-          ],
-        },
-      ],
-    };
-
-    if (onlyPlayedGames) {
-      const [playedGames, totalPlayedCount] = await Promise.all([
-        Game.find(baseMatch)
-          .sort({ [orderBy]: sortOrder })
-          .skip(skip)
-          .limit(limit)
-          .select('_id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster')
-          .lean(),
-        Game.countDocuments(baseMatch),
-      ]);
-
-      res.json({ playedGames, totalPlayedCount, page, limit });
-      return;
-    }
-
-    // Full initial fetch with cache
-    const statsCacheKey = `lobby:${pubKey}:stats`;
-    const activeGamesCacheKey = `lobby:${pubKey}:activeGames`;
-
-    const [cachedStats, cachedActiveGames] = await Promise.all([
-      redisClient.get(statsCacheKey),
-      redisClient.get(activeGamesCacheKey),
-    ]);
-
-    let stats, activeGames;
-
-    if (cachedStats && cachedActiveGames) {
-      stats = JSON.parse(cachedStats);
-      activeGames = JSON.parse(cachedActiveGames);
-    } else {
-      // --- Stats aggregation ---
-      const statsResult = await Game.aggregate([
-        {
-          $match: {
-            $and: [
-              { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
-              { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
-            ],
-          },
-        },
-        {
-          $addFields: {
-            isWinner: { $eq: ['$winnerPublicKeyBase58', pubKey] },
-            isCodeMaster: { $eq: ['$codeMaster', pubKey] },
-            isCodeBreaker: { $eq: ['$codeBreaker', pubKey] },
-            rewardSigned: {
-              $cond: [
-                { $eq: ['$winnerPublicKeyBase58', pubKey] },
-                '$rewardAmount',
-                {
-                  $cond: [
-                    {
-                      $or: [
-                        { $eq: ['$codeMaster', pubKey] },
-                        { $eq: ['$codeBreaker', pubKey] },
-                      ],
-                    },
-                    { $multiply: [-1, '$rewardAmount'] },
-                    0,
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalPlayed: { $sum: 1 },
-            winsAsCodeBreaker: {
-              $sum: {
-                $cond: [{ $and: ['$isWinner', '$isCodeBreaker'] }, 1, 0],
-              },
-            },
-            winsAsCodeMaster: {
-              $sum: {
-                $cond: [{ $and: ['$isWinner', '$isCodeMaster'] }, 1, 0],
-              },
-            },
-            balance: { $sum: '$rewardSigned' },
-          },
-        },
-      ]);
-
-      stats = statsResult[0] || {
-        totalPlayed: 0,
-        winsAsCodeBreaker: 0,
-        winsAsCodeMaster: 0,
-        balance: 0,
-      };
-
-      // --- Active games ---
-      activeGames = await Game.find({
-        $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }],
-        status: GameStatus.ACTIVE,
-      })
-        .sort({ timestamp: -1 })
-        .lean();
-
-      await Promise.all([
-        redisClient.set(statsCacheKey, JSON.stringify(stats), {
-          expiration: {
-            type: 'EX',
-            value: 60,
-          },
-        }),
-        redisClient.set(activeGamesCacheKey, JSON.stringify(activeGames), {
-          expiration: {
-            type: 'EX',
-            value: 60,
-          },
-        }),
-      ]);
-    }
-
-    // --- Played games (default filters) ---
-    const [playedGames, totalPlayedCount] = await Promise.all([
-      await Game.find({
-        $and: [
-          { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
-          { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
-        ],
-      })
-        .sort({ [orderBy]: sortOrder })
-        .skip(skip)
-        .limit(limit)
-        .select('_id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster')
-        .lean(),
-      Game.countDocuments({
-        $and: [
-          { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
-          { $or: [{ codeMaster: pubKey }, { codeBreaker: pubKey }] },
-        ],
-      }),
-    ]);
-
-    res.json({
-      stats,
-      activeGames,
-      playedGames,
-      page,
-      limit,
-      totalPlayedCount,
-    });
-    return;
-  } catch (err) {
-    console.error('Error fetching lobby data:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

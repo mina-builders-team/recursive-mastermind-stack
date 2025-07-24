@@ -22,7 +22,7 @@
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ game.rewardAmount / 1e9 }} MINA
       </div>
-      <Button class="cta-3 flex-1" @click="handleJoinGame">Join</Button>
+      <Button class="btn-cta3 flex-1" @click="handleJoinGame">Join</Button>
     </div>
   </div>
 </template>
@@ -93,7 +93,6 @@ const handleJoinGame = () => {
   color: rgba(255, 255, 255, 0.2);
 }
 .game-reward {
-  @extend .c-disabled;
   border-radius: 10px;
   padding: 5px 10px;
 }

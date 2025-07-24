@@ -29,5 +29,6 @@ const props = defineProps({
   grid-template-columns: repeat(2, 22px);
   grid-template-rows: repeat(2, 22px);
   gap: 1px;
+
 }
 </style>

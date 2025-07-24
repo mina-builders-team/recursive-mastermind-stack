@@ -1,9 +1,9 @@
 <template>
   <MatrixBackground />
-  <div class="d-flex justify-content-center">
-    <div class="h-100 main-container">
+  <div class="d-flex justify-content-center main-container">
+    <div class="h-100 w-100">
       <Menu v-if="showMenu"></Menu>
-      <div class="w-100">
+      <div class="w-100 h-100 d-flex flex-column align-items-center">
         <router-view />
       </div>
     </div>
@@ -50,11 +50,7 @@ watch(
 </script>
 <style scoped>
 .main-container {
-  padding: 5%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 5% 10%;
   font-size: 14px;
-  width: 90%;
 }
 </style>

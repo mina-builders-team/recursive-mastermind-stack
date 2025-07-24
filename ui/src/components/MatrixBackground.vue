@@ -8,8 +8,8 @@ import { onMounted, onBeforeUnmount } from 'vue';
 onMounted(() => {
   const config = {
     charColor: '#3C3B40',
-    trailOpacity: 0.05,
-    animationSpeed: 76,
+    trailOpacity: 0.1,
+    animationSpeed: 66,
     highlightLeadingChar: true,
     leadingCharColor: '#3C3B40',
     fontSize: 18,

@@ -1,5 +1,7 @@
 <template>
-  <Button class="d-flex align-items-center gap-2 button-7 fit-content" @click="shareOnX">
+  <Button :class="'d-flex align-items-center gap-2 button-3 fit-content'.concat(btnClass ||'')"
+  size="large"
+  @click="shareOnX">
     <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
     Share on X
   </Button>
@@ -16,6 +18,10 @@ const props = defineProps({
   },
   hashtag: {
     required: true,
+    type: String,
+  },
+   btnClass: {
+    required: false,
     type: String,
   },
 });

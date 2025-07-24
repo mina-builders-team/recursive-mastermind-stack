@@ -86,7 +86,7 @@
                 <span class="gray me-2">{{
                   formatAddress(acceptedGame?.lastAcceptTransactionHash)
                 }}</span>
-                <span class="snow-white">Check</span>
+                <span class="color-snow-white">Check</span>
               </Button>
             </a>
           </div>
@@ -113,7 +113,7 @@
     <div class="d-flex justify-content-between join-modal-footer">
       <Button
         size="large"
-        class="snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
+        class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
         @click="handleClose"
         >Back</Button
       >

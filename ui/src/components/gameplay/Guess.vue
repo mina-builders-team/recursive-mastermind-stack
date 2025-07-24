@@ -5,76 +5,22 @@
       { 'flex-row-reverse': userRole === 'CODE_MASTER' },
     ]"
   >
-    <Clue :clue="clue" />
-    <CodePicker
+    <Round
+      :guess="guess"
+      :clue="clue!"
       :editable="
-        editable ||
-        (isCurrentRound && !isCodeMasterTurn && userRole === 'CODE_BREAKER')
+        isCurrentRound && !isCodeMasterTurn && userRole === 'CODE_BREAKER'
       "
-      :secret="guess"
+      :isOldRound="isOldRound"
+      :isCurrentRound="isCurrentRound"
+      :currentUserRole="userRole!"
+      :showBtn="true"
+      :isCodeMasterTurn="isCodeMasterTurn"
+      :loading="loading"
+      :stepDisplay="stepDisplay"
+      @turnPlayed="handleTurnPlayed"
       @change="handleSetColor"
     />
-    <div class="btn-container w-100 h-100" v-if="showBtn">
-      <Button
-        @click="handleGiveClue"
-        v-if="
-          !loading &&
-          isCurrentRound &&
-          isCodeMasterTurn &&
-          userRole === 'CODE_MASTER'
-        "
-        class="multi-line-button w-100 h-100 fs-7 fw-500 py-3 cta-1 radius-10 d-flex align-items-center gap-1 ps-0"
-      >
-        <inline-svg src="/icons/send.svg" />
-        <span>
-          {{ stepDisplay ? stepDisplay : 'Give Clue' }}
-        </span>
-      </Button>
-      <Button
-        :disabled="!combinationValidation.isValid"
-        @click="handleSubmitGuess"
-        :title="combinationValidation.message"
-        :loading="loading"
-        class="multi-line-button w-100 h-100 fs-7 fw-500 py-3 cta-1 radius-10 d-flex align-items-center gap-1 ps-0"
-        size="large"
-        v-else-if="
-          !loading &&
-          isCurrentRound &&
-          !isCodeMasterTurn &&
-          userRole === 'CODE_BREAKER'
-        "
-      >
-        <inline-svg src="/icons/send.svg" class="me-1" />
-        <span>{{ stepDisplay ? stepDisplay : 'Send' }}</span>
-      </Button>
-      <div
-        v-else
-        class="button-placeholder default-border radius-10 d-flex"
-        size="large"
-      >
-        <div
-          v-if="loading && isCurrentRound"
-          class="fs-12 d-flex align-items-center p-1"
-        >
-          <inline-svg
-            src="/icons/processing-proof.svg"
-            class="me-1"
-          ></inline-svg>
-          Processing...
-        </div>
-        <div
-          v-else-if="isOldRound"
-          class="d-flex justify-content-around align-items-center alpha-20-000-20 p-2 old-proof"
-        >
-          <span>Recursive Proof Generated</span>
-          <inline-svg
-            width="10"
-            height="6"
-            src="/icons/generated-proof.svg"
-          ></inline-svg>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -82,12 +28,9 @@ import { computed, ref } from 'vue';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { validateColorCombination } from '@/utils';
 import { ElMessage } from 'element-plus';
-import Button from '@/components/shared/Button.vue';
 import { initialColor } from '@/constants/colors';
-import CodePicker from '@/components/shared/CodePicker.vue';
-import Clue from '@/components/shared/Clue.vue';
+import Round from '../shared/Round.vue';
 const {
   createGuessProof,
   createGiveClueProof,
@@ -132,7 +75,7 @@ const props = defineProps({
   },
 });
 const handleSubmitGuess = async () => {
-  const code = props.guess.map((e: AvailableColor) => e.value);
+  const code = props.guess.map((e: AvailableColor) => Number(e.value));
   if (isPlayingOnChain.value) {
     await createGuessTransaction(code);
   } else {
@@ -180,6 +123,15 @@ const handleSetColor = (secretCode: AvailableColor[]) => {
     emit('setColor', secretCode);
   }
 };
+
+const handleTurnPlayed = async () => {
+  if (userRole.value === 'CODE_MASTER') {
+    await handleGiveClue()
+  } else if (userRole.value === 'CODE_BREAKER') {
+    await handleSubmitGuess()
+  }
+}
+
 const isCodeMasterTurn = computed(() => {
   return isPlayingOnChain.value
     ? zkAppStates.value?.turnCount % 2 === 0
@@ -194,9 +146,6 @@ const isOldRound = computed(() => {
   return isPlayingOnChain.value
     ? Math.ceil(zkAppStates.value?.turnCount / 2) > props.attemptNo + 1
     : Math.ceil(zkProofStates.value?.turnCount / 2) > props.attemptNo + 1;
-});
-const combinationValidation = computed(() => {
-  return validateColorCombination(props.guess);
 });
 </script>
 <style scoped lang="scss">

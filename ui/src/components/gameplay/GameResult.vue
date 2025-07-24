@@ -6,7 +6,7 @@
       <inline-svg v-if="isWinner" src="/icons/trophy.svg"></inline-svg>
       <inline-svg v-else src="/icons/bug.svg"></inline-svg>
     </div>
-    <div class="fw-600 fs-20 snow-white">
+    <div class="fw-600 fs-20 color-snow-white">
       <span v-if="isBreakerWinner">Excellent! You Broke The Code!</span>
       <span v-if="isBreakerLoser">You Were Almost There!</span>
       <span v-if="isMasterLoser">Code Cracked!</span>
@@ -23,7 +23,7 @@
       >
     </div>
     <div
-      class="radius-10 default-border bg-alpha-8-300-8 p-2 pb-3 d-flex flex-column align-items-center gap-3 snow-white w-100"
+      class="radius-10 default-border bg-alpha-8-300-8 p-2 pb-3 d-flex flex-column align-items-center gap-3 color-snow-white w-100"
     >
       <div class="fw-600">
         <span v-if="isWinner"> Your reward is on the way! </span>
@@ -114,6 +114,4 @@ const isMasterLoser = computed(
 );
 </script>
 
-<style lang="scss" scoped>
- 
-</style>
+<style lang="scss" scoped></style>

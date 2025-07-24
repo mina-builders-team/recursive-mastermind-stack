@@ -13,18 +13,20 @@
         v-for="(guess, row) in guesses"
         class="d-flex gap-2 align-items-center my-1"
       >
-        <Clue :clue="clues?.[row]" />
-        <CodePicker
-          :secret="guess"
+        <Round
+          :clue="clues?.[row]"
+          :guess="guess"
           :editable="row === lastGuessIndex"
           @change="handleSetColor($event, row)"
+          :isCurrentRound="row === lastGuessIndex"
+          :showBtn="false"
         />
       </div>
       <div class="d-flex mt-3">
         <Button @click="resetSecret" size="large" class="cta-3 fw-400"
           >Reset</Button
         >
-        <Button @click="generateClue" size="large" class="cta-3 fw-400"
+        <Button @click="submitGuess" size="large" class="cta-3 fw-400"
           >Submit</Button
         >
       </div>
@@ -34,25 +36,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { AvailableColor } from '@/types';
-import { cluesColors, initialColor } from '@/constants/colors';
+import { initialColor } from '@/constants/colors';
 import Button from '@/components/shared/Button.vue';
-import CodePicker from '@/components/shared/CodePicker.vue';
-import Clue from '@/components/shared/Clue.vue';
+import Round from './Round.vue';
+import { generateClue, generateRandomSecret } from '@/utils';
 
-const generateSecret = (): Array<number> => {
-  const solution: Array<number> = [];
-  while (solution.length < 4) {
-    const r = Math.floor(Math.random() * 8);
-    if (!solution.includes(r)) {
-      solution.push(r);
-    }
-  }
-  return solution;
-};
-const secret = ref<Array<number>>(generateSecret());
-const hitColor = cluesColors.find((c) => c.value === 2);
-const blowColor = cluesColors.find((c) => c.value === 1);
-const missColor = cluesColors.find((c) => c.value === 0);
+const secret = ref<Array<number>>(generateRandomSecret());
 const lastGuessIndex = ref(0);
 const guesses = ref<Array<AvailableColor[]>>(
   Array.from({ length: 3 }, () => Array.from({ length: 4 }, () => initialColor))
@@ -65,30 +54,16 @@ const handleSetColor = (secretCode: AvailableColor[], row: number) => {
   guesses.value[row] = [...secretCode];
 };
 
-const generateClue = () => {
-  let hits = 0;
-  let blows = 0;
-  guesses.value[lastGuessIndex.value].map((e, index) => {
-    if (secret.value.includes(e.value)) {
-      if (secret.value[index] === e.value) {
-        hits++;
-      } else {
-        blows++;
-      }
-    }
-  });
-  clues.value[lastGuessIndex.value] = [
-    ...Array.from({ length: Number(hits) }, () => hitColor!),
-    ...Array.from({ length: Number(blows) }, () => blowColor!),
-    ...Array.from(
-      { length: 4 - (Number(hits) + Number(blows)) },
-      () => missColor!
-    ),
-  ];
+const submitGuess = () => {
+  const { clue } = generateClue(
+    guesses.value[lastGuessIndex.value],
+    secret.value
+  );
+  clues.value[lastGuessIndex.value] = clue;
   lastGuessIndex.value += 1;
 };
 const resetSecret = () => {
-  secret.value = generateSecret();
+  secret.value = generateRandomSecret();
   guesses.value = Array.from({ length: 3 }, () =>
     Array.from({ length: 4 }, () => initialColor)
   );

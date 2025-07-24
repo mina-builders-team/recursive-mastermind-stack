@@ -1,20 +1,22 @@
 <template>
   <div class="menu-container d-flex justify-content-between align-items-center w-100">
-    <img class="game-title" src="/logo.png"></img>
+    <img class="cursor-pointer" src="/logo.png" @click="redirectToLanding"></img>
     <div class="d-flex gap-4 align-items-center">
       <span class="fs-14 fw-600 cursor-pointer" v-for="link in links" @click="handleLinkClick(link)">
         {{ link.title }}</span>
-      <Button class="w-100 h-100 p-2 button-4 wallet-btn" @click="handleConnect">
-        <div>
+      <Button class="w-100 h-100 btn-cta3  wallet-btn" @click="handleConnect">
+        <div class="color-gray">
           <div class="d-flex align-items-center ps-2">
             <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
             <span v-if="publicKeyBase58">{{ formatAddress(publicKeyBase58) }}</span>
             <span v-else class="me-2">Connect</span>
           </div>
-          <Button class="d-flex align-items-center mt-2 button-4 px-3" @click="handleDisconnect" v-if="publicKeyBase58">
+          <Button class="d-flex align-items-center mt-2 px-3 btn-cta3" @click="handleDisconnect" v-if="publicKeyBase58">
+            <div class="color-gray">
             <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
             <span>Click to Disconnect</span>
-          </Button>
+            </div>
+          </Button> 
         </div>
       </Button>
     </div>
@@ -49,14 +51,11 @@ const handleConnect = async () => {
     await connect()
   }
 }
-
+const redirectToLanding = () => {
+  router.push({name:'home'})
+}
 </script>
 <style scoped lang="scss">
-.game-title {
-  letter-spacing: 10px;
-  font-size: 15px;
-  font-weight: 100;
-}
 
 .wallet-btn:hover {
   background: linear-gradient(180deg,
