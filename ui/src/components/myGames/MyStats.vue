@@ -4,7 +4,7 @@
       >
         <div class="d-flex gap-2">
           <div
-            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center snow-white"
+            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center color-snow-white"
           >
             <inline-svg src="/icons/cash.svg"></inline-svg>
           </div>
@@ -17,7 +17,7 @@
         </div>
         <div class="d-flex gap-2">
           <div
-            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center snow-white"
+            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center color-snow-white"
           >
             <inline-svg src="/icons/cash.svg"></inline-svg>
           </div>
@@ -30,7 +30,7 @@
         </div>
         <div class="d-flex gap-2">
           <div
-            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center snow-white"
+            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center color-snow-white"
           >
             <inline-svg src="/icons/cash.svg"></inline-svg>
           </div>
@@ -43,7 +43,7 @@
         </div>
         <div class="d-flex gap-2 mb-3">
           <div
-            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center snow-white"
+            class="c-idle d-flex radius-10 p-10 px-3 align-items-center justify-content-center color-snow-white"
           >
             <inline-svg src="/icons/cash.svg"></inline-svg>
           </div>

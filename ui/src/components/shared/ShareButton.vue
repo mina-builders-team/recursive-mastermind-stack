@@ -1,15 +1,15 @@
 <template>
-  <Button :class="'d-flex align-items-center gap-2 button-3 fit-content'.concat(btnClass ||'')"
-  size="large"
-  @click="shareOnX">
-    <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
+  <Button
+    :class="'d-flex align-items-center gap-2 fit-content default-style ' + btnClass || ''"
+    size="large"
+    @click="shareOnX"
+  >
+    <inline-svg class="me-2" src="/icons/share.svg" v-if="showIcon"></inline-svg>
     Share on X
   </Button>
 </template>
 <script lang="ts" setup>
 import Button from './Button.vue';
-
-
 
 const props = defineProps({
   message: {
@@ -20,10 +20,15 @@ const props = defineProps({
     required: true,
     type: String,
   },
-   btnClass: {
+  btnClass: {
     required: false,
     type: String,
   },
+  showIcon: {
+    type: Boolean,
+    required: false,
+    default: true
+  }
 });
 const shareOnX = () => {
   const message = encodeURIComponent(props.message);
@@ -32,4 +37,12 @@ const shareOnX = () => {
   window.open(twitterIntent, '_blank');
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.default-style{
+background: linear-gradient(180deg, rgba(59, 61, 63, 0.5) 100%, rgba(255, 255, 255, 0.5) 100%);
+background-blend-mode: screen;
+border-radius: 10px;
+border: 1px solid rgba(59, 61, 63, 0.5);
+color: $snow-white;
+}
+</style>

@@ -1,20 +1,24 @@
 <template>
   <div
-    :class="[
-      'd-flex align-items-center gap-1 fw-400  p-10 radius-10 fs-16 fw-600',
-      {
-        'black bg-light-gray': !isCritical,
-        'critical snow-white' : isCritical
-      },
-    ]"
+    :class="
+      [
+        ' d-flex align-items-center gap-1 p-10 radius-10 fs-16 fw-600 ',
+        {
+          'color-black bg-snow-white ': !isCritical,
+          'critical color-snow-white ': isCritical,
+        },
+      ].concat(customClass)
+    "
   >
     <inline-svg
       class="me-1"
       v-if="isCritical"
       src="/icons/alert.svg"
     ></inline-svg>
-    <span v-if="!isOnChain"><span v-if="minutes !== '00'">{{ minutes || 0 }} min </span> {{ seconds || 0 }} s</span>
-    <span v-else> < {{ remainingSlot * 3 }} min</span>
+    <span
+      ><span v-if="minutes !== '00'">{{ minutes || 0 }} min </span>
+      {{ seconds || 0 }} s</span
+    >
   </div>
 </template>
 
@@ -40,17 +44,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  isOnChain: {
-    type: Boolean,
-    default: false,
-  },
-  remainingSlot: {
-    type: Number,
-    required: false,
-  },
   criticalOn: {
     type: Number,
     required: false,
+  },
+  customClass: {
+    type: String,
+    required: false,
+    default: '',
   },
 });
 
@@ -60,11 +61,6 @@ const isCritical = ref(false);
 
 let interval;
 const updateCountdown = () => {
-  if (props.isOnChain) {
-    clearInterval(interval);
-    isCritical.value = false;
-    return;
-  }
   const now = Date.now();
   const elapsed = now - props.startTimestamp;
   if (elapsed >= props.duration) {
@@ -91,17 +87,14 @@ const startTimer = () => {
 };
 
 onMounted(() => {
-  if (!props.isOnChain) {
-    startTimer();
-  }
+  startTimer();
 });
 onUnmounted(() => clearInterval(interval));
 </script>
 
 <style scoped lang="scss">
 .critical {
-  background:#FF375F4D;
-  border: 1px solid #FF375F;
+  background: #ff375f4d;
+  border: 1px solid #ff375f;
 }
-
 </style>

@@ -18,13 +18,14 @@
       :isCodeMasterTurn="isCodeMasterTurn"
       :loading="loading"
       :stepDisplay="stepDisplay"
+      :lastTurnTransactionHash="lastTurnTransactionHash"
       @turnPlayed="handleTurnPlayed"
       @change="handleSetColor"
     />
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed} from 'vue';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
@@ -46,6 +47,7 @@ const {
   isPlayingOnChain,
   zkAppStates,
   zkAppAddress,
+  lastTurnTransactionHash,
 } = storeToRefs(useZkAppStore());
 
 const emit = defineEmits(['setColor']);
@@ -62,11 +64,6 @@ const props = defineProps({
   clue: {
     type: Array<AvailableColor>,
     required: false,
-  },
-  showBtn: {
-    type: Boolean,
-    required: false,
-    default: true,
   },
   editable: {
     type: Boolean,
@@ -126,11 +123,11 @@ const handleSetColor = (secretCode: AvailableColor[]) => {
 
 const handleTurnPlayed = async () => {
   if (userRole.value === 'CODE_MASTER') {
-    await handleGiveClue()
+    await handleGiveClue();
   } else if (userRole.value === 'CODE_BREAKER') {
-    await handleSubmitGuess()
+    await handleSubmitGuess();
   }
-}
+};
 
 const isCodeMasterTurn = computed(() => {
   return isPlayingOnChain.value

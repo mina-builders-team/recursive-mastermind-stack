@@ -21,6 +21,24 @@ import Player from '../models/Player.js';
 dotenv.config();
 const router = Router();
 
+router.get('/player/:id', async (req: Request, res: Response) => {
+  try {
+    const playerId = req.params.id;
+
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      res.status(404).json({ message: 'Player not found' });
+      return;
+    }
+
+    res.status(200).json({ player });
+  } catch (error) {
+    console.error('Error fetching player:', error);
+    res.status(500).json({ message: 'Failed to fetch player' });
+  }
+});
+
 router.get('/active-games/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
 
@@ -386,4 +404,6 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Failed to fetch game' });
   }
 });
+
+
 export default router;

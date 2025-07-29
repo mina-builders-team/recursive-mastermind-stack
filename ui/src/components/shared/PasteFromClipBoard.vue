@@ -1,6 +1,6 @@
 <template>
   <div class="w-100 default-border radius-10 d-flex">
-    <div class="flex-1 d-flex align-items-center ps-3 fs-16 snow-white paste-input">{{ inputValue }}</div>
+    <div class="flex-1 d-flex align-items-center ps-3 fs-16 color-snow-white paste-input">{{ inputValue }}</div>
     <el-button
       size="large"
       type="primary"

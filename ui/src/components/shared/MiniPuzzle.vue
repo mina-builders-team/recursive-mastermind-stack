@@ -1,5 +1,5 @@
 <template>
-  <div class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white">
+  <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white">
     <div class="d-flex justify-content-between align-items-center">
       <div>
         <div class="fs-5 fw-600">Mini Puzzle</div>

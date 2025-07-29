@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'd-flex align-items-center justify-content-between c-idle snow-white p-2',
+      'd-flex align-items-center justify-content-between c-idle color-snow-white p-2',
       { looser: !isWinner, winner: isWinner },
     ]"
   >

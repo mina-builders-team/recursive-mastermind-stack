@@ -3,7 +3,7 @@
   <div class="d-flex justify-content-center main-container">
     <div class="h-100 w-100">
       <Menu v-if="showMenu"></Menu>
-      <div class="w-100 h-100 d-flex flex-column align-items-center">
+      <div class="w-100 h-100">
         <router-view />
       </div>
     </div>
@@ -50,7 +50,32 @@ watch(
 </script>
 <style scoped>
 .main-container {
-  padding: 5% 10%;
   font-size: 14px;
+  padding: 5% 4%;
 }
+
+@media (min-width: 576px) {
+  .main-container {
+    padding: 5% 6%;
+  }
+}
+
+@media (min-width: 768px) {
+  .main-container {
+    padding: 5% 8%;
+  }
+}
+
+@media (min-width: 992px) {
+  .main-container {
+    padding: 5% 10%;
+  }
+}
+
+@media (min-width: 1300px) {
+  .main-container {
+    padding: 5% 15%;
+  }
+}
+
 </style>

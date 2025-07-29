@@ -71,6 +71,9 @@ body {
 }
 
 // paddings
+.p5 {
+  padding: 5px;
+}
 .p-10 {
   padding: 10px !important;
 }
@@ -109,6 +112,9 @@ body {
 .radius-4 {
   border-radius: 4px !important;
 }
+.radius-6 {
+  border-radius: 6px !important;
+}
 .radius-10 {
   border-radius: 10px !important;
 }
@@ -119,7 +125,7 @@ body {
   border-radius: 20px !important;
 }
 .radius-60 {
-  border-radius: 60px;
+  border-radius: 60px !important;
 }
 
 // width & height
@@ -217,7 +223,7 @@ body {
   border: 1px solid rgba(59, 61, 63, 0.5) !important;
 }
 
-// global style 
+// global style
 
 .custom-error-message-wrapper {
   display: flex;
@@ -230,22 +236,61 @@ body {
   display: none !important;
 }
 .el-message--error {
-  background: $alpha-50-900-50!important;
-  padding: 0px!important;
-  border: none!important;
+  background: $alpha-50-900-50 !important;
+  padding: 0px !important;
+  border: none !important;
   backdrop-filter: blur(30px);
-  box-shadow: 0px 2px 4px 0px #0000001A;
+  box-shadow: 0px 2px 4px 0px #0000001a;
 }
 .el-message__content {
-  color: white!important;
-  border-left: 6px solid #B82E4A;
-  border-radius:4px;
-  padding: 10px!important;
-
+  color: white !important;
+  border-left: 6px solid #b82e4a;
+  border-radius: 4px;
+  padding: 10px !important;
 }
+
+// tooltip style
+.el-popper.is-customized {
+  padding: 6px 10px;
+  background: #27282a80 !important ;
+  color: $snow-white !important;
+  backdrop-filter: blur(20px);
+  width: 240px;
+}
+.el-popper__arrow {
+  height: 100%!important;
+  transform: unset !important;
+}
+.el-popper.is-customized .el-popper__arrow::before {
+  content: '';
+  width: 6px;
+  background: #d9d9d9;
+  transform: unset;
+  height: 100%!important;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+// tooltip
+
 .info-container {
   background: rgba(139, 220, 151, 0.2) 100%;
   border: 1px solid #8bdc97;
   padding: 10px;
   border-radius: 4px;
+}
+.color-green-light {
+  color: radial-gradient(50% 50% at 50% 50%, #5bc56b 0%, #8bdc97 100%);
+}
+
+.bg-pink-2 {
+  background: radial-gradient(50% 50% at 50% 50%, #b82e4a 0%, #ff375f 100%);
+}
+.bg-pink-3 {
+  background: linear-gradient(90deg, #ff375f 0%, #b82e4a 100%);
+}
+.bg-transaprent {
+  background: transparent !important;
+}
+.el-button.is-disabled {
+  background: initial !important;
 }

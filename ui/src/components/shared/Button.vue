@@ -24,7 +24,7 @@ const handleClick = () => {
   // cta3
 .btn-cta3 {
   background: $color-600;
-  border: 1px solid ;
+  border: 1px solid rgba(255, 255, 255, 0.5);
 /*   border-image: linear-gradient(
     180deg,
     rgba(59, 61, 63, 0.5) 1,

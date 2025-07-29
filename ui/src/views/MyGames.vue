@@ -6,7 +6,7 @@
       <div class="flex-1 h-100">
         <div>
           <div class="c-disabled p-2 fs-14 fw-600">
-            Available Games You’ve Created
+            Available Games You've Created
           </div>
           <div class="c-idle active-game-card">
             <div v-if="myGames?.activeGames?.length">
@@ -15,7 +15,7 @@
                 class="d-flex align-items-center p-1 px-3 w-100"
               >
                 <div
-                  class="d-flex w-100 snow-white align-items-center justify-content-between gap-2"
+                  class="d-flex w-100 color-snow-white align-items-center justify-content-between gap-2"
                 >
                   <div>
                     <div class="fw-700 fs-16">Open Game</div>
@@ -47,12 +47,44 @@
                     <inline-svg src="/icons/cash.svg"></inline-svg
                     >{{ game?.rewardAmount / 1e9 }} MINA
                   </div>
-                  <Button class="button-8">Cancel</Button>
+                  <el-tooltip
+                    placement="right"
+                    effect="customized"
+                    v-if="game?.cancelTransactionHash"
+                  >
+                    <template #content>
+                      You may want to recheck your transactions status by
+                      <span class="text-underline"
+                        ><a
+                          :href="`https://minascan.io/devnet/tx/${game?.cancelTransactionHash}?type=zk-tx`"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="link"
+                          >here
+                        </a></span
+                      >. You may also resend your transaction with the costs
+                    </template>
+                    <Button
+                      class="bg-red radius-10 cancel-btn"
+                      size="large"
+                      @click="cancelGameById(game._id)"
+                      ><span class="color-snow-white">
+                        Re-try Cancel
+                      </span></Button
+                    >
+                  </el-tooltip>
+                  <Button
+                    v-else
+                    class="bg-red radius-10 cancel-btn"
+                    size="large"
+                    @click="cancelGameById(game._id)"
+                    ><span class="color-snow-white"> Cancel </span></Button
+                  >
                 </div>
               </div>
             </div>
             <div v-else class="color-snow-white ps-3 py-1">
-              <div class="fw-700 fs-16">You Haven’t Created a Game</div>
+              <div class="fw-700 fs-16">You Haven't Created a Game</div>
               <div class="fs-12">Launch a game as a Codemaster</div>
             </div>
           </div>
@@ -122,8 +154,6 @@
 </template>
 <script setup lang="ts">
 import Button from '@/components/shared/Button.vue';
-import RoundedColor from '@/components/shared/RoundedColor.vue';
-import ShareButton from '@/components/shared/ShareButton.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { formatAddress } from '@/utils';
 import axios from 'axios';
@@ -138,7 +168,9 @@ import MyStats from '@/components/myGames/MyStats.vue';
 dayjs.extend(relativeTime);
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-const { publicKeyBase58 } = storeToRefs(useZkAppStore());
+const { publicKeyBase58, loading } = storeToRefs(useZkAppStore());
+const { cancelGame } = useZkAppStore();
+
 const myGames = ref({
   activeGames: [],
   playedGames: [],
@@ -218,7 +250,12 @@ const getPlayedGames = async () => {
       : [...myGames.value.playedGames, ...res.data?.playedGames];
   myGames.value.totalPlayedCount = res.data.totalPlayedCount;
 };
-
+const cancelGameById = async (gameId: string) => {
+  const cancelTxHash = await cancelGame(gameId);
+  myGames.value.activeGames = myGames?.value?.activeGames.map((e) =>
+    e._id === gameId ? { ...e, cancelTransactionHash: cancelTxHash } : e
+  );
+};
 onMounted(async () => {
   await getInitialLobbyData();
 });
@@ -255,5 +292,15 @@ onMounted(async () => {
 }
 .infinite-list {
   overflow: scroll;
+}
+.cancel-btn {
+  box-shadow: 0px 2px 15px 0px $color-600 inset;
+  backdrop-filter: blur(10px);
+  border: 1px solid;
+  border-image-source: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
 }
 </style>

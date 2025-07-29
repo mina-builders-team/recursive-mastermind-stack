@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column gap-4">
+  <div class="d-flex flex-column gap-4 color-snow-white">
     <div class="d-flex gap-5">
       <div class="flex-1">
         <div>Game:</div>
@@ -98,7 +98,7 @@
           acceptedGame?.lastAcceptTransactionHash && !isAcceptGameTimeElapsed
         "
       >
-        <div class="w-100 d-flex justify-content-center fs-12">
+        <div class="mt-3 w-100 d-flex justify-content-center fs-12">
           Game should start anytime before:
         </div>
         <Timer
@@ -118,9 +118,10 @@
         >Back</Button
       >
       <Button
+        :loading="loading"
         v-if="isGameReady"
         size="large"
-        class="fw-400 black bg-light-gray search-btn"
+        class="fw-400 black bg-snow-white search-btn"
         @click="handleAcceptGame"
         >Play Game</Button
       >
@@ -149,6 +150,7 @@ const {
   game,
   compiled,
   zkAppStates,
+  loading
 } = storeToRefs(useZkAppStore());
 const { acceptGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();

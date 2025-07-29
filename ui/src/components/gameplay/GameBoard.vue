@@ -10,66 +10,23 @@
         :gameReward="game?.rewardAmount!"
         :finalTransaction="lastTransactionLink"
       />
+  
       <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3" v-else>
-        <div class="board-title mb-4">
-          <div class="gray fs-14">Welcome</div>
-          <span v-if="userRole === 'CODE_BREAKER'">Code Breaker</span>
-          <span v-else-if="userRole === 'CODE_MASTER'">Code Master</span>
-        </div>
-        <div class="d-flex gap-5">
-          <div
-            class="game-reward d-flex align-items-center gap-2 fw-400 f-14 color-snow-white p-2 fit-content"
-          >
-            <inline-svg src="/icons/cash.svg"></inline-svg>
-            {{ game?.rewardAmount! / 1e9 }} MINA
-          </div>
-          <div class="d-flex gap-2">
-            <RoundedColor
-              :editable="false"
-              v-for="code in gameSecret.secretCode"
-              :value="code.value"
-            />
-          </div>
-        </div>
-
-        <div v-if="!isGameEnded && !isTurnTimeExceeded">
-          <div
-            v-if="!isTurnPlayed && (!isPlayingOnChain || isLastProofSubmitted)"
-          ></div>
-        </div>
-
-        <div
-          class="c-idle mt-2 radius-10 p-2 d-flex flex-column gap-2 align-items-center color-snow-white"
-        >
-          <div>
-            <div v-if="isCurrentUserTurn">
-              <span v-if="!isTurnTimeExceeded"
-                >Waiting for your next move in</span
-              >
-              <span v-else
-                >Make Your Move ASAP. You Have May Lost Anytime.</span
-              >
-            </div>
-            <span v-else> Opponents Turn </span>
-          </div>
-          <Timer
-            v-if="!isTurnTimeExceeded"
-            :duration="isCurrentUserTurn ? 60 * 1000 * 2 : 60 * 1000 * 2.5"
-            :remainingSlot="remainingSlot"
-            :isOnChain="isPlayingOnChain"
-            :startTimestamp="game?.timestamp"
-            :criticalOn="30000"
-            @timeEnded="handleTurnEnded"
-          />
-          <div
-            v-else
-            class="d-flex align-items-center gap-1 fw-400 p-10 radius-10 fs-16 fw-600 critical"
-          >
-            <inline-svg class="me-1" src="/icons/alert.svg"></inline-svg>
-            URGENT
-          </div>
-        </div>
-        <div class="mt-3 d-flex flex-column-reverse">
+        <BoardHeader
+          :rewardAmount="game?.rewardAmount"
+          :userRole="userRole!"
+          :secret="gameSecret.secretCode"
+        />
+        <BoardTimer
+          :isCurrentUserTurn="isCurrentUserTurn"
+          :isTurnTimeExceeded="isTurnTimeExceeded"
+          :startTimestamp="timerStartTime"
+          :duration="timerDuration"
+          :isPlayingOnChain="isPlayingOnChain"
+          :lastTurnTransactionHash="lastTurnTransactionHash"
+          @timeEnded="handleTurnEnded"
+        />
+        <div class="mt-3 d-flex flex-column">
           <div v-for="(guess, row) in guesses">
             <Guess
               :attemptNo="row"
@@ -81,17 +38,18 @@
         </div>
       </div>
     </div>
+    <SubmitLastProofModal
+        v-if="isPlayingOnChain && !isLastProofSubmitted && !isGameEnded"
+      />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import Guess from '@/components/gameplay/Guess.vue';
-import RoundedColor from '@/components/shared/RoundedColor.vue';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import Timer from '@/components/shared/Timer.vue';
 import { MAX_ATTEMPTS, PER_TURN_GAME_DURATION } from '@/constants/config';
 
 const {
@@ -101,8 +59,6 @@ const {
   setStepDisplay,
   fetchCurrentSlot,
   setTurnPlayed,
-  submitGameProof,
-  claimRewardTransaction,
   getZkAppStates,
   getStoredTransactionsHash,
   setLastTurnTransactionHash,
@@ -114,19 +70,16 @@ const {
   publicKeyBase58,
   game,
   userRole,
-  isTurnPlayed,
   isPlayingOnChain,
   currentTransactionLink,
-  lastTurnTransactionHash,
   currentSlot,
-  stepDisplay,
-  loading,
-  error,
-  submitGameTransactionHash,
-  claimRewardTransactionHash,
+  lastTurnTransactionHash
 } = storeToRefs(useZkAppStore());
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
 import GameResult from './GameResult.vue';
+import SubmitLastProofModal from '../modals/SubmitLastProofModal.vue';
+import BoardHeader from '../shared/BoardHeader.vue';
+import BoardTimer from './BoardTimer.vue';
 const { playSound } = usePreloadedSound('/sounds/notification.mp3');
 
 const remainingSlot = ref<number>(PER_TURN_GAME_DURATION);
@@ -161,6 +114,18 @@ const clues = computed<Array<AvailableColor[]>>(() =>
     : zkAppStates.value?.cluesHistory
 );
 const isTurnTimeExceeded = ref(false);
+const onChainTimerStartTimestamp = ref(Date.now())
+const timerStartTime = computed(() => {
+  return isPlayingOnChain.value ? onChainTimerStartTimestamp.value : game.value?.timestamp;
+});
+
+const timerDuration = computed(() => {
+  return isPlayingOnChain.value
+    ? 60 * 1000 * 3
+    : isCurrentUserTurn.value
+      ? 60 * 1000 * 2
+      : 60 * 1000 * 2.5;
+});
 const handleTurnEnded = () => {
   isTurnTimeExceeded.value = true;
   if (
@@ -173,6 +138,30 @@ const handleTurnEnded = () => {
 };
 const handleSetColor = (secretCode: AvailableColor[], row: number) => {
   guesses.value[row] = [...secretCode];
+};
+const playOnChain = async () => {
+  const handler = async () => {
+    await fetchCurrentSlot();
+    await getZkAppStates();
+    remainingSlot.value =
+      zkAppStates.value?.lastPlayedSlot +
+      PER_TURN_GAME_DURATION -
+      currentSlot.value!;
+    if (remainingSlot.value < 2) {
+      isTurnTimeExceeded.value = true;
+    }
+    if (remainingSlot.value < 0) {
+      isTurnTimeExceeded.value = true;
+      if (onChainInterval.value && zkAppStates.value.rewardAmount === 0) {
+        clearInterval(onChainInterval.value);
+      }
+    }
+  };
+  await handler();
+  if (!isLastProofSubmitted.value) {
+    guesses.value = zkProofStates.value?.guessesHistory;
+  }
+  onChainInterval.value = setInterval(handler, 10 * 1000);
 };
 const isCodeMasterTurn = computed(() => {
   return isPlayingOnChain.value
@@ -225,6 +214,7 @@ const lastTransactionLink = computed(() => {
         game.value?.settlementTransactionHash;
 });
 
+
 watch(
   () => zkProofStates.value?.turnCount,
   () => {
@@ -235,11 +225,37 @@ watch(
     }
   }
 );
+watch(
+  () => zkAppStates.value?.turnCount,
+  () => {
+    if (isPlayingOnChain.value) {
+      guesses.value = zkAppStates.value.guessesHistory;
+      isTurnTimeExceeded.value = false;
+      onChainTimerStartTimestamp.value = Date.now()
+      setTurnPlayed(false);
+      setLastTurnTransactionHash("");
+      playSound();
+    }
+  }
+);
 
+watch(
+  () => isPlayingOnChain.value,
+  async () => {
+    if (isPlayingOnChain.value) {
+      await playOnChain();
+      playSound();
+    }
+  }
+);
 onMounted(async () => {
   await getRole();
   setLoading(false);
   setStepDisplay('');
+  if (isPlayingOnChain.value) {
+    await playOnChain();
+    getStoredTransactionsHash();
+  }
   if (!isGameEnded.value) {
     playSound();
   }
@@ -253,11 +269,6 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @import '@/style';
 
-.game-reward {
-  border-radius: 10px;
-  padding: 5px 10px;
-}
-
 .board__container {
   border-radius: 20px;
   width: 430px;
@@ -266,44 +277,6 @@ onUnmounted(() => {
   width: 70% !important;
 }
 
-.claim-btn {
-  background-color: #17b14d;
-  color: white;
-}
-.timer-icon {
-  color: rgb(229, 107, 107);
-}
-.penalize-btn {
-  border-radius: 10px;
-  background-color: #9d2c2c;
-  color: #f7f9fc;
-}
-.confirm-btn {
-  border-radius: 10px;
-  background-color: #1b232e;
-  color: #c5c6c8;
-}
-.multi-line-button {
-  white-space: normal;
-  text-align: center;
-  word-wrap: break-word;
-  padding: 15px;
-  border-color: #00ffcc;
-}
-.transaction-notice {
-  background: #313a41;
-  padding: 20px;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-.warning-text {
-  font-size: 12px;
-  text-align: start;
-}
-.board-title {
-  font-weight: 400;
-  font-size: 21px;
-}
 .critical {
   background: #ff375f4d;
   border: 1px solid #ff375f;

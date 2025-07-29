@@ -3,7 +3,7 @@
     <div class="mb-4 d-flex justify-content-between">
       <div>
         <div class="color-gray michroma fs-15 letter-spacing-3">WELCOME</div>
-        <span class="fs-21 michroma color-color-snow-white letter-spacing-3"
+        <span class="fs-21 michroma color-snow-white letter-spacing-3"
           >CodeBreaker</span
         >
       </div>
@@ -26,7 +26,7 @@
         />
       </div>
     </div>
-    <div class="d-flex flex-column-reverse align-items-center mt-2 py-2 w-100">
+    <div class="d-flex flex-column align-items-center mt-2 py-2 w-100">
       <div class="w-100" v-for="(guess, row) in guesses">
         <Round
           :clue="clues?.[row]"

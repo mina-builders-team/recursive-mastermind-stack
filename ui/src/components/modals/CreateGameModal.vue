@@ -6,7 +6,7 @@
     padding="0px"
   >
     <div
-      class="d-flex flex-column gap-4 default-border radius-20 bg-alpha-50-900-50 p-20"
+      class="d-flex flex-column gap-4 color-snow-white default-border radius-20 bg-alpha-50-900-50 p-20"
     >
       <el-carousel
         arrow="never"
@@ -21,7 +21,7 @@
           style="height: 130px"
         >
           <div
-            class="bg-alpha-20-300-20 default-border d-flex flex-column align-items-center snow-white radius-10 w-100 p-2 gap-"
+            class="bg-alpha-20-300-20 default-border d-flex flex-column align-items-center color-snow-white radius-10 w-100 p-2 gap-"
           >
             <div class="fw-700 fs-14 mb-2">{{ item.title }}</div>
             <div class="text-center" v-html="item.description"></div>
@@ -38,7 +38,7 @@
           </div>
         </el-carousel-item>
       </el-carousel>
-      <div class="fw-600 fs-16 snow-white">
+      <div class="fw-600 fs-16 color-snow-white">
         Create a New Game as a Codemaster {{ currentStep + 1 }} / 3
       </div>
       <div class="d-flex w-100 gap-5">
@@ -76,13 +76,20 @@
           </div>
         </div>
       </div>
-      <div v-if="currentStep === 0" class="d-flex flex-column gap-4">
-        <div class="fw-400 fs-16 snow-white">
+      <div
+        v-if="currentStep === 0"
+        class="d-flex flex-column gap-4 align-items-start"
+      >
+        <div class="fw-400 fs-16 color-snow-white">
           Set a code using 4 numbers, each between 0 and 7.
         </div>
 
         <div>
-          <CodePicker editable @change="handleSecretChange" :secret="game.secret" />
+          <CodePicker
+            editable
+            @change="handleSecretChange"
+            :secret="game.secret"
+          />
         </div>
       </div>
 
@@ -101,7 +108,7 @@
               'radius-10 default-border d-flex align-items-center fw-400 fs-14',
               {
                 black: amount === game.reward,
-                'bg-alpha-20-300-20 snow-white': amount !== game.reward,
+                'bg-alpha-20-300-20 color-snow-white': amount !== game.reward,
               },
             ]"
             size="large"
@@ -116,7 +123,7 @@
           <div class="white fw-400 fs-16 mb-2">Enter the Game Name</div>
           <div class="w-100 default-border radius-10 d-flex">
             <div
-              class="flex-1 d-flex align-items-center ps-3 fs-16 snow-white bg-alpha-8-300-8"
+              class="flex-1 d-flex align-items-center ps-3 fs-16 color-snow-white bg-alpha-8-300-8"
             >
               {{ game.roomName }}
             </div>
@@ -160,7 +167,7 @@
 
       <div class="d-flex justify-content-between footer">
         <Button
-          class="cta-3 fs-14 fw-400"
+          class="btn-cta3 fs-14 fw-400 color-snow-white border-alpha-50-300-50 px-5"
           size="large"
           @click="handleBackClick"
         >
@@ -169,14 +176,41 @@
           <span v-else>Back to Edit</span>
         </Button>
         <Button
-          class="cta-1 fs-14 fw-400 radius-10 px-5"
+          :loading="loading"
+          :class="[
+            'color-black fs-14 fw-400 radius-10 px-5',
+            {
+              'btn-cta3': !compiled && currentStep === 2,
+            },
+          ]"
           size="large"
           @click="handleNextStep"
         >
           <span v-if="currentStep !== 2">Next</span>
-          <div class="d-flex align-items-center gap-1" v-else>
+          <div class="d-flex align-items-center gap-1" v-else-if="compiled">
             <inline-svg src="/icons/rocket.svg"></inline-svg>
             Launch
+          </div>
+          <div v-else class="color-snow-white">
+            <el-tooltip
+              placement="bottom"
+              effect="customized"
+              popper-class="compilation-tooltip"
+            >
+              <template #content>
+                <div class="fw-600">Generating your ZK Proof!</div>
+                <div class="fs-12">
+                  This step lets you play the game trustlessly right in your
+                  browser—no blockchain involved.
+                </div>
+                <div
+                  class="bg-alpha-8-300-8 border-alpha-50-300-50 p-1 color-green"
+                >
+                  Estimated 15-20 sec. Please don’t refresh or close the page.
+                </div>
+              </template>
+              Waiting for compilation
+            </el-tooltip>
           </div>
         </Button>
       </div>
@@ -194,16 +228,17 @@ import { useZkAppStore } from '@/store/zkAppModule';
 import { Field } from 'o1js';
 import { storeToRefs } from 'pinia';
 import { ElMessage } from 'element-plus';
-import { ElNotification } from 'element-plus';
-import { updateLocalStorageGames } from '@/utils';
+import { updateLocalStorageGames, validateColorCombination } from '@/utils';
 import { useRouter } from 'vue-router';
 import CodePicker from '@/components/shared/CodePicker.vue';
+import { useCustomMessage } from '@/composables/useCustomMessage';
 
 const router = useRouter();
 const { createInitGameTransaction } = useZkAppStore();
-const { error, currentTransactionLink, zkAppAddress } =
+const { error, currentTransactionLink, zkAppAddress, compiled, loading } =
   storeToRefs(useZkAppStore());
 const emit = defineEmits(['close']);
+const { showMessage } = useCustomMessage();
 const infos = [
   {
     title: 'About Mina:',
@@ -251,11 +286,27 @@ const handleBackClick = () => {
   }
 };
 const handleNextStep = async () => {
+  if (currentStep.value === 0) {
+    const { isValid, message } = validateColorCombination(game.value?.secret);
+    if (!isValid) {
+      showMessage({
+        type: 'error',
+        title: 'Invalid Combination',
+        description:
+          'Please choose a combination of 4 unique digits between 0 and 7',
+        duration: 3000,
+      });
+      return;
+    }
+  }
   if (currentStep.value !== 2) {
     currentStep.value += 1;
   } else {
+    if (!compiled.value) {
+      return;
+    }
     await createInitGameTransaction(
-      game.value.secret.map((e: AvailableColor) => e.value),
+      game.value.secret.map((e: AvailableColor) => Number(e.value)),
       game.value.randomSalt,
       game.value.refereePubKeyBase58 as string,
       game.value.reward! * 1e9,
@@ -264,12 +315,6 @@ const handleNextStep = async () => {
     if (error.value) {
       ElMessage.error({ message: error.value, duration: 6000 });
     } else {
-      ElNotification({
-        title: 'Success',
-        message: `Transaction Hash : ${currentTransactionLink.value}`,
-        type: 'success',
-        duration: 5000,
-      });
       updateLocalStorageGames(zkAppAddress.value as string, {
         randomSalt: game.value.randomSalt,
         secretCode: game.value.secret,
@@ -312,4 +357,5 @@ const handleSecretChange = (newSecret: Array<AvailableColor>) => {
 .el-carousel__indicators--horizontal {
   display: none !important;
 }
+
 </style>

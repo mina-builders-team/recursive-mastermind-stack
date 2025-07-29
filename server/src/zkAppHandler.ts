@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 import {
   MastermindZkApp,
   StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+} from 'stan-mastermind';
 dotenv.config();
 
 /**

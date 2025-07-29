@@ -17,7 +17,7 @@
         >
         <el-button
           size="large"
-          class="fw-400 black bg-light-gray search-btn"
+          class="fw-400 black bg-snow-white search-btn"
           @click="handleJoinWihCode"
           >Search
         </el-button>

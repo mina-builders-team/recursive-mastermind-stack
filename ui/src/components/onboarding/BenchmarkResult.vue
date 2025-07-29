@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white w-520"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white w-520"
   >
     <div class="fw-700 fs-24">One Last Thing!</div>
     <div class="fs-12 my-4">

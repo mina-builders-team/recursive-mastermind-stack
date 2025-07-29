@@ -26,9 +26,9 @@
       <div>
         <div class="fs-12 fw-600">CURRENT TITLE</div>
         <div class="fs-21 fw-600">
-          {{ getTitleByRank(leaderboardData?.user?.rank) }}
+          {{ getTitleByRank(leaderboardData?.user?.rank)?.title }}
         </div>
-        <div class="fs-12 gray">
+        <div class="fs-12 gray" v-if="getNextTitleInfo(leaderboardData?.user?.rank)?.ranksToNext">
           {{ getNextTitleInfo(leaderboardData?.user?.rank)?.ranksToNext }} for
           {{ getNextTitleInfo(leaderboardData?.user?.rank)?.nextTitle }}!
         </div>
@@ -43,7 +43,7 @@
       >
         <div class="d-flex gap-5">
           <div>RANK</div>
-          <div>CODE MASTER</div>
+          <div class="me-4">CODE MASTER</div>
           <div>TITLE</div>
         </div>
         <div class="d-flex gap-5">
@@ -58,16 +58,16 @@
         >
           <div class="d-flex gap-4 align-items-center">
             <div class="tags d-flex align-items-center h-fit-content py-2 px-4">
-              {{ index }}
+              {{ index + 1 }}
             </div>
             <div
-              class="d-flex align-items-center gap-1 px-2 py-3 tags radius-10"
+              class="d-flex align-items-center gap-1 ms-2 me-2 px-2 py-3 tags radius-10 player-id"
             >
               <inline-svg src="/icons/person.svg"></inline-svg>
               {{ formatAddress(player._id) }}
             </div>
             <div>
-              {{ getTitleByRank(index)?.title }}
+              {{ getTitleByRank(index + 1 )?.title }}
             </div>
           </div>
           <div class="d-flex gap-5">
@@ -143,5 +143,10 @@ onMounted(async () => {
 }
 .stat {
   width: 70px;
+}
+.player-id {
+  width: 145px;
+  display: flex;
+  justify-content: center;
 }
 </style>

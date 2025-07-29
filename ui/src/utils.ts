@@ -12,7 +12,7 @@
 import {
   Clue,
   Combination,
-} from '@navigators-exploration-team/mina-mastermind';
+} from 'stan-mastermind';
 import { availableColors, cluesColors, initialColor } from './constants/colors';
 import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';

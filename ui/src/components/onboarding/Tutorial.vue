@@ -7,7 +7,7 @@
     </div>
     <div class="d-flex gap-2">
       <div
-        class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 p-2 w-100 flex-1"
+        class="default-border radius-10 bg-alpha-50-900-50 d-flex align-items-center gap-1 p-2 w-100 flex-1"
       >
         <Clue
           :clue="[
@@ -23,13 +23,13 @@
         </div>
       </div>
       <div
-        class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 p-2 flex-1"
+        class="default-border radius-10 bg-alpha-50-900-50 d-flex align-items-center gap-1 p-1 flex-1"
         v-if="type !== 'GREEN'"
       >
         <Clue :clue="[blowClue, missClue, missClue, missClue]" />
         <div class="fs-12 fw-400">
-          <div>White Clue</div>
-          <div>Right Number, Wrong Spot.</div>
+          <div class="fs-16 fw-600">White Clue</div>
+          <div class="fs-12 fw-400">Right Number, Wrong Spot.</div>
         </div>
       </div>
     </div>
@@ -58,7 +58,12 @@
             size="large"
             v-if="type === 'GREEN'"
           >
-            <el-tooltip placement="right" effect="customized" :offset="-10">
+            <el-tooltip
+              placement="right"
+              effect="customized"
+              :offset="-10"
+              popper-class="tuttt"
+            >
               <template #content>
                 <span>{{ tooltips[row] }}</span>
               </template>
@@ -102,7 +107,7 @@
       </div>
     </div>
     <div v-if="isWrongAnswer === false">
-      <div class="idle-container p-3 w-100 mt-3">
+      <div class="p-3 w-100 bg-alpha-8-300-8 border-alpha-8-300-8 mt-3">
         <div class="text-center fw-600 fs-20">Congrats!</div>
         <div class="d-flex gap-2 w-100 my-3 justify-content-center">
           <Clue :clue="[hitClue, hitClue, hitClue, hitClue]" />
@@ -134,7 +139,7 @@
 
       <Button
         size="large"
-        class="btn-cta3 bg-alpha-8-300-8 w-100 mt-3 p-4"
+        class="btn-cta3 bg-alpha-8-300-8 border-alpha-50-300-50 w-100 mt-3 p-4"
         @click="submitGuess(true)"
       >
         <span class="color-snow-white">Show me Me Answer</span>
@@ -202,7 +207,7 @@ const submitGuess = (solved?: boolean) => {
     isWrongAnswer.value = false;
     return;
   }
-  const { isSolved,   clue : receivedClue } = generateClue(
+  const { isSolved, clue: receivedClue } = generateClue(
     guess.value,
     props.secret.map((e) => Number(e.value))
   );
@@ -215,27 +220,7 @@ const handleNextStep = () => {
 };
 </script>
 
-<style lang="scss">
-.el-popper.is-customized {
-  padding: 6px 12px;
-  background: #27282a80 !important ;
-  color: $snow-white !important;
-  backdrop-filter: blur(20px);
-  width: 240px;
-}
-.el-popper__arrow {
-  height: 100%;
-  transform: unset !important;
-}
-.el-popper.is-customized .el-popper__arrow::before {
-  content: '';
-  width: 6px;
-  background: #d9d9d9;
-  transform: unset;
-  height: 100%;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
+<style lang="scss" scoped>
 .tips-placeholder {
   border: 1px solid rgba(170, 170, 170, 0.1);
 }

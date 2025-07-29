@@ -3460,6 +3460,11 @@ stacktrace-js@^2.0.2:
     stack-generator "^2.0.5"
     stacktrace-gps "^3.0.4"
 
+stan-mastermind@1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/stan-mastermind/-/stan-mastermind-1.5.0.tgz#a289c00af612461ea1e27c2d698abe58388bbeab"
+  integrity sha512-hhdtVQG+H+eIcJm+1Bbc9c0rapidr6SDvb19rPK1wRHjuPYgv8i2/3QQs3bdVeBU1k9ZYZDTR44c8fPrmeChQQ==
+
 standard-as-callback@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/standard-as-callback/-/standard-as-callback-2.1.0.tgz#8953fc05359868a77b5b9739a665c5977bb7df45"

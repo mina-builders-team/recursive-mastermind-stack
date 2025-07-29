@@ -1,65 +1,121 @@
 <template>
   <div class="w-100 lobby-container mt-5">
-    <div class="d-flex justify-content-between align-items-center">
-      <div>
+    <div class="d-flex justify-content-between align-items-center gap-5">
+      <div class="flex-1">
         <h2 class="fw-bold play-title">PLAY</h2>
         <div>Discover and join available Mina Mastermind games.</div>
       </div>
-      <div class="d-flex gap-2">
-        <Button class="btn-cta1" @click="handleJoinWithCode">
-          <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
-          Join with Code
-        </Button>
-        <Button class="btn-cta2" @click="handleCreateChallenge">
-          <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
-          Create a Challenge
-        </Button>
-      </div>
-    </div>
-    <div
-      class="mt-5 p-1 d-flex w-100 justify-content-between align-items-center lobby-tab"
-    >
-      <div class="d-flex">
-        <div
-          :class="[
-            'option cursor-pointer',
-            { 'lobby-all': gamesType === 'public' },
-          ]"
-          @click="filterByType('public')"
+      <div
+        class="d-flex gap-2 flex-wrap align-items-center justify-content-center"
+      >
+        <Button
+          class="btn-cta1 px-4 d-flex align-items-center"
+          @click="handleJoinWithCode"
+          size="large"
         >
-          Available
+          <div class="color-black d-flex align-items-center gap-2">
+            <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
+            <span class="fw-700">Join with Code</span>
+          </div>
+        </Button>
+        <Button
+          class="btn-cta2 d-flex align-items-center px-4"
+          @click="handleCreateChallenge"
+          size="large"
+        >
+          <div class="color-snow-white d-flex align-items-center gap-2">
+            <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
+            <span class="fw-400 fs-14">Create a Challenge</span>
+          </div>
+        </Button>
+      </div>
+      <div class="placeholder"></div>
+    </div>
+    <div class="d-flex align-items-start gap-5 mt-5 w-100">
+      <div class="flex-1">
+        <div
+          class="p-1 d-flex w-100 justify-content-between align-items-center lobby-tab"
+        >
+          <div class="d-flex">
+            <div
+              :class="[
+                'option cursor-pointer fw-600',
+                { 'lobby-all': gamesType === 'public' },
+              ]"
+              @click="filterByType('public')"
+            >
+              AVAILABLE
+            </div>
+            <div
+              :class="[
+                'option cursor-pointer fw-600',
+                { 'lobby-all': gamesType === 'own' },
+              ]"
+              @click="filterByType('own')"
+            >
+              YOUR GAMES
+            </div>
+          </div>
+          <div class="d-flex me-3 filter-icons">
+            <el-tooltip
+              placement="bottom"
+              effect="customized"
+              popper-class="filter-tooltip"
+            >
+              <template #content>
+                <span>Highest Amount</span>
+              </template>
+              <Button
+                @click="sortBy('rewardAmount')"
+                class="btn-cta3 border-alpha-20-300-20 p-5-10"
+              >
+                <div>
+                  <inline-svg src="/icons/sort.svg"></inline-svg>
+                </div>
+              </Button>
+            </el-tooltip>
+            <el-tooltip placement="bottom" effect="customized">
+              <template #content>
+                <span>Last Created</span>
+              </template>
+              <Button
+                @click="sortBy('createdAt')"
+                class="btn-cta3 border-alpha-20-300-20 p-5-10"
+              >
+                <div>
+                  <inline-svg src="/icons/upload.svg"></inline-svg>
+                </div>
+              </Button>
+            </el-tooltip>
+          </div>
         </div>
         <div
-          :class="[
-            'option cursor-pointer',
-            { 'lobby-all': gamesType === 'own' },
-          ]"
-          @click="filterByType('own')"
+          v-for="game in lobbyData.inProgressGames"
+          :key="game._id"
+          class="py-2"
         >
-          Your Games
+          <InProgressGameCard
+            :public-key-base58="publicKeyBase58"
+            :game="game"
+          />
+        </div>
+        <div
+          class="infinite-list d-flex gap-3 flex-wrap mt-4"
+          v-infinite-scroll="loadMoreActiveGames"
+          :infinite-scroll-disabled="isLoading || reachedEnd"
+          :infinite-scroll-immediate="false"
+          :infinite-scroll-distance="40"
+          style="overflow: auto"
+        >
+          <GameCard
+            v-for="game in lobbyData?.filteredActiveGames"
+            :game="game"
+          />
         </div>
       </div>
-      <div class="d-flex gap-2 me-3 filter-icons">
-        <div class="sort-icon cursor-pointer" @click="sortBy('rewardAmount')">
-          <inline-svg src="/icons/sort.svg"></inline-svg>
-        </div>
-        <div class="sort-icon cursor-pointer" @click="sortBy('createdAt')">
-          <inline-svg src="/icons/upload.svg"></inline-svg>
-        </div>
+      <div>
+        <Missions />
       </div>
-    </div>
-    <div v-for="game in lobbyData.inProgressGames" :key="game._id" class="py-2">
-      <InProgressGameCard :public-key-base58="publicKeyBase58" :game="game" />
-    </div>
-    <div
-      class="infinite-list d-flex gap-3 flex-wrap mt-4"
-      v-infinite-scroll="loadMoreActiveGames"
-      :infinite-scroll-disabled="isLoading || reachedEnd"
-      :infinite-scroll-immediate="false"
-      :infinite-scroll-distance="40"
-      style="overflow: auto"
-    >
-      <GameCard v-for="game in lobbyData?.filteredActiveGames" :game="game" />
     </div>
     <JoinWithCodeModal
       v-if="showJoinWithCodeModal"
@@ -74,12 +130,11 @@
 <script setup lang="ts">
 import GameCard from '@/components/lobby/GameCard.vue';
 import InProgressGameCard from '@/components/lobby/InProgressGameCard.vue';
+import Missions from '@/components/lobby/Missions.vue';
 import CreateGameModal from '@/components/modals/CreateGameModal.vue';
 import JoinWithCodeModal from '@/components/modals/JoinWithCodeModal.vue';
 import Button from '@/components/shared/Button.vue';
-import Timer from '@/components/shared/Timer.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { formatAddress } from '@/utils';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
@@ -165,7 +220,7 @@ onMounted(async () => {
   await getActiveGames(true);
 });
 </script>
-<style scoped>
+<style scoped lang="scss">
 .play-title {
   letter-spacing: 10px;
   font-size: 32px;
@@ -209,5 +264,10 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.placeholder {
+  width: 325px;
+  height: 1px;
+  background-color: transparent;
 }
 </style>

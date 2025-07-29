@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 snow-white w-450"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white w-450"
   >
     <div class="fs-24 fw-700 mb-3 title">Congratulations! You're Ready!</div>
     <div class="d-flex gap-2 w-100 mb-4">
@@ -8,7 +8,7 @@
         class="idle-container border-alpha-50-300-50 radius-10 p-2 px-3 w-50"
       >
         <div
-          class="d-flex align-items-center justify-content-between snow-white"
+          class="d-flex align-items-center justify-content-between color-snow-white"
         >
           <div>
             <div class="color-gray fs-12 fw-600">Game Mode 1</div>
@@ -16,13 +16,13 @@
           </div>
           <inline-svg src="/icons/binary.svg"></inline-svg>
         </div>
-        <div class="snow-white fs-12 mt-2">Crack codes. Earn Mina.</div>
+        <div class="color-snow-white fs-12 mt-2">Crack codes. Earn Mina.</div>
       </div>
       <div
         class="idle-container border-alpha-50-300-50 radius-10 p-2 px-3 w-50"
       >
         <div
-          class="d-flex align-items-center justify-content-between snow-white"
+          class="d-flex align-items-center justify-content-between color-snow-white"
         >
           <div>
             <div class="color-gray fs-12 fw-600">Game Mode 2</div>

@@ -7,6 +7,7 @@
     </div>
     <div v-else-if="isNotAvailableGame">
       <Modal class="w-400">
+        {{ game }}
         <NotFound />
       </Modal>
     </div>

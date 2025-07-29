@@ -40,10 +40,13 @@
         <Button class="cta-3" size="large" @click="returnToLobby">
           Return to Lobby
         </Button>
-        <Button class="cta-3" size="large">
-          <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
-          <span>Invite your friend to challange</span>
-        </Button>
+        <CopyToClipBoard :text="game?._id || ''">
+          <Button class="cta-3" size="large">
+            <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
+            <span>Invite your friend to challange</span>
+          </Button>
+        </CopyToClipBoard>
+
         <ShareButton
           :message="'Lets play now https://www.minamastermind.com/' + game?._id"
           hashtag="Mina MASTERMIND"
@@ -63,6 +66,7 @@ import { computed, ref, watch } from 'vue';
 import DotsLoader from '@/components/shared/DotsLoader.vue';
 import { useRoute, useRouter } from 'vue-router';
 import ShareButton from '../shared/ShareButton.vue';
+import CopyToClipBoard from '../shared/CopyToClipBoard.vue';
 
 const { zkAppStates, game, compiled } = storeToRefs(useZkAppStore());
 const { getGame } = useZkAppStore();

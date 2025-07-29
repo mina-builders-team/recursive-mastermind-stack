@@ -11,7 +11,7 @@ $snow-white: #fefefe;
 $gray-passive: $color-500;
 $white: #fff;
 $black: #000;
-
+$yellow: #ffd60a;
 $alpha-20-000-20: #ffffff33;
 $alpha-20-300-20: #3b3d3f33;
 $alpha-20-700-20: #191b1d33;
@@ -61,6 +61,8 @@ $colors: (
   'white': $white,
   'black': $black,
   'snow-white': $snow-white,
+  'yellow': $yellow,
+  'red': $red,
 );
 
 @each $name, $value in $colors {

@@ -6,49 +6,89 @@
     ]"
   >
     <Clue :clue="clue" />
-    <CodePicker :secret="guess" :editable="editable" @change="handleSetColor" :editOnly="editOnly" />
+    <CodePicker
+      :secret="guess"
+      :editable="editable"
+      @change="handleSetColor"
+      :editOnly="editOnly"
+    />
     <div class="btn-container w-100 h-100" v-if="showBtn">
-      <Button
-        @click="turnPlayed"
+      <el-tooltip
+        placement="right"
+        effect="customized"
         v-if="
-          !loading &&
           isCurrentRound &&
           ((isCodeMasterTurn && currentUserRole === 'CODE_MASTER') ||
-            (!isCodeMasterTurn && currentUserRole === 'CODE_BREAKER'))
+            (!isCodeMasterTurn && currentUserRole === 'CODE_BREAKER')) &&
+          lastTurnTransactionHash !== '' &&
+          !loading
         "
-        class="color-black radius-10 w-100 ps-0 fw-600 fs-12 d-flex h-45"
-        size="large"
       >
-        <inline-svg src="/icons/send.svg" class="me-1" />
-        <span v-if="currentUserRole === 'CODE_MASTER'"> Give Clue </span>
-        <span v-else>Sign</span>
-      </Button>
-      <div v-else class="button-placeholder default-border radius-10 d-flex">
-        <div
-          v-if="loading && isCurrentRound"
-          class="fs-12 d-flex align-items-center p-1"
+        <template #content>
+          You may want to recheck your transactions status by
+          <span class="text-underline"
+            ><a
+              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="link"
+              >here
+            </a></span
+          >. You may also resend your transaction with the costs
+        </template>
+        <Button
+          @click="turnPlayed"
+          class="color-snow-white bg-pink-3 radius-10 w-100 ps-0 fw-600 fs-12 d-flex h-45"
+          size="large"
         >
-          <inline-svg
-            src="/icons/processing-proof.svg"
-            class="me-1"
-          ></inline-svg>
-          Processing...
-        </div>
-        <div
-          v-else-if="isOldRound"
-          class="d-flex justify-content-center align-items-center color-alpha-20-000-20 fs-8 h-100 px-2 gap-1 blend-lighten"
+          <inline-svg src="/icons/send.svg" class="me-1" />
+          <span>Resend?</span>
+        </Button>
+      </el-tooltip>
+
+      <template v-else>
+        <Button
+          @click="turnPlayed"
+          v-if="
+            !loading &&
+            isCurrentRound &&
+            ((isCodeMasterTurn && currentUserRole === 'CODE_MASTER') ||
+              (!isCodeMasterTurn && currentUserRole === 'CODE_BREAKER'))
+          "
+          class="color-black radius-10 w-100 ps-0 fw-600 fs-12 d-flex h-45"
+          size="large"
         >
-          <div>
-            <div>Recursive</div>
-            <div>Proof Generated</div>
+          <inline-svg src="/icons/send.svg" class="me-1" />
+          <span v-if="currentUserRole === 'CODE_MASTER'"> Give Clue </span>
+          <span v-else>Sign</span>
+        </Button>
+        <div v-else class="button-placeholder default-border radius-10 d-flex">
+          <div
+            v-if="loading && isCurrentRound"
+            class="fs-12 d-flex align-items-center p-1"
+          >
+            <inline-svg
+              src="/icons/processing-proof.svg"
+              class="me-1"
+            ></inline-svg>
+            Processing...
           </div>
-          <inline-svg
-            :width="13"
-            :height="13"
-            src="/icons/generated-proof.svg"
-          ></inline-svg>
+          <div
+            v-else-if="isOldRound"
+            class="d-flex justify-content-center align-items-center color-alpha-20-000-20 fs-8 h-100 px-2 gap-1 blend-lighten"
+          >
+            <div>
+              <div>Recursive</div>
+              <div>Proof Generated</div>
+            </div>
+            <inline-svg
+              :width="13"
+              :height="13"
+              src="/icons/generated-proof.svg"
+            ></inline-svg>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -102,6 +142,11 @@ const props = defineProps({
     type: Array<number>,
     required: false,
     default: [0, 1, 2, 3],
+  },
+  lastTurnTransactionHash: {
+    type: String,
+    required: false,
+    default: '',
   },
 });
 const emit = defineEmits(['change', 'turnPlayed']);

@@ -601,6 +601,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         console.log('error ', err);
       } finally {
         this.loading = false;
+        return this.currentTransactionLink
       }
     },
     async clearGame() {
@@ -651,8 +652,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.claimRewardTransactionHash = game?.claimRewardTransactionHash;
       this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
-    setLastTurnTransactionHash(hash: string | null) {
-      this.lastTurnTransactionHash = hash ? hash : '';
+    setLastTurnTransactionHash(hash: string) {
+      this.lastTurnTransactionHash = hash ;
     },
     async startBenchmark() {
       this.benchmark = await this.zkappWorkerClient!.benchmark(

@@ -2,9 +2,23 @@
   <div class="d-flex flex-column gap-2 game-card__container">
     <div class="d-flex gap-5">
       <div class="fw-600">{{ game?.roomName }}</div>
-      <div class="d-flex align-items-center gap-1">
-        <div :class="['status' ,{available: status === 'Available', waiting: status === 'Waiting'}]"></div>
-        <span class="gray fs-14">{{ status }}</span>
+      <div class="d-flex align-items-center gap-1 game-status">
+        <template v-if="status === 'Waiting'">
+          <el-tooltip placement="bottom" effect="customized" popper-class="game-status-tooltip" >
+            <template #content>
+              <div class="fw-600">Game May Starts Soon</div>
+              <div class="fs-12">Please look another game</div>
+            </template>
+            <div class="d-flex align-items-center gap-1 cursor-pointer">
+              <div class="status waiting"></div>
+              <span class="color-gray fs-14">Waiting</span>
+            </div>
+          </el-tooltip>
+        </template>
+        <template v-else>
+          <div class="status available"></div>
+          <span class="color-gray fs-14">Available</span>
+        </template>
       </div>
     </div>
     <div class="d-flex align-items-center justify-content-between">
@@ -17,12 +31,14 @@
     </div>
     <div class="d-flex align-items-center gap-2">
       <div
-        class="game-reward d-flex align-items-center gap-2 fw-400 f-14 snow-white"
+        class="game-reward d-flex align-items-center gap-2 fw-400 f-14 color-snow-white"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ game.rewardAmount / 1e9 }} MINA
       </div>
-      <Button class="btn-cta3 flex-1" @click="handleJoinGame">Join</Button>
+      <Button class="btn-cta3 flex-1 border-alpha-50-300-50" @click="handleJoinGame">
+        <span class="color-snow-white">Join</span> 
+      </Button>
     </div>
   </div>
 </template>
@@ -70,7 +86,7 @@ const handleJoinGame = () => {
   background-color: #5bc56b;
 }
 .waiting {
-  background-color: #FFD60A;
+  background-color: #ffd60a;
 }
 .game-card__container {
   padding: 20px 18px;
@@ -97,3 +113,25 @@ const handleJoinGame = () => {
   padding: 5px 10px;
 }
 </style>
+<style lang="scss">
+/* .el-popper.is-customized {
+  padding: 6px 12px;
+  background: #27282a80 !important ;
+  color: $snow-white !important;
+  backdrop-filter: blur(20px);
+}
+.el-popper__arrow {
+  height: 100%;
+  transform: unset !important;
+}
+.game-status-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  content: '';
+  width: 6px;
+  background: #af423b;
+  transform: unset;
+  height: 100%;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  top: 5px;
+}
+ */</style>

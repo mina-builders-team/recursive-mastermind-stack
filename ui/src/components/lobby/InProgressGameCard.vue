@@ -1,9 +1,9 @@
 <template>
   <div
-    class="d-flex align-items-center justify-content-between radius-10 c-idle snow-white ps-4 pe-5 py-3"
+    class="d-flex align-items-center justify-content-between radius-10 idle-container border-alpha-50-300-50  color-snow-white ps-4 pe-5 py-3"
   >
     <div
-      class="game-reward c-idle radius-10 d-flex align-items-center gap-2 fw-400 f-14 snow-white p-2 fit-content"
+      class="idle-container border-alpha-50-300-50 radius-10 d-flex align-items-center gap-2 fw-400 f-14 color-snow-white p-2 fit-content"
     >
       <inline-svg src="/icons/cash.svg"></inline-svg>
       {{ game?.rewardAmount! / 1e9 }} MINA
@@ -23,9 +23,9 @@
       :startTimestamp="game.timestamp"
       v-if="!isUserTurn"
     />
-    <div>ID: {{ formatAddress(game._id) }}</div>
+    <div class="fs-12">ID: {{ formatAddress(game._id) }}</div>
     <Button
-      class="color-gray-passive button-1 d-flex align-items-center p-4"
+      class="color-gray-passive d-flex align-items-center p-4 radius-60"
       @click="joinGame"
     >
       <inline-svg
