@@ -1,6 +1,6 @@
 <template>
   <Modal @close="handleJoinCodeModalClose">
-    <div class="snow-white d-flex flex-column gap-3">
+    <div class="color-snow-white d-flex flex-column gap-3">
       <div class="fw-600 fs-16">Join with the Code</div>
       <div class="fs-16">Enter the GameID</div>
       <PasteFromClipBoard
@@ -9,20 +9,20 @@
         :inputValue="formatAddress(gameAddress)"
       />
       <div class="d-flex justify-content-between join-modal-footer">
-        <el-button
+        <Button
           size="large"
-          class="snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
+          class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
           @click="handleJoinCodeModalClose"
-          >Back</el-button
+          >Back</Button
         >
-        <el-button
+        <Button
           size="large"
-          class="fw-400 black bg-snow-white search-btn"
+          class="fw-400 black bg-snow-white search-btn color-black"
           @click="handleJoinWihCode"
-          >Search
-        </el-button>
+          ><span>Search</span>
+        </Button>
       </div>
-      <div class="snow-white mt-2" v-if="!gameFound">
+      <div class="color-snow-white mt-2 fs-16 fw-600 color-pink3" v-if="!gameFound">
         Not Found! Try Again!
       </div>
     </div>
@@ -32,12 +32,10 @@
 import { ref } from 'vue';
 import { formatAddress } from '@/utils';
 import PasteFromClipBoard from '../shared/PasteFromClipBoard.vue';
-import Timer from '../shared/Timer.vue';
 import Modal from '../shared/Modal.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-const { game } = storeToRefs(useZkAppStore());
+import Button from '../shared/Button.vue';
 const { getGame } = useZkAppStore();
 const emit = defineEmits(['close']);
 const router = useRouter();
@@ -50,16 +48,18 @@ const handleJoinCodeModalClose = () => {
   emit('close');
 };
 const handleJoinWihCode = async () => {
-  await getGame(gameAddress.value);
-  if (game.value?.status !== 'PENDING') {
-    router.push({
-      name: 'gameplay',
-      params: {
-        id: gameAddress.value,
-      },
-    });
-  } else {
-    gameFound.value = false;
+  if (gameAddress.value) {
+    const game = await getGame(gameAddress.value);
+    if (['ACTIVE', 'IN_PROGRESS'].includes(game.status || '')) {
+      router.push({
+        name: 'gameplay',
+        params: {
+          id: gameAddress.value,
+        },
+      });
+    } else {
+      gameFound.value = false;
+    }
   }
 };
 </script>

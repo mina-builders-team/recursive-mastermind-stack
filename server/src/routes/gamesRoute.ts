@@ -10,6 +10,8 @@ import { Router, Request, Response } from 'express';
 import {
   createOrUpdateGame,
   getGameById,
+  getInProgressGamesByPlayer,
+  getLobbyData,
   getUserGames,
 } from '../repositories/game.js';
 import Game, { GameStatus } from '../models/Game.js';
@@ -47,10 +49,9 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
     req.query.sortBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
   const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
   const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
+  const limit = parseInt(req.query.limit as string) || 9;
   const skip = (page - 1) * limit;
   const includeInProgress = req.query.includeInProgress === 'true';
-  const includeBadges = req.query.includeBadges === 'true';
   const baseMatch: any = {
     status: GameStatus.ACTIVE,
   };
@@ -75,17 +76,13 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
       filteredActiveGames = parsed.filteredActiveGames;
       totalActiveCount = parsed.totalActiveCount;
     } else {
-      const [games, count] = await Promise.all([
-        Game.find(baseMatch)
-          .sort({ [sortBy]: sortOrder })
-          .skip(skip)
-          .limit(limit)
-          .select(
-            '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
-          )
-          .lean(),
-        Game.countDocuments(baseMatch),
-      ]);
+      const [games, count] = await getLobbyData({
+        skip,
+        limit,
+        sortBy,
+        sortOrder,
+        baseMatch,
+      });
 
       filteredActiveGames = games;
       totalActiveCount = count;
@@ -102,36 +99,15 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
 
     let inProgressGames: any[] = [];
     if (includeInProgress) {
-      inProgressGames = await Game.find({
-        status: GameStatus.IN_PROGRESS,
-        $or: [{ codeMaster: userId }, { codeBreaker: userId }],
-      })
-        .select(
-          '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
-        )
-        .lean();
+      inProgressGames = await getInProgressGamesByPlayer(userId)
     }
-
-    let playerBadges = undefined;
-    if (includeBadges) {
-      const stats = await Player.findOne({
-        _id: userId,
-      })
-        .select('badges')
-        .lean();
-      playerBadges = stats?.badges ?? [];
-    }
-
     res.status(200).json({
       filteredActiveGames,
       totalActiveCount,
       ...(includeInProgress && { inProgressGames }),
-      ...(includeBadges && { playerBadges }),
-      page,
-      limit,
     });
   } catch (err) {
-    console.error('Error fetching active/in-progress games:', err);
+    console.error('Error fetching in-progress games:', err);
     res.status(500).json({ message: 'Failed to fetch game list' });
   }
 });
@@ -173,7 +149,7 @@ router.get('/my-games/:pubKey', async (req, res) => {
   const { pubKey } = req.params;
   const onlyPlayedGames = req.query.onlyPlayedGames === 'true';
   const page = parseInt((req.query.page as string) || '1', 10);
-  const limit = parseInt((req.query.limit as string) || '10', 10);
+  const limit = parseInt((req.query.limit as string) || '7', 10);
   const skip = (page - 1) * limit;
   const orderBy =
     req.query.sortOrder === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
@@ -210,8 +186,6 @@ router.get('/my-games/:pubKey', async (req, res) => {
     if (onlyPlayedGames) {
       res.status(200).json({
         totalPlayedCount,
-        page,
-        limit,
         playedGames,
       });
       return;
@@ -250,8 +224,6 @@ router.get('/my-games/:pubKey', async (req, res) => {
       stats,
       activeGames,
       playedGames,
-      page,
-      limit,
       totalPlayedCount,
     });
     return;
@@ -404,6 +376,5 @@ router.get('/:id', async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Failed to fetch game' });
   }
 });
-
 
 export default router;

@@ -251,7 +251,7 @@ body {
 
 // tooltip style
 .el-popper.is-customized {
-  padding: 6px 10px;
+  padding: 6px 12px;
   background: #27282a80 !important ;
   color: $snow-white !important;
   backdrop-filter: blur(20px);
@@ -293,4 +293,26 @@ body {
 }
 .el-button.is-disabled {
   background: initial !important;
+}
+
+/* Global styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 10px 0; /* optional top/bottom gap */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 10px;
+  border: 2px solid transparent; /* this simulates inner padding */
+  background-clip: content-box;
 }

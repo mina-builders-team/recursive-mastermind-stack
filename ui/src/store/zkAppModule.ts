@@ -79,7 +79,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.requestedConnexion = true;
         this.stepDisplay = 'Loading web worker...';
         this.zkappWorkerClient = new ZkappWorkerClient();
-        await new Promise((resolve) => setTimeout(resolve, 500));
         let accounts = await window.mina?.getAccounts();
         if (accounts?.[0]) {
           this.publicKeyBase58 = accounts?.[0];
@@ -544,6 +543,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (res?.data?.game) {
           await this.setGame(res?.data?.game);
         }
+        return res?.data?.game
       } catch (err: any) {
         this.error = err?.message || err;
         console.log('error ', err);

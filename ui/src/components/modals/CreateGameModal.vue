@@ -51,8 +51,8 @@
             :class="[
               'stake d-flex align-items-center justify-content-center default-border radius-10',
               {
-                'c-highlighted': index === currentStep,
-                'c-idle': index !== currentStep,
+                'bg-alpha-20-300-20': index === currentStep,
+                'bg-alpha-8-300-8': index !== currentStep,
               },
             ]"
           >
@@ -149,10 +149,10 @@
             </div>
           </div>
           <div
-            class="snow-white d-flex flex-column align-items-between h-100 gap-3"
+            class="snow-white d-flex flex-column align-items-between h-100"
           >
             <div class="fs-16 mb-2">Staked Mina</div>
-            <div class="c-disabled p-5-10 radius-10">
+            <div class="border-alpha-50-300-50 d-flex align-items-center p-10 radius-10">
               <inline-svg
                 src="/icons/cash.svg"
                 class="snow-white me-1"

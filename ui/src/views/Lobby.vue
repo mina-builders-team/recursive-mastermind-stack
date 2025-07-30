@@ -1,45 +1,48 @@
 <template>
   <div class="w-100 lobby-container mt-5">
-    <div class="d-flex justify-content-between align-items-center gap-5">
-      <div class="flex-1">
-        <h2 class="fw-bold play-title">PLAY</h2>
-        <div>Discover and join available Mina Mastermind games.</div>
-      </div>
-      <div
-        class="d-flex gap-2 flex-wrap align-items-center justify-content-center"
-      >
-        <Button
-          class="btn-cta1 px-4 d-flex align-items-center"
-          @click="handleJoinWithCode"
-          size="large"
+    <div class="w-100 d-flex top-bar">
+      <div class="d-flex align-items-center flex-1 gap-5">
+        <div class="flex-1">
+          <h2 class="fw-bold play-title">PLAY</h2>
+          <div>Discover and join available Mina Mastermind games.</div>
+        </div>
+        <div
+          class="d-flex gap-2 flex-wrap align-items-center justify-content-center"
         >
-          <div class="color-black d-flex align-items-center gap-2">
-            <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
-            <span class="fw-700">Join with Code</span>
-          </div>
-        </Button>
-        <Button
-          class="btn-cta2 d-flex align-items-center px-4"
-          @click="handleCreateChallenge"
-          size="large"
-        >
-          <div class="color-snow-white d-flex align-items-center gap-2">
-            <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
-            <span class="fw-400 fs-14">Create a Challenge</span>
-          </div>
-        </Button>
+          <Button
+            class="btn-cta1 px-4 d-flex align-items-center"
+            @click="handleJoinWithCode"
+            size="large"
+          >
+            <div class="color-black d-flex align-items-center gap-2">
+              <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
+              <span class="fw-700">Join with Code</span>
+            </div>
+          </Button>
+          <Button
+            class="btn-cta2 d-flex align-items-center px-4"
+            @click="handleCreateChallenge"
+            size="large"
+          >
+            <div class="color-snow-white d-flex align-items-center gap-2">
+              <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
+              <span class="fw-400 fs-14">Create a Challenge</span>
+            </div>
+          </Button>
+        </div>
       </div>
-      <div class="placeholder"></div>
+      <div></div>
     </div>
-    <div class="d-flex align-items-start gap-5 mt-5 w-100">
+
+    <div class="d-flex align-items-start w-100 mt-3 lobby-body">
       <div class="flex-1">
         <div
           class="p-1 d-flex w-100 justify-content-between align-items-center lobby-tab"
         >
-          <div class="d-flex">
+          <div class="d-flex me-1">
             <div
               :class="[
-                'option cursor-pointer fw-600',
+                'option cursor-pointer fw-600 d-flex align-items-center justify-content-center',
                 { 'lobby-all': gamesType === 'public' },
               ]"
               @click="filterByType('public')"
@@ -48,7 +51,7 @@
             </div>
             <div
               :class="[
-                'option cursor-pointer fw-600',
+                'option cursor-pointer fw-600 d-flex align-items-center justify-content-center',
                 { 'lobby-all': gamesType === 'own' },
               ]"
               @click="filterByType('own')"
@@ -74,7 +77,11 @@
                 </div>
               </Button>
             </el-tooltip>
-            <el-tooltip placement="bottom" effect="customized">
+            <el-tooltip
+              placement="bottom"
+              effect="customized"
+              popper-class="filter-tooltip"
+            >
               <template #content>
                 <span>Last Created</span>
               </template>
@@ -100,22 +107,22 @@
           />
         </div>
         <div
-          class="infinite-list d-flex gap-3 flex-wrap mt-4"
+          class="infinite-list mt-4 flex-1"
           v-infinite-scroll="loadMoreActiveGames"
           :infinite-scroll-disabled="isLoading || reachedEnd"
           :infinite-scroll-immediate="false"
           :infinite-scroll-distance="40"
-          style="overflow: auto"
         >
           <GameCard
             v-for="game in lobbyData?.filteredActiveGames"
+            :key="game._id"
             :game="game"
           />
         </div>
       </div>
-      <div>
-        <Missions />
-      </div>
+    </div>
+    <div class="missions-container mt-3">
+      <Missions/>
     </div>
     <JoinWithCodeModal
       v-if="showJoinWithCodeModal"
@@ -135,6 +142,7 @@ import CreateGameModal from '@/components/modals/CreateGameModal.vue';
 import JoinWithCodeModal from '@/components/modals/JoinWithCodeModal.vue';
 import Button from '@/components/shared/Button.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
+import { Game } from '@/types';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
@@ -143,23 +151,49 @@ const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const showJoinWithCodeModal = ref(false);
 const showCreateChallengeModal = ref(false);
-const lobbyData = ref({});
+const lobbyData = ref<{
+  totalActiveCount: number;
+  page: number;
+  limit: number;
+  inProgressGames: Array<Game>;
+  filteredActiveGames: Array<Game>;
+}>({
+  totalActiveCount: 0,
+  page: 1,
+  limit: 10,
+  inProgressGames: [],
+  filteredActiveGames: [],
+});
 
 const currentPage = ref(1);
-const limit = ref(10);
+const limit = ref(9);
 const gamesType = ref<'public' | 'own'>('public');
 const orderBy = ref<'createdAt' | 'rewardAmount'>('createdAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');
 const isLoading = ref(false);
 const reachedEnd = ref(false);
 
+const toggleSortOrder = () => {
+  if (sortOrder.value === 'desc') {
+    sortOrder.value = 'asc';
+  } else {
+    sortOrder.value = 'desc';
+  }
+};
 const sortBy = async (criteria: 'createdAt' | 'rewardAmount') => {
   currentPage.value = 1;
-  orderBy.value = criteria;
+  reachedEnd.value = false;
+  if (orderBy.value === criteria) {
+    toggleSortOrder();
+  } else {
+    orderBy.value = criteria;
+    sortOrder.value = 'desc';
+  }
   await getActiveGames();
 };
 const filterByType = async (type: 'public' | 'own') => {
   currentPage.value = 1;
+  reachedEnd.value = false;
   gamesType.value = type;
   await getActiveGames();
 };
@@ -170,7 +204,7 @@ const loadMoreActiveGames = async () => {
 
   await getActiveGames();
 
-  const totalLoaded = lobbyData.value.length;
+  const totalLoaded = lobbyData.value.filteredActiveGames.length;
   if (totalLoaded >= lobbyData.value.totalActiveCount) {
     reachedEnd.value = true;
   }
@@ -185,21 +219,21 @@ const getActiveGames = async (includeInProgress?: boolean) => {
     limit: limit.value.toString(),
   });
   if (gamesType.value) query.append('filter', gamesType.value);
-  if (orderBy.value) query.append('orderBy', orderBy.value);
+  if (orderBy.value) query.append('sortBy', orderBy.value);
   if (sortOrder.value) query.append('sortOrder', sortOrder.value);
   const res = await axios.get(
     `${SERVER_URL}/games/active-games/${publicKeyBase58.value}?${query.toString()}`
   );
   lobbyData.value.filteredActiveGames =
     currentPage.value === 1
-      ? [...res.data?.filteredActiveGames]
+      ? res.data?.filteredActiveGames
       : [
           ...lobbyData.value.filteredActiveGames,
           ...res.data?.filteredActiveGames,
         ];
-  lobbyData.value.totalActiveCount = res.data.totalActiveCount;
+  lobbyData.value.totalActiveCount = res.data?.totalActiveCount;
   if (includeInProgress) {
-    lobbyData.value.inProgressGames = res.data.inProgressGames;
+    lobbyData.value.inProgressGames = res.data?.inProgressGames;
   }
 };
 
@@ -221,6 +255,29 @@ onMounted(async () => {
 });
 </script>
 <style scoped lang="scss">
+.lobby-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  grid-template-rows: 1fr;
+    gap: 1rem 2rem;
+
+}
+.top-bar {
+  grid-column: 1 / 2;
+  grid-row: 1;
+}
+.lobby-body {
+  grid-column: 1 / 2;
+  grid-row: 2;
+}
+.infinite-list {
+  overflow-y: scroll;
+  height: calc(80vh - 200px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;
+  gap: 10px;
+}
 .play-title {
   letter-spacing: 10px;
   font-size: 32px;
@@ -265,9 +322,20 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
 }
-.placeholder {
-  width: 325px;
-  height: 1px;
-  background-color: transparent;
+.missions-container {
+  grid-column: 2;
+  grid-row: 2 ;
+  height: 50vh;
+  overflow-y: scroll;
+}
+</style>
+<style lang="scss">
+.filter-tooltip.el-popper.is-customized {
+  width: 120px;
+}
+.filter-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  content: '';
+  background: $color-300 !important;
+  top: 5px;
 }
 </style>

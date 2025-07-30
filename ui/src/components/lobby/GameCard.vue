@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex flex-column gap-2 game-card__container">
-    <div class="d-flex gap-5">
+  <div class="d-flex flex-column gap-2 game-card__container w-100">
+    <div class="d-flex justify-content-between">
       <div class="fw-600">{{ game?.roomName }}</div>
       <div class="d-flex align-items-center gap-1 game-status">
         <template v-if="status === 'Waiting'">
@@ -31,12 +31,12 @@
     </div>
     <div class="d-flex align-items-center gap-2">
       <div
-        class="game-reward d-flex align-items-center gap-2 fw-400 f-14 color-snow-white"
+        class="game-reward d-flex align-items-center gap-2 fw-400 color-snow-white"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ game.rewardAmount / 1e9 }} MINA
       </div>
-      <Button class="btn-cta3 flex-1 border-alpha-50-300-50" @click="handleJoinGame">
+      <Button class="btn-cta3 flex-1 border-alpha-50-300-50" @click="handleJoinGame" size="large">
         <span class="color-snow-white">Join</span> 
       </Button>
     </div>
@@ -98,7 +98,6 @@ const handleJoinGame = () => {
   background-blend-mode: color-dodge;
   border: 1px solid #2b2d30;
   backdrop-filter: blur(15px);
-
   box-shadow: 0px 20px 40px -10px #0c0e1166;
   border-radius: 10px;
 }
@@ -114,24 +113,11 @@ const handleJoinGame = () => {
 }
 </style>
 <style lang="scss">
-/* .el-popper.is-customized {
-  padding: 6px 12px;
-  background: #27282a80 !important ;
-  color: $snow-white !important;
-  backdrop-filter: blur(20px);
-}
-.el-popper__arrow {
-  height: 100%;
-  transform: unset !important;
+.game-status-tooltip.el-popper.is-customized {
+  width: 180px;
 }
 .game-status-tooltip.el-popper.is-customized .el-popper__arrow::before {
-  content: '';
-  width: 6px;
   background: #af423b;
-  transform: unset;
-  height: 100%;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
   top: 5px;
 }
- */</style>
+ </style>

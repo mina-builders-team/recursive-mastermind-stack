@@ -5,92 +5,38 @@
       <MyStats :stats="myGames.stats" />
       <div class="flex-1 h-100">
         <div>
-          <div class="c-disabled p-2 fs-14 fw-600">
+          <div class="border-alpha-20-300-20 radius-4 p-2 fs-14 fw-600">
             Available Games You've Created
           </div>
-          <div class="c-idle active-game-card">
+          <div class="bg-alpha-8-300-8 active-game-card">
             <div v-if="myGames?.activeGames?.length">
               <div
                 v-for="game in myGames?.activeGames"
+                :key="game._id"
                 class="d-flex align-items-center p-1 px-3 w-100"
               >
-                <div
-                  class="d-flex w-100 color-snow-white align-items-center justify-content-between gap-2"
-                >
-                  <div>
-                    <div class="fw-700 fs-16">Open Game</div>
-                    <div class="fs-12">
-                      {{ dayjs(game.createdAt).fromNow() }}
-                    </div>
-                  </div>
-                  <div
-                    class="d-flex justify-content-center align-items-center gap-4"
-                  >
-                    <inline-svg
-                      class="color-gray-passive"
-                      src="/icons/share.svg"
-                    ></inline-svg>
-                    <div class="d-flex gap-2 align-items-center">
-                      <CopyToClipBoard
-                        color="#27282a"
-                        :text="game?._id || ''"
-                      />
-                      <div class="fs-12 color-snow-white">
-                        ID: {{ formatAddress(game?._id) }}
-                      </div>
-                    </div>
-                    <inline-svg src="/icons/zk.svg"></inline-svg>
-                  </div>
-                  <div
-                    class="c-disabled radius-10 p-5-10 d-flex align-items-center justify-content-center gap-1"
-                  >
-                    <inline-svg src="/icons/cash.svg"></inline-svg
-                    >{{ game?.rewardAmount / 1e9 }} MINA
-                  </div>
-                  <el-tooltip
-                    placement="right"
-                    effect="customized"
-                    v-if="game?.cancelTransactionHash"
-                  >
-                    <template #content>
-                      You may want to recheck your transactions status by
-                      <span class="text-underline"
-                        ><a
-                          :href="`https://minascan.io/devnet/tx/${game?.cancelTransactionHash}?type=zk-tx`"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="link"
-                          >here
-                        </a></span
-                      >. You may also resend your transaction with the costs
-                    </template>
-                    <Button
-                      class="bg-red radius-10 cancel-btn"
-                      size="large"
-                      @click="cancelGameById(game._id)"
-                      ><span class="color-snow-white">
-                        Re-try Cancel
-                      </span></Button
-                    >
-                  </el-tooltip>
-                  <Button
-                    v-else
-                    class="bg-red radius-10 cancel-btn"
-                    size="large"
-                    @click="cancelGameById(game._id)"
-                    ><span class="color-snow-white"> Cancel </span></Button
-                  >
-                </div>
+                <ActiveGameCard :game="game" />
               </div>
             </div>
-            <div v-else class="color-snow-white ps-3 py-1">
-              <div class="fw-700 fs-16">You Haven't Created a Game</div>
-              <div class="fs-12">Launch a game as a Codemaster</div>
+            <div
+              v-else
+              class="color-snow-white ps-3 py-2 d-flex justify-content-between"
+            >
+              <div>
+                <div class="fw-700 fs-16">You Haven't Created a Game</div>
+                <div class="fs-12">Launch a game as a Codemaster</div>
+              </div>
+              <Button
+                size="large"
+                class="bg-alpha-50-300-50 border-alpha-50-300-50 radius-10"
+                @click="handleCreateChallenge"
+                ><span class="color-snow-white">Create a Code</span>
+              </Button>
             </div>
           </div>
         </div>
         <div
-          class="mt-5 p-1 d-flex w-100 justify-content-between align-items-center lobby-tab"
+          class="mt-5 p-1 d-flex w-100 justify-content-between align-items-center border-alpha-20-300-20 radius-4 lobby-tab"
         >
           <div class="d-flex">
             <div
@@ -118,19 +64,44 @@
               ]"
               @click="filterByRole('codeMaster')"
             >
-              SOLVER
+              MASTER
             </div>
           </div>
-          <div class="d-flex gap-2 me-3 filter-icons">
-            <div
-              class="sort-icon cursor-pointer"
-              @click="sortBy('rewardAmount')"
+          <div class="d-flex me-3 filter-icons">
+            <el-tooltip
+              placement="bottom"
+              effect="customized"
+              popper-class="filter-tooltip"
             >
-              <inline-svg src="/icons/sort.svg"></inline-svg>
-            </div>
-            <div class="sort-icon cursor-pointer" @click="sortBy('createdAt')">
-              <inline-svg src="/icons/upload.svg"></inline-svg>
-            </div>
+              <template #content>
+                <span>Highest Amount</span>
+              </template>
+              <Button
+                @click="sortBy('rewardAmount')"
+                class="btn-cta3 border-alpha-20-300-20 p-5-10"
+              >
+                <div>
+                  <inline-svg src="/icons/sort.svg"></inline-svg>
+                </div>
+              </Button>
+            </el-tooltip>
+            <el-tooltip
+              placement="bottom"
+              effect="customized"
+              popper-class="filter-tooltip"
+            >
+              <template #content>
+                <span>Last Created</span>
+              </template>
+              <Button
+                @click="sortBy('createdAt')"
+                class="btn-cta3 border-alpha-20-300-20 p-5-10"
+              >
+                <div>
+                  <inline-svg src="/icons/upload.svg"></inline-svg>
+                </div>
+              </Button>
+            </el-tooltip>
           </div>
         </div>
         <div
@@ -150,28 +121,39 @@
         </div>
       </div>
     </div>
+    <CreateGameModal
+      v-if="showCreateChallengeModal"
+      @close="handleCloseChallenge"
+    />
   </div>
 </template>
 <script setup lang="ts">
 import Button from '@/components/shared/Button.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { formatAddress } from '@/utils';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import CopyToClipBoard from '@/components/shared/CopyToClipBoard.vue';
 import PlayedGameCard from '@/components/myGames/PlayedGameCard.vue';
 import MyStats from '@/components/myGames/MyStats.vue';
-dayjs.extend(relativeTime);
+import CreateGameModal from '@/components/modals/CreateGameModal.vue';
+import ActiveGameCard from '@/components/myGames/ActiveGameCard.vue';
+import { Game } from '@/types';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-const { publicKeyBase58, loading } = storeToRefs(useZkAppStore());
-const { cancelGame } = useZkAppStore();
+const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 
-const myGames = ref({
+const myGames = ref<{
+  activeGames: Game[];
+  playedGames: Game[];
+  stats: {
+    balance: number;
+    totalPlayed: number;
+    winsAsCodeBreaker: number;
+    winsAsCodeMaster: number;
+  };
+  totalPlayedCount: number;
+}>({
   activeGames: [],
   playedGames: [],
   stats: {
@@ -183,32 +165,52 @@ const myGames = ref({
   totalPlayedCount: 0,
 });
 const currentPage = ref(1);
-const limit = ref(10);
+const limit = ref(7);
 const playedAs = ref<'codeBreaker' | 'codeMaster' | undefined>(undefined);
 const orderBy = ref<'createdAt' | 'rewardAmount'>('createdAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');
 
 const isLoading = ref(false);
 const reachedEnd = ref(false);
-
+const showCreateChallengeModal = ref(false);
+const handleCreateChallenge = () => {
+  showCreateChallengeModal.value = true;
+};
+const handleCloseChallenge = () => {
+  showCreateChallengeModal.value = false;
+};
+const toggleSortOrder = () => {
+  if (sortOrder.value === 'desc') {
+    sortOrder.value = 'asc';
+  } else {
+    sortOrder.value = 'desc';
+  }
+};
 const sortBy = async (criteria: 'createdAt' | 'rewardAmount') => {
   currentPage.value = 1;
-  orderBy.value = criteria;
-  await getPlayedGames();
+  reachedEnd.value = false
+  if (orderBy.value === criteria) {
+    toggleSortOrder();
+  } else {
+    orderBy.value = criteria;
+    sortOrder.value = 'desc';
+  }
+  await getPlayedGames(true);
 };
 const filterByRole = async (
   role?: 'codeBreaker' | 'codeMaster' | undefined
 ) => {
   currentPage.value = 1;
+  reachedEnd.value = false
   playedAs.value = role;
-  await getPlayedGames();
+  await getPlayedGames(true);
 };
 const loadMorePlayedGames = async () => {
   if (isLoading.value || reachedEnd.value) return;
 
   isLoading.value = true;
 
-  await getPlayedGames();
+  await getPlayedGames(true);
 
   const totalLoaded = myGames.value.playedGames.length;
   if (totalLoaded >= myGames.value.totalPlayedCount) {
@@ -218,22 +220,9 @@ const loadMorePlayedGames = async () => {
   currentPage.value++;
   isLoading.value = false;
 };
-const getInitialLobbyData = async () => {
-  const res = await axios.get(
-    `${SERVER_URL}/games/my-games/${publicKeyBase58.value}`
-  );
-  if (res?.data) {
-    myGames.value = {
-      activeGames: res.data?.activeGames,
-      playedGames: res.data?.playedGames,
-      stats: res.data?.stats,
-      totalPlayedCount: res.data?.totalPlayedCount,
-    };
-  }
-};
-const getPlayedGames = async () => {
+const getPlayedGames = async (onlyPlayedGames?: boolean) => {
   const query = new URLSearchParams({
-    onlyPlayedGames: 'true',
+    onlyPlayedGames: onlyPlayedGames ? 'true' : 'false',
     page: currentPage.value.toString(),
     limit: limit.value.toString(),
   });
@@ -244,20 +233,26 @@ const getPlayedGames = async () => {
   const res = await axios.get(
     `${SERVER_URL}/games/my-games/${publicKeyBase58.value}?${query.toString()}`
   );
-  myGames.value.playedGames =
-    currentPage.value === 1
-      ? [...res.data?.playedGames]
-      : [...myGames.value.playedGames, ...res.data?.playedGames];
-  myGames.value.totalPlayedCount = res.data.totalPlayedCount;
+  if (res?.data) {
+    if (onlyPlayedGames) {
+      myGames.value.playedGames =
+        currentPage.value === 1
+          ? [...res.data?.playedGames]
+          : [...myGames.value.playedGames, ...res.data?.playedGames];
+      myGames.value.totalPlayedCount = res.data.totalPlayedCount;
+    } else {
+      myGames.value = {
+        activeGames: res.data?.activeGames,
+        playedGames: res.data?.playedGames,
+        stats: res.data?.stats,
+        totalPlayedCount: res.data?.totalPlayedCount,
+      };
+    }
+  }
 };
-const cancelGameById = async (gameId: string) => {
-  const cancelTxHash = await cancelGame(gameId);
-  myGames.value.activeGames = myGames?.value?.activeGames.map((e) =>
-    e._id === gameId ? { ...e, cancelTransactionHash: cancelTxHash } : e
-  );
-};
+
 onMounted(async () => {
-  await getInitialLobbyData();
+  await getPlayedGames(false);
 });
 </script>
 
@@ -272,12 +267,7 @@ onMounted(async () => {
 .selected-filter {
   border-radius: 8px;
   background: $color-600;
-  border: 1px solid;
-  border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 100%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
+  border: 1px solid rgba(59, 61, 63, 0.5);
 }
 .sort-icon {
   background: #1e1f22;
@@ -291,16 +281,18 @@ onMounted(async () => {
   justify-content: center;
 }
 .infinite-list {
-  overflow: scroll;
+  overflow-y: scroll;
+  height: calc(80vh - 200px);
 }
-.cancel-btn {
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
-  border: 1px solid;
-  border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 100%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
+</style>
+
+<style lang="scss">
+.filter-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  content: '';
+  background: $color-300 !important;
+  top: 5px;
+}
+.filter-tooltip.el-popper.is-customized {
+  width: 120px;
 }
 </style>

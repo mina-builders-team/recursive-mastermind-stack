@@ -1,5 +1,7 @@
 <template>
-  <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white">
+  <div
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white"
+  >
     <div class="d-flex justify-content-between align-items-center">
       <div>
         <div class="fs-5 fw-600">Mini Puzzle</div>
@@ -39,8 +41,13 @@ import { AvailableColor } from '@/types';
 import { initialColor } from '@/constants/colors';
 import Button from '@/components/shared/Button.vue';
 import Round from './Round.vue';
-import { generateClue, generateRandomSecret } from '@/utils';
-
+import {
+  generateClue,
+  generateRandomSecret,
+  validateColorCombination,
+} from '@/utils';
+import { useCustomMessage } from '@/composables/useCustomMessage';
+const { showMessage } = useCustomMessage();
 const secret = ref<Array<number>>(generateRandomSecret());
 const lastGuessIndex = ref(0);
 const guesses = ref<Array<AvailableColor[]>>(
@@ -55,12 +62,25 @@ const handleSetColor = (secretCode: AvailableColor[], row: number) => {
 };
 
 const submitGuess = () => {
-  const { clue } = generateClue(
-    guesses.value[lastGuessIndex.value],
-    secret.value
+  const { isValid, message } = validateColorCombination(
+    guesses.value[lastGuessIndex.value]
   );
-  clues.value[lastGuessIndex.value] = clue;
-  lastGuessIndex.value += 1;
+  if (isValid) {
+    const { clue } = generateClue(
+      guesses.value[lastGuessIndex.value],
+      secret.value
+    );
+    clues.value[lastGuessIndex.value] = clue;
+    lastGuessIndex.value += 1;
+  } else {
+    showMessage({
+      title: 'Invalid Combination',
+      description: message,
+      type: 'error',
+      duration: 3000,
+      showClose: false,
+    });
+  }
 };
 const resetSecret = () => {
   secret.value = generateRandomSecret();

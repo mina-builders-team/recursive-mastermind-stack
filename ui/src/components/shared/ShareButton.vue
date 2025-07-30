@@ -4,7 +4,7 @@
     size="large"
     @click="shareOnX"
   >
-    <inline-svg class="me-2" src="/icons/share.svg" v-if="showIcon"></inline-svg>
+    <inline-svg class="me-2" src="/icons/twitter.svg" v-if="showIcon"></inline-svg>
     Share on X
   </Button>
 </template>

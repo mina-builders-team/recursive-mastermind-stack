@@ -74,7 +74,7 @@ watch(
 
 @media (min-width: 1300px) {
   .main-container {
-    padding: 5% 15%;
+    padding: 5% 10%;
   }
 }
 

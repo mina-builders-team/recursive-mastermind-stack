@@ -6,7 +6,7 @@
         <div>🪶 {{ game?.roomName }}</div>
       </div>
       <div
-        class="c-highlighted p-5-10 color-snow-white default-border d-flex align-items-center gap-1"
+        class="radius-10 bg-alpha-20-300-20 p-10 color-snow-white default-border d-flex align-items-center gap-1"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ (game?.rewardAmount || 0) / 1e9 }} Mina
@@ -22,8 +22,16 @@
         v-if="gameStatus.waitTime"
         class="c-idle p-5-10 default-border radius-10 color-snow-white d-flex align-items-center justify-content-center mt-2 gap-3 fit-content"
       >
-        <div v-if="!zkAppStates">
-          Tx Hash: {{ formatAddress(game?.gameCreationTransactionHash || '') }}
+        <div v-if="!zkAppStates" class="link">
+          <a
+            class="link d-flex gap-1 align-items-center"
+            :href="`https://minascan.io/devnet/tx/${game?.gameCreationTransactionHash}?type=zk-tx`"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Tx Hash:
+            {{ formatAddress(game?.gameCreationTransactionHash || '') }}
+          </a>
         </div>
         <div>Estimated Time:</div>
         <Timer
@@ -37,11 +45,18 @@
     <div v-if="game?.status === 'ACTIVE'">
       <div class="default-border my-2"></div>
       <div class="d-flex justify-content-between">
-        <Button class="cta-3" size="large" @click="returnToLobby">
+        <Button
+          class="btn-cta3 border-alpha-50-300-50 color-snow-white"
+          size="large"
+          @click="returnToLobby"
+        >
           Return to Lobby
         </Button>
         <CopyToClipBoard :text="game?._id || ''">
-          <Button class="cta-3" size="large">
+          <Button
+            class="btn-cta3 border-alpha-50-300-50 color-snow-white"
+            size="large"
+          >
             <inline-svg class="me-2" src="/icons/share.svg"></inline-svg>
             <span>Invite your friend to challange</span>
           </Button>
@@ -50,7 +65,7 @@
         <ShareButton
           :message="'Lets play now https://www.minamastermind.com/' + game?._id"
           hashtag="Mina MASTERMIND"
-          class="radius-10"
+          class="radius-10 bg-snow-white color-900"
         />
       </div>
     </div>
