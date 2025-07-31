@@ -16,16 +16,22 @@ import {
   StepProgramProof,
 } from '@navigators-exploration-team/mina-mastermind';
 import { WebSocketService } from './websocket.js';
+import fs from 'fs';
+import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const SALT = Field.random();
+
+const NETWORK_NAME = process.env.MINA_NETWORK || 'unknown';
+const PROOFS_FILE_PATH = path.join(process.cwd(), 'proofs.json');
+
+const SALT = Field(1);
 const SOLUTION = Combination.from([1, 2, 3, 4]);
 export const REFEREE = PublicKey.fromBase58(
   process.env.SERVER_PUBLIC_KEY as string
 );
 const REWARD_AMOUNT = 1e10;
-const SERVER_URL = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
+const SERVER_URL = `${process.env.SERVER_URL}`;
 export enum PlayerRole {
   CODE_BREAKER,
   CODE_MASTER,
@@ -50,6 +56,7 @@ export class MastermindGame {
     attempts?: number;
     penalizedPlayer?: PlayerRole;
     autoPlay?: boolean;
+    gameKey?: string;
   }) {
     this.attempts = options?.attempts || 8;
     this.lastPlayedTimestamp = 0;
@@ -62,7 +69,9 @@ export class MastermindGame {
     this.codeBreakerKey = PrivateKey.fromBase58(
       options.codeBreakerPrivateKeyBase58
     );
-    this.zkAppKey = PrivateKey.random();
+    this.zkAppKey = options.gameKey
+      ? PrivateKey.fromBase58(options.gameKey)
+      : PrivateKey.random();
     const zkAppPubKey = this.zkAppKey.toPublicKey();
     this.gameId = zkAppPubKey.toBase58();
     this.zkApp = new MastermindZkApp(zkAppPubKey);
@@ -77,6 +86,7 @@ export class MastermindGame {
   }
   async createGame() {
     console.log('Creating Game: ', this.gameId);
+    this.joinGame(PlayerRole.CODE_MASTER);
 
     const tx = await Mina.transaction(
       { sender: this.codeMasterKey.toPublicKey(), fee: 1e8 },
@@ -105,20 +115,24 @@ export class MastermindGame {
         .toString()
         .padStart(2, '0')} `
     );
-    this.joinGame(PlayerRole.CODE_MASTER);
-    const { proof } = await StepProgram.createGame(
-      {
-        authPubKey: this.codeMasterKey.toPublicKey(),
-        authSignature: Signature.create(this.codeMasterKey, [
-          ...SOLUTION.digits,
-          SALT,
-          ...this.zkAppKey.toPublicKey().toFields(),
-        ]),
-      },
-      SOLUTION,
-      SALT,
-      this.zkAppKey.toPublicKey()
-    );
+
+    const existingProof = await this.getStoredProof(0);
+    const { proof } = existingProof
+      ? { proof: existingProof }
+      : await StepProgram.createGame(
+          {
+            authPubKey: this.codeMasterKey.toPublicKey(),
+            authSignature: Signature.create(this.codeMasterKey, [
+              ...SOLUTION.digits,
+              SALT,
+            ]),
+          },
+          SOLUTION,
+          SALT
+        );
+    if (!existingProof) {
+      this.storeProofData(proof);
+    }
 
     this.codeMasterWebSocket?.send({
       action: 'sendProof',
@@ -171,22 +185,32 @@ export class MastermindGame {
     }
   }
   async makeGuess(correct = false) {
+    const turnCount = Number(
+      this.lastReceivedProof!.publicOutput.turnCount.value
+    );
+    console.log('making guess');
+    const existingProof = await this.getStoredProof(Number(turnCount));
+
     const guess = correct
       ? Combination.from([1, 2, 3, 4])
       : Combination.from([1, 5, 7, 4]);
-    const { proof } = await StepProgram.makeGuess(
-      {
-        authPubKey: this.codeBreakerKey.toPublicKey(),
-        authSignature: Signature.create(this.codeBreakerKey, [
-          ...guess.digits,
-          this.lastReceivedProof!.publicOutput.turnCount.value,
-          ...this.zkAppKey.toPublicKey().toFields(),
-        ]),
-      },
-      this.lastReceivedProof!,
-      guess,
-      this.zkAppKey.toPublicKey()
-    );
+    const { proof } = existingProof
+      ? { proof: existingProof }
+      : await StepProgram.makeGuess(
+          {
+            authPubKey: this.codeBreakerKey.toPublicKey(),
+            authSignature: Signature.create(this.codeBreakerKey, [
+              ...guess.digits,
+              this.lastReceivedProof!.publicOutput.turnCount.value,
+            ]),
+          },
+          this.lastReceivedProof!,
+          guess
+        );
+    if (!existingProof) {
+      this.storeProofData(proof);
+    }
+
     this.codeBreakerWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
@@ -195,21 +219,30 @@ export class MastermindGame {
     this.lastPlayedTimestamp = Date.now();
   }
   async giveClue() {
-    const { proof } = await StepProgram.giveClue(
-      {
-        authPubKey: this.codeMasterKey.toPublicKey(),
-        authSignature: Signature.create(this.codeMasterKey, [
-          ...SOLUTION.digits,
-          SALT,
-          this.lastReceivedProof!.publicOutput.turnCount.value,
-          ...this.zkAppKey.toPublicKey().toFields(),
-        ]),
-      },
-      this.lastReceivedProof!,
-      SOLUTION,
-      SALT,
-      this.zkAppKey.toPublicKey()
+    console.log("giving clue")
+    const turnCount = Number(
+      this.lastReceivedProof!.publicOutput.turnCount.value
     );
+    const existingProof = await this.getStoredProof(Number(turnCount));
+
+    const { proof } = existingProof
+      ? { proof: existingProof }
+      : await StepProgram.giveClue(
+          {
+            authPubKey: this.codeMasterKey.toPublicKey(),
+            authSignature: Signature.create(this.codeMasterKey, [
+              ...SOLUTION.digits,
+              SALT,
+              this.lastReceivedProof!.publicOutput.turnCount.value,
+            ]),
+          },
+          this.lastReceivedProof!,
+          SOLUTION,
+          SALT
+        );
+    if (!existingProof) {
+      this.storeProofData(proof);
+    }
     this.codeMasterWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
@@ -311,9 +344,9 @@ export class MastermindGame {
         }
         return;
       }
-      if (data.zkProof) {
+      if (data?.game?.lastProof) {
         this.lastReceivedProof = await StepProgramProof.fromJSON(
-          JSON.parse(data.zkProof)
+          JSON.parse(data?.game?.lastProof)
         );
         const turnCount = Number(
           this.lastReceivedProof.publicOutput.turnCount.value
@@ -375,4 +408,58 @@ export class MastermindGame {
     this.relayingTotalTime +=
       this.lastPlayedTimestamp && recivedAt - this.lastPlayedTimestamp;
   };
+  private storeProofData(proof: StepProgramProof) {
+    try {
+      const proofJson = JSON.stringify(proof.toJSON());
+
+      let currentData: any = {};
+      if (fs.existsSync(PROOFS_FILE_PATH)) {
+        const raw = fs.readFileSync(PROOFS_FILE_PATH, 'utf-8');
+        currentData = raw ? JSON.parse(raw) : {};
+      }
+
+      if (!currentData[NETWORK_NAME]) {
+        currentData[NETWORK_NAME] = {
+          gameId: this.gameId,
+          gameKey: this.zkAppKey.toBase58(),
+          codeMasterPrivateKeyBase58: this.codeMasterKey.toBase58(),
+          codeBreakerPrivateKeyBase58: this.codeBreakerKey.toBase58(),
+          attempts: this.attempts,
+          proofs: [],
+        };
+      }
+
+      currentData[NETWORK_NAME].proofs.push(JSON.parse(proofJson));
+
+      fs.writeFileSync(PROOFS_FILE_PATH, JSON.stringify(currentData, null, 2));
+    } catch (err) {
+      console.error(`Failed to store proof for game ${this.gameId}:`, err);
+    }
+  }
+  private async getStoredProof(
+    turnCount: number
+  ): Promise<StepProgramProof | undefined> {
+    try {
+      if (!fs.existsSync(PROOFS_FILE_PATH)) return undefined;
+
+      const raw = fs.readFileSync(PROOFS_FILE_PATH, 'utf-8');
+      if (!raw) return undefined;
+
+      const data = JSON.parse(raw);
+      const gameEntry = data[NETWORK_NAME];
+
+      if (!gameEntry || !gameEntry.proofs || !gameEntry.proofs[turnCount])
+        return undefined;
+      const proof = await StepProgramProof.fromJSON(
+        gameEntry.proofs[turnCount]
+      );
+      return proof;
+    } catch (err) {
+      console.error(
+        `Error while retrieving stored proof for turn ${turnCount}:`,
+        err
+      );
+      return undefined;
+    }
+  }
 }

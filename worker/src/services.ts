@@ -10,7 +10,7 @@ import {
   MastermindZkApp,
   MAX_ATTEMPTS,
   StepProgramProof,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import dotenv from 'dotenv';
 import {
   createOrUpdateGame,
@@ -288,8 +288,8 @@ export async function updatePlayerStatsFromGame(game: IGame) {
   master.gamesPlayed += 1;
   master.createdGames += 1;
   if (isFirstGame(master.lastGameDate)) {
-      master.totalScore += 25;
-    }
+    master.totalScore += 25;
+  }
   if (isWin(game.codeMaster)) {
     master.winsAsCodeMaster += 1;
     master.totalScore += 100 + Math.floor(game.turnCount / 2) * 5;

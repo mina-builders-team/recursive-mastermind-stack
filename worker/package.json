@@ -13,7 +13,7 @@
     "clean": "rimraf dist node_modules"
   },
   "dependencies": {
-    "stan-mastermind": "1.5.0",
+    "@navigators-exploration-team/mina-mastermind": "1.6.0",
     "@sentry/node": "9.27.0",
     "@sentry/profiling-node": "9.27.0",
     "bullmq": "^5.44.4",

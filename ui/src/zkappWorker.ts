@@ -18,7 +18,7 @@ import {
   MastermindZkApp,
   StepProgram,
   StepProgramProof,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import {
   fetchZkAppCacheFiles,
   fetchZkProgramCacheFiles,
@@ -53,7 +53,7 @@ const functions = {
   },
   loadContract: async () => {
     const { MastermindZkApp } = await import(
-      'stan-mastermind'
+      '@navigators-exploration-team/mina-mastermind'
     );
     state.MastermindContract = MastermindZkApp;
   },

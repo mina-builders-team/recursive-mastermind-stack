@@ -1,28 +1,37 @@
 {
   "devnet": [
     {
-      "codeMaster": "EKFUo7o94PPbeERqmhoWAmzpEohoFZs1uRrRV8DUM9ZsXuyBR7ht",
-      "codeBreaker": "EKEdDA769ZrCiGpW9SC25kaVMnJuJXR8uyMobUEYYom8vvNUYLMo",
+      "codeMaster": "EKEYRySiwGEg6STExU7RaTraUZusN1REFoEiU2QTLnVz4TLBCE5n",
+      "codeBreaker": "EKF39HmmZ91vsedHx1jUXg9MNFrefAeThX5u3tFTSPhEyhHBnU3B",
       "attempts": 3
     },
     {
-      "codeMaster": "EKFXJgvMEbDskdbVwNKPwvKqeUawhFSau7fkNmPxZ7zRA4xQKwhm",
-      "codeBreaker": "EKE4jHEYSFYDgiqB6PYTAzb5ovSjDqhkomVqYGrC97aUpBdTLs4N",
+      "codeMaster": "EKFRoL9SANxCbpvhwi7QJaughsmPHmMa4WXjPRm6e81cu7DTjFaX",
+      "codeBreaker": "EKFWs727JfmAH2VTmar3jQZQVDwZbM1NKGhVE2Cii6N6FCJWmHPs",
       "attempts": 5
     },
     {
-      "codeMaster": "EKExuRQh5Aqxm9tEKQKzZfRR4EySw2cnSfasc8j21QAGE1A56LaB",
-      "codeBreaker": "EKFGnKsVdicJkrV7QjUwHUBghbgRgyHfbtacDvXM1TtLko558GJJ",
+      "codeMaster": "EKDwhYSd1cueokdnuKvEbrA2JunnPYzkKxQsMcGJLiZvuoEsYbW9",
+      "codeBreaker": "EKESz3gsypjRhitjmyiu2wfnziWiJkYQ82ABbACyiDgJSzukRhGJ",
       "attempts": 1
     },
     {
-      "codeMaster": "EKErzpETJ5Rur5JjVcsGYfYq9NUKQzfiTeM2jHPMUoZuvb2NDJTQ",
-      "codeBreaker": "EKDig16ypstrJiMNvBQAGt8q9LSdap7rRi7p841WwFvy3dV7Xjia",
+      "codeMaster": "EKETu5ipsdV1Wk6myb5LWQfktJu514sk3gb2cu9FDCBMmJCdePTS",
+      "codeBreaker": "EKE3pS7QLEXKcJ4cNTGGo5hE6EMPYVz5Snex5DyceKFeDhphuH48",
       "attempts": 2
     },
     {
-      "codeMaster": "EKFVD7p7WGPvzJJDp11vmr7VS9Y8sepoKW6y74r7wHXBs7c6bJbu",
-      "codeBreaker": "EKE8uzQ83dABX1p163vuJNAvNbWeQgh9jwaxb2mvRM97TzUHX47p",
+      "codeMaster": "EKFXdaRqs6nwHN15awkLWv9fdqpeZKuqSGzBvJMn2u1mvHJL4GHp",
+      "codeBreaker": "EKF88K1evmaK7ebVrxFFczf7TbveJSxTtnTVdnYM6u2F8TzeUXzh",
+      "attempts": 8
+    },
+     {
+      "codeMaster": "EKFG3ibpoTkd26gQsaWnJ62fHK9vwsMvApi1xBSziYiy2zYALPbs",
+      "codeBreaker": "EKEwoN8dwUR4GEDF3wJmWsz37zbCSLB6BjueDoh3Vzr8uSwVUFrM",
+      "attempts": 8
+    }, {
+      "codeMaster": "EKEyo62rJVTpEUV4zRKn1rsS8JWMMEx2sQ6F5iH1DHkrCa3f6oB2",
+      "codeBreaker": "EKEzPN7VNZjm75xPs1TcNGUnXExL2Kt9bJt8KFK4M1qSkFEmV7YP",
       "attempts": 8
     }
   ],
