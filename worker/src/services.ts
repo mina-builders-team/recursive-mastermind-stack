@@ -134,6 +134,7 @@ export const sendFinalProof = async (job: Job) => {
     const game = await createOrUpdateGame({
       _id: gameId,
       settlementTransactionHash: txHash,
+      finalTransactionTimestamp: Date.now(),
     });
     console.log(
       `Proof submitted for game ${gameId}, transaction hash: ${txHash}`
@@ -186,6 +187,7 @@ export const forfeitWin = async (job: Job) => {
     const game = await createOrUpdateGame({
       _id: gameId,
       penalizationTransactionHash: txHash,
+      finalTransactionTimestamp: Date.now(),
     });
     await updatePlayerStatsFromGame(game);
     return game;
@@ -288,8 +290,8 @@ export async function updatePlayerStatsFromGame(game: IGame) {
   master.gamesPlayed += 1;
   master.createdGames += 1;
   if (isFirstGame(master.lastGameDate)) {
-      master.totalScore += 25;
-    }
+    master.totalScore += 25;
+  }
   if (isWin(game.codeMaster)) {
     master.winsAsCodeMaster += 1;
     master.totalScore += 100 + Math.floor(game.turnCount / 2) * 5;

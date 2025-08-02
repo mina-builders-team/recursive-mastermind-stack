@@ -12,9 +12,11 @@ import {
   getGameById,
   getInProgressGamesByPlayer,
   getLobbyData,
+  getPlayedGames,
+  getUserCreatedGames,
   getUserGames,
 } from '../repositories/game.js';
-import Game, { GameStatus } from '../models/Game.js';
+import { GameStatus } from '../models/Game.js';
 import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
 import redisClient from '../redisClient.js';
@@ -22,24 +24,6 @@ import Player from '../models/Player.js';
 
 dotenv.config();
 const router = Router();
-
-router.get('/player/:id', async (req: Request, res: Response) => {
-  try {
-    const playerId = req.params.id;
-
-    const player = await Player.findById(playerId);
-
-    if (!player) {
-      res.status(404).json({ message: 'Player not found' });
-      return;
-    }
-
-    res.status(200).json({ player });
-  } catch (error) {
-    console.error('Error fetching player:', error);
-    res.status(500).json({ message: 'Failed to fetch player' });
-  }
-});
 
 router.get('/active-games/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -99,7 +83,7 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
 
     let inProgressGames: any[] = [];
     if (includeInProgress) {
-      inProgressGames = await getInProgressGamesByPlayer(userId)
+      inProgressGames = await getInProgressGamesByPlayer(userId);
     }
     res.status(200).json({
       filteredActiveGames,
@@ -109,39 +93,6 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Error fetching in-progress games:', err);
     res.status(500).json({ message: 'Failed to fetch game list' });
-  }
-});
-
-router.get('/leaderboard/:userId', async (req: Request, res: Response) => {
-  const userId = req.params.userId;
-  const limit = parseInt(req.query.limit as string) || 10;
-
-  try {
-    const leaderboard = await Player.find()
-      .sort({ totalScore: -1 })
-      .limit(limit)
-      .select('_id winsAsCodeMaster winsAsCodeBreaker totalScore')
-      .lean();
-
-    const userStats = await Player.findOne({ _id: userId })
-      .select('_id winsAsCodeBreaker winsAsCodeMaster totalScore')
-      .lean();
-
-    let userRank = null;
-    if (userStats) {
-      userRank =
-        (await Player.countDocuments({
-          totalScore: { $gt: userStats?.totalScore || 0 },
-        })) + 1;
-    }
-
-    res.status(200).json({
-      leaderboard,
-      user: userStats ? { ...userStats, rank: userRank } : null,
-    });
-  } catch (err) {
-    console.error('Error fetching leaderboard:', err);
-    res.status(500).json({ message: 'Failed to fetch leaderboard' });
   }
 });
 
@@ -171,17 +122,13 @@ router.get('/my-games/:pubKey', async (req, res) => {
       ],
     };
 
-    const [playedGames, totalPlayedCount] = await Promise.all([
-      await Game.find(playedGamesQuery)
-        .sort({ [orderBy]: sortOrder })
-        .skip(skip)
-        .limit(limit)
-        .select(
-          ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster'
-        )
-        .lean(),
-      await Game.countDocuments(playedGamesQuery),
-    ]);
+    const [playedGames, totalPlayedCount] = await getPlayedGames({
+      playedGamesQuery,
+      orderBy,
+      sortOrder,
+      skip,
+      limit,
+    });
 
     if (onlyPlayedGames) {
       res.status(200).json({
@@ -214,12 +161,7 @@ router.get('/my-games/:pubKey', async (req, res) => {
     }
 
     //Active games
-    const activeGames = await Game.find({
-      codeMaster: pubKey,
-      status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
-    })
-      .sort({ timestamp: -1 })
-      .lean();
+    const activeGames = await getUserCreatedGames(pubKey);
     res.json({
       stats,
       activeGames,

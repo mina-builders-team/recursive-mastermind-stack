@@ -52,19 +52,31 @@
     </div>
 
     <div class="fs-12">{{ creationDate }}</div>
-    <span class="icon cursor-pointer"> <inline-svg src="/icons/zk.svg"></inline-svg></span>
-    <span class="icon cursor-pointer"> <inline-svg src="/icons/claim.svg"></inline-svg></span>
+    <span class="icon cursor-pointer">
+      <inline-svg src="/icons/zk.svg"></inline-svg
+    ></span>
+    <span class="icon cursor-pointer" @click="showClaimModal">
+      <inline-svg src="/icons/claim.svg"></inline-svg
+    ></span>
     <div
       class="radius-10 award bg-alpha-20-700-20 default-border radius-10 blend-multiply p-5-10 d-flex align-items-center justify-content-center gap-1"
     >
       <inline-svg src="/icons/cash.svg"></inline-svg
       >{{ game?.rewardAmount / 1e9 }} MINA
     </div>
+    <ClaimRewardModal
+      @close="handleCloseClaimModal"
+      :game="game"
+      v-if="isClaimRewardVisible"
+
+    />
   </div>
 </template>
 <script setup lang="ts">
 import { formatAddress } from '@/utils';
 import dayjs from 'dayjs';
+import ClaimRewardModal from '../modals/ClaimRewardModal.vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   game: {
@@ -80,6 +92,15 @@ const props = defineProps({
 const isWinner = props.game.winnerPublicKeyBase58 === props.publicKeyBase58;
 const isCodeMaster = props.game.codeMaster === props.publicKeyBase58;
 const creationDate = dayjs(props.game.createdAt).format('MM/DD/YYYY');
+const isClaimRewardVisible = ref(false);
+const showClaimModal = () => {
+  if (isWinner) {
+    isClaimRewardVisible.value = true;
+  }
+};
+const handleCloseClaimModal = () => {
+  isClaimRewardVisible.value = false;
+};
 </script>
 <style lang="scss" scoped>
 .winner {
@@ -111,7 +132,7 @@ const creationDate = dayjs(props.game.createdAt).format('MM/DD/YYYY');
   width: 50px;
 }
 .award {
-  width: 120px ;
+  width: 120px;
 }
 .icon {
   color: $gray-passive;
@@ -119,5 +140,4 @@ const creationDate = dayjs(props.game.createdAt).format('MM/DD/YYYY');
 .icon:hover {
   color: $snow-white;
 }
-
 </style>

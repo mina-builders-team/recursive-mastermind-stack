@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-center w-100 h-100 mt-2 mb-4">
+  <div class="d-flex justify-content-center w-100 h-100 mt-5 mb-4">
     <div class="board__container">
       <GameResult
         v-if="isGameEnded"
@@ -7,15 +7,19 @@
         :userRole="userRole!"
         :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
         :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
-        :gameReward="game?.rewardAmount!"
+        :gameReward="rewardAmount!"
+        :turnCount="
+          isPlayingOnChain ? zkAppStates.turnCount : zkProofStates.turnCount
+        "
         :finalTransaction="lastTransactionLink"
       />
-  
-      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3" v-else>
+
+      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
         <BoardHeader
-          :rewardAmount="game?.rewardAmount"
+          :rewardAmount="rewardAmount"
           :userRole="userRole!"
           :secret="gameSecret.secretCode"
+          :isPlayingOnChain="isPlayingOnChain"
         />
         <BoardTimer
           :isCurrentUserTurn="isCurrentUserTurn"
@@ -39,8 +43,8 @@
       </div>
     </div>
     <SubmitLastProofModal
-        v-if="isPlayingOnChain && !isLastProofSubmitted && !isGameEnded"
-      />
+      v-if="isPlayingOnChain && !isLastProofSubmitted && !isGameEnded"
+    />
   </div>
 </template>
 
@@ -73,7 +77,7 @@ const {
   isPlayingOnChain,
   currentTransactionLink,
   currentSlot,
-  lastTurnTransactionHash
+  lastTurnTransactionHash,
 } = storeToRefs(useZkAppStore());
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
 import GameResult from './GameResult.vue';
@@ -114,9 +118,11 @@ const clues = computed<Array<AvailableColor[]>>(() =>
     : zkAppStates.value?.cluesHistory
 );
 const isTurnTimeExceeded = ref(false);
-const onChainTimerStartTimestamp = ref(Date.now())
+const onChainTimerStartTimestamp = ref(Date.now());
 const timerStartTime = computed(() => {
-  return isPlayingOnChain.value ? onChainTimerStartTimestamp.value : game.value?.timestamp;
+  return isPlayingOnChain.value
+    ? onChainTimerStartTimestamp.value
+    : game.value?.timestamp;
 });
 
 const timerDuration = computed(() => {
@@ -213,7 +219,11 @@ const lastTransactionLink = computed(() => {
     : game.value?.penalizationTransactionHash ||
         game.value?.settlementTransactionHash;
 });
-
+const rewardAmount = computed(() => {
+  return isPlayingOnChain.value
+    ? zkAppStates.value?.rewardAmount
+    : game.value?.rewardAmount;
+});
 
 watch(
   () => zkProofStates.value?.turnCount,
@@ -231,9 +241,9 @@ watch(
     if (isPlayingOnChain.value) {
       guesses.value = zkAppStates.value.guessesHistory;
       isTurnTimeExceeded.value = false;
-      onChainTimerStartTimestamp.value = Date.now()
+      onChainTimerStartTimestamp.value = Date.now();
       setTurnPlayed(false);
-      setLastTurnTransactionHash("");
+      setLastTurnTransactionHash('');
       playSound();
     }
   }

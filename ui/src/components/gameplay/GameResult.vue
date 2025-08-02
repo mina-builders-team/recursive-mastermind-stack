@@ -65,8 +65,25 @@
       </div>
     </div>
     <div class="w-100 d-flex">
-      <Button class="default-border p-10-30 cta-3 flex-1">Back to Lobby</Button>
-      <Button class="cta-1 default-border radius-10 flex-1">Post on X</Button>
+      <Button class="default-border p-10-30 btn-cta3 flex-1" size="large"
+        ><span class="color-snow-white">Back to Lobby</span>
+      </Button>
+      <ShareButton
+        v-if="isMasterWinner || isBreakerWinner"
+        class="cta-1 default-border radius-10 flex-1"
+        size="large"
+        :message="
+          isMasterWinner
+            ? masterWinnerTweet.message
+            : breakerWinnerTweet.message
+        "
+        :hashtag="
+          isMasterWinner
+            ? masterWinnerTweet.hashtag
+            : breakerWinnerTweet.hashtag
+        "
+      >
+      </ShareButton>
     </div>
   </div>
 </template>
@@ -74,6 +91,7 @@
 import { computed } from 'vue';
 import Button from '@/components/shared/Button.vue';
 import { formatAddress } from '@/utils';
+import ShareButton from '../shared/ShareButton.vue';
 const props = defineProps({
   isWinner: {
     type: Boolean,
@@ -99,7 +117,26 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  turnCount: {
+    type: Number,
+    required: true,
+  },
 });
+const roundCount = Math.floor(props.turnCount / 2);
+
+const masterWinnerTweet = {
+  message: `My latest creation was unbreakable! My opponent couldn't crack my code in Mina Mastermind. Sometimes the best offense is a good defense. 😉
+ Come try to break my next one. If you dare.
+ https://www.minamastermind.com
+  `,
+  hashtag: 'MinaMastermind ,Puzzle ,Web3',
+};
+const breakerWinnerTweet = {
+  message: `Nailed it! Solved the code in ${roundCount} guess ${roundCount > 1 ? 's' : ''} in Mina Mastermind. A "Perfect Game" on the ZK-powered grid.
+ Can you match this? https://www.minamastermind.com
+  `,
+  hashtag: 'MinaMastermind ,Puzzle ,Web3',
+};
 const isBreakerWinner = computed(
   () => props.userRole === 'CODE_BREAKER' && props.isWinner
 );

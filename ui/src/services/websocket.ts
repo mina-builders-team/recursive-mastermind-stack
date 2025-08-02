@@ -49,7 +49,7 @@ export class WebSocketService {
               this.onMessageCallback(data);
           }
           if (data.game) {
-            if (data?.game.status === 'ON_CHAIN' && !isPlayingOnChain) {
+            if (data?.game.status === 'ON_CHAIN') {
               await setPlayingOnChain(true);
               return;
             }

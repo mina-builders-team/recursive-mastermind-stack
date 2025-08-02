@@ -110,7 +110,6 @@
           :infinite-scroll-disabled="isLoading || reachedEnd"
           :infinite-scroll-immediate="false"
           :infinite-scroll-distance="40"
-          style="overflow: auto"
         >
           <PlayedGameCard
             v-for="game in myGames?.playedGames"

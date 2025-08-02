@@ -25,16 +25,22 @@
       </div>
       <div>
         <div class="fs-12 fw-600">CURRENT TITLE</div>
-        <div class="fs-21 fw-600">
-          {{ getTitleByRank(leaderboardData?.user?.rank)?.title }}
+        <div class="fs-21 fw-600" v-if="leaderboardData?.user?.rank">
+          {{ getTitleByRank(leaderboardData.user.rank)?.title }}
         </div>
-        <div class="fs-12 gray" v-if="getNextTitleInfo(leaderboardData?.user?.rank)?.ranksToNext">
+        <div
+          class="fs-12 gray"
+          v-if="
+            leaderboardData?.user?.rank &&
+            getNextTitleInfo(leaderboardData.user.rank)?.ranksToNext
+          "
+        >
           {{ getNextTitleInfo(leaderboardData?.user?.rank)?.ranksToNext }} for
           {{ getNextTitleInfo(leaderboardData?.user?.rank)?.nextTitle }}!
         </div>
       </div>
       <div class="align-self-center">
-        <ShareButton message="" hashtag="" />
+        <ShareButton :message="tweet.message" :hashtag="tweet.hashtag" />
       </div>
     </div>
     <div class="mt-3">
@@ -52,67 +58,93 @@
           <div>POINTS</div>
         </div>
       </div>
-      <div v-for="(player, index) in leaderboardData.leaderboard">
-        <div
-          class="d-flex justify-content-between align-items-center color-snow-white py-2 px-3 player"
-        >
-          <div class="d-flex gap-4 align-items-center">
-            <div class="tags d-flex align-items-center h-fit-content py-2 px-4">
-              {{ index + 1 }}
-            </div>
-            <div
-              class="d-flex align-items-center gap-1 ms-2 me-2 px-2 py-3 tags radius-10 player-id"
-            >
-              <inline-svg src="/icons/person.svg"></inline-svg>
-              {{ formatAddress(player._id) }}
-            </div>
-            <div>
-              {{ getTitleByRank(index + 1 )?.title }}
-            </div>
-          </div>
-          <div class="d-flex gap-5">
-            <div class="fs-12 fw-600 d-flex justify-content-end pe-3 stat">
-              {{ player.winsAsCodeMaster }}
-            </div>
-            <div class="fs-12 fw-600 d-flex justify-content-end pe-3 stat">
-              {{ player.winsAsCodeBreaker }}
-            </div>
-            <div class="d-flex justify-content-end stat">
-              {{ player.totalScore }} Points
-            </div>
-          </div>
+      <div
+        class="infinite-list"
+        v-infinite-scroll="loadMorePlayer"
+        :infinite-scroll-disabled="isLoading || reachedEnd"
+        :infinite-scroll-immediate="false"
+        :infinite-scroll-distance="40"
+      >
+        <div v-for="(player, index) in leaderboardData?.players">
+          <PlayerCard :player="player" :index="index" />
         </div>
       </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
+import PlayerCard from '@/components/leaderboard/PlayerCard.vue';
 import ShareButton from '@/components/shared/ShareButton.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { formatAddress, getNextTitleInfo, getTitleByRank } from '@/utils';
+import { Player } from '@/types';
+import { getNextTitleInfo, getTitleByRank } from '@/utils';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 
-const leaderboardData = ref({});
+const leaderboardData = ref<{
+  user: Player & { rank: number };
+  players: Array<Player>;
+  totalPlayers: number;
+}>({
+  user: {} as Player & { rank: number },
+  players: [],
+  totalPlayers: 0,
+});
 const isLoading = ref(false);
 const reachedEnd = ref(false);
 const currentPage = ref(1);
-const limit = ref(10);
+const limit = ref(7);
 
-const getInitialLobbyData = async () => {
+const loadMorePlayer = async () => {
+  if (isLoading.value || reachedEnd.value) return;
+  isLoading.value = true;
+  await getPlayers(true);
+  const totalLoaded = leaderboardData.value!.players.length;
+  if (totalLoaded >= leaderboardData.value!.totalPlayers) {
+    reachedEnd.value = true;
+  }
+  currentPage.value++;
+  isLoading.value = false;
+};
+const getPlayers = async (onlyPlayers?: boolean) => {
+  const query = new URLSearchParams({
+    onlyPlayers: onlyPlayers ? 'true' : 'false',
+    page: currentPage.value.toString(),
+    limit: limit.value.toString(),
+  });
   const res = await axios.get(
-    `${SERVER_URL}/games/leaderboard/${publicKeyBase58.value}`
+    `${SERVER_URL}/player/leaderboard/${publicKeyBase58.value}?${query.toString()}`
   );
   if (res?.data) {
-    leaderboardData.value = res?.data;
+    if (onlyPlayers) {
+      leaderboardData.value.players =
+        currentPage.value === 1
+          ? [...res.data?.players]
+          : [...leaderboardData.value.players, ...res.data?.players];
+      leaderboardData.value.totalPlayers = res.data.totalPlayers;
+    } else {
+      leaderboardData.value = res.data;
+    }
   }
 };
-
+const tweet = computed(() => {
+  return {
+    message: `📊 Just checked my Mastermind leaderboard stats on @MinaProtocol:
+🏅 Rank: ${leaderboardData.value?.user?.rank}
+🎖️ Title: ${getTitleByRank(leaderboardData.value?.user.rank)?.title}
+🧠 Solved Codes: ${leaderboardData.value?.user?.winsAsCodeBreaker}
+🛡️ Unbreaked Codes: ${leaderboardData.value?.user?.winsAsCodeMaster}
+💯 Score: ${leaderboardData.value?.user?.totalScore} pts
+Climb the ranks & earn with zk!
+Play now 👉 https://www.minamastermind.com`,
+    hashtag: 'zkApps ,MinaProtocol ,Web3Gaming',
+  };
+});
 onMounted(async () => {
-  await getInitialLobbyData();
+  await getPlayers();
 });
 </script>
 <style lang="scss" scoped>
@@ -148,5 +180,9 @@ onMounted(async () => {
   width: 145px;
   display: flex;
   justify-content: center;
+}
+.infinite-list {
+  overflow-y: scroll;
+  height: calc(80vh - 200px);
 }
 </style>

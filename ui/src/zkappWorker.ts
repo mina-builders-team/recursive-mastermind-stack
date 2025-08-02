@@ -295,10 +295,11 @@ const functions = {
   setLastProof: async (args: { zkProof: any }) => {
     state.lastProof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
   },
-  submitGameProof: async (args: { zkProof: string }) => {
+  submitGameProof: async (args: { zkProof: string , winnerPubKeyBase58?:string }) => {
     const transaction = await Mina.transaction(async () => {
       const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
-      await state.zkappInstance!.submitGameProof(proof, PublicKey.empty());
+      const winnerPubKey = args.winnerPubKeyBase58 ? PublicKey.fromBase58(args.winnerPubKeyBase58) : PublicKey.empty()
+      await state.zkappInstance!.submitGameProof(proof, winnerPubKey);
     });
     state.transaction = transaction;
   },

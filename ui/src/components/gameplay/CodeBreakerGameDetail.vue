@@ -15,7 +15,7 @@
           class="d-flex align-items-center gap-2 default-border radius-10 p-10 mt-2 fit-content"
         >
           <inline-svg src="/icons/cash.svg"></inline-svg>
-          {{ (game?.rewardAmount || 0) / 1e9 }} MINA
+          {{ (rewardAmount || 0) / 1e9 }} MINA
         </div>
       </div>
     </div>
@@ -150,7 +150,8 @@ const {
   game,
   compiled,
   zkAppStates,
-  loading
+  loading,
+  isPlayingOnChain
 } = storeToRefs(useZkAppStore());
 const { acceptGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();
@@ -201,17 +202,17 @@ const handleAcceptGame = async () => {
     });
     isAcceptGameTimeElapsed.value = false;
     resetTimer();
-    ElNotification({
-      title: 'Success',
-      message: `Transaction Hash :  ${currentTransactionLink.value}`,
-      type: 'success',
-      duration: 5000,
-    });
   }
 };
 const isGameReady = computed(() => {
   return compiled.value && zkAppStates.value;
 });
+const rewardAmount = computed(() => {
+  return isPlayingOnChain.value
+    ? zkAppStates.value?.rewardAmount
+    : game.value?.rewardAmount;
+});
+
 </script>
 <style scoped lang="scss">
 .search-btn {

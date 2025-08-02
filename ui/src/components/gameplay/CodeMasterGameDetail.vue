@@ -9,7 +9,7 @@
         class="radius-10 bg-alpha-20-300-20 p-10 color-snow-white default-border d-flex align-items-center gap-1"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
-        {{ (game?.rewardAmount || 0) / 1e9 }} Mina
+        {{ (rewardAmount || 0) / 1e9 }} Mina
       </div>
     </div>
     <div
@@ -63,8 +63,13 @@
         </CopyToClipBoard>
 
         <ShareButton
-          :message="'Lets play now https://www.minamastermind.com/' + game?._id"
-          hashtag="Mina MASTERMIND"
+          :message="`🧠 I just created a new Mastermind game on Web3, powered by zero-knowledge proofs & @MinaProtocol!
+Think you can crack my code? 🕵️‍♂️
+Join now as the Code Breaker 👇
+🎯 https://www.minamastermind.com/${game?._id}
+
+ `"
+          hashtag="MinaProtocol ,zkApps ,Web3Gaming ,ZeroKnowledge ,MastermindGame"
           class="radius-10 bg-snow-white color-900"
         />
       </div>
@@ -83,7 +88,8 @@ import { useRoute, useRouter } from 'vue-router';
 import ShareButton from '../shared/ShareButton.vue';
 import CopyToClipBoard from '../shared/CopyToClipBoard.vue';
 
-const { zkAppStates, game, compiled } = storeToRefs(useZkAppStore());
+const { zkAppStates, game, compiled, isPlayingOnChain } =
+  storeToRefs(useZkAppStore());
 const { getGame } = useZkAppStore();
 const route = useRoute();
 const router = useRouter();
@@ -109,6 +115,11 @@ const gameStatus = computed(() =>
           }
         : { state: 'WAITING', text: 'Waiting For Code Breaker' }
 );
+const rewardAmount = computed(() => {
+  return isPlayingOnChain.value
+    ? zkAppStates.value?.rewardAmount
+    : game.value?.rewardAmount;
+});
 const timerStartTime = ref(Date.now());
 const resetTimer = async () => {
   timerStartTime.value = Date.now();

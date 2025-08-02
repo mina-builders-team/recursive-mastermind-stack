@@ -130,8 +130,8 @@ export default class ZkappWorkerClient {
   async setLastProof(zkProof: any) {
     return this._call('setLastProof', { zkProof });
   }
-  async submitGameProof(zkProof: string) {
-    return this._call('submitGameProof', { zkProof });
+  async submitGameProof(zkProof: string, winnerPubKeyBase58?:string) {
+    return this._call('submitGameProof', { zkProof,winnerPubKeyBase58 });
   }
   async createClaimRewardTransaction(feePayer: string) {
     return this._call('createClaimRewardTransaction', {

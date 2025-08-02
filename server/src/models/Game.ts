@@ -32,6 +32,7 @@ export interface IGame extends Document {
   gameCreationTransactionHash: string;
   roomName: string;
   lastJoinAttemptBy: string;
+  finalTransactionTimestamp: number;
 }
 
 const gameSchema: Schema = new Schema(
@@ -60,6 +61,7 @@ const gameSchema: Schema = new Schema(
     gameCreationTransactionHash: { type: String, required: true },
     roomName: { type: String, required: true },
     lastJoinAttemptBy: { type: String, required: false },
+    finalTransactionTimestamp: { type: Number, required: false },
   },
   { timestamps: true }
 );

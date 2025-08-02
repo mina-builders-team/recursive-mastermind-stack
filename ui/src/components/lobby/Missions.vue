@@ -23,7 +23,7 @@ const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const player = ref({});
 const getUser = async () => {
   const res = await axios.get(
-    SERVER_URL + '/games/player/' + publicKeyBase58.value
+    SERVER_URL + '/player/' + publicKeyBase58.value
   );
   player.value = res?.data?.player;
 };

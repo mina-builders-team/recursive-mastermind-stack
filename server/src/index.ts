@@ -27,6 +27,7 @@ import gamesRoute from './routes/gamesRoute.js';
 import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
+import playerRoute from './routes/playerRoute.js';
 
 // Environment Setup
 dotenv.config();
@@ -60,6 +61,8 @@ const server = app.listen(PORT, () => {
 
 // Mounts game routes at the '/games' endpoint.
 app.use('/games', gamesRoute);
+
+app.use('/player', playerRoute);
 
 // Healthcheck Endpoint
 app.get('/health', (_req, res) => {

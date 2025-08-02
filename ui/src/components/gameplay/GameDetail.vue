@@ -27,7 +27,7 @@ const { zkAppStates, publicKeyBase58, userRole, game } =
   storeToRefs(useZkAppStore());
 
 const isGameCancelled = computed(() => {
-  return zkAppStates.value?.rewardAmount === 0;
+  return zkAppStates.value?.codeBreakerId === '0'&& zkAppStates.value?.rewardAmount === 0;
 });
 const isCodeMaster = computed(
   () =>

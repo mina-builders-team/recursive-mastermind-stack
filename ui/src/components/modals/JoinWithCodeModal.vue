@@ -50,7 +50,7 @@ const handleJoinCodeModalClose = () => {
 const handleJoinWihCode = async () => {
   if (gameAddress.value) {
     const game = await getGame(gameAddress.value);
-    if (['ACTIVE', 'IN_PROGRESS'].includes(game.status || '')) {
+    if (['ACTIVE', 'IN_PROGRESS'].includes(game?.status || '')) {
       router.push({
         name: 'gameplay',
         params: {

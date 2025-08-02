@@ -167,3 +167,32 @@ export const getInProgressGamesByPlayer = async (
     throw new Error('Error while getting in progress games: ' + err);
   }
 };
+
+export const getPlayedGames = async (options: {
+  playedGamesQuery: Object;
+  orderBy: string;
+  sortOrder: 1 | -1 | 'asc' | 'desc';
+  skip: number;
+  limit: number;
+}) => {
+  return await Promise.all([
+    await Game.find(options.playedGamesQuery)
+      .sort({ [options.orderBy]: options.sortOrder })
+      .skip(options.skip)
+      .limit(options.limit)
+      .select(
+        ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster settlementTransactionHash penalizationTransactionHash finalTransactionTimestamp'
+      )
+      .lean(),
+    await Game.countDocuments(options.playedGamesQuery),
+  ]);
+};
+
+export const getUserCreatedGames = async (playerId: string) => {
+  return await Game.find({
+    codeMaster: playerId,
+    status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
+  })
+    .sort({ timestamp: -1 })
+    .lean();
+};

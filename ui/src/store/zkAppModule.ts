@@ -187,6 +187,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
+        await new Promise((res) => setTimeout(res, 5000));
         if (this.isPlayingOnChain && !this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
@@ -392,11 +393,11 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         return this.zkAppAddress;
       }
     },
-    async submitGameProof(proof: string) {
+    async submitGameProof(proof: string,winnerPubKeyBase58?:string) {
       try {
         this.loading = true;
         this.stepDisplay = 'Creating a transaction...';
-        await this.zkappWorkerClient!.submitGameProof(proof);
+        await this.zkappWorkerClient!.submitGameProof(proof,winnerPubKeyBase58);
         this.stepDisplay = 'Generating proof...';
         await this.zkappWorkerClient!.proveTransaction();
         this.stepDisplay = 'Getting transaction JSON...';
@@ -543,7 +544,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (res?.data?.game) {
           await this.setGame(res?.data?.game);
         }
-        return res?.data?.game
+        this.error = null;
+        return res?.data?.game;
       } catch (err: any) {
         this.error = err?.message || err;
         console.log('error ', err);
@@ -601,7 +603,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         console.log('error ', err);
       } finally {
         this.loading = false;
-        return this.currentTransactionLink
+        return this.currentTransactionLink;
       }
     },
     async clearGame() {
@@ -631,11 +633,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setStepDisplay(step: string) {
       this.stepDisplay = step;
     },
-    async setPlayingOnChain(isOnChain: boolean) {
+    async setPlayingOnChain(isOnChain: boolean, gamedId?: string) {
       this.isPlayingOnChain = isOnChain;
       if (isOnChain) {
         await this.getZkAppStates();
-        const game: any = getStoredGame(this.zkAppAddress as string);
+        const game: any = getStoredGame(
+          (this.zkAppAddress || gamedId) as string
+        );
         const proof = game?.lastProof;
         if (proof) {
           await this.setLastProof(proof);
@@ -653,13 +657,18 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
     setLastTurnTransactionHash(hash: string) {
-      this.lastTurnTransactionHash = hash ;
+      this.lastTurnTransactionHash = hash;
     },
     async startBenchmark() {
       this.benchmark = await this.zkappWorkerClient!.benchmark(
         import.meta.env.VITE_SERVER_PUBLIC_KEY
       );
-      if (this.benchmark?.initGameTxDuration &&this.benchmark?.clueProofDuration && this.benchmark?.guessProofDuration && this.benchmark?.createGameProofDuration ) {
+      if (
+        this.benchmark?.initGameTxDuration &&
+        this.benchmark?.clueProofDuration &&
+        this.benchmark?.guessProofDuration &&
+        this.benchmark?.createGameProofDuration
+      ) {
         localStorage.setItem('benchmark', JSON.stringify(this.benchmark));
       }
     },

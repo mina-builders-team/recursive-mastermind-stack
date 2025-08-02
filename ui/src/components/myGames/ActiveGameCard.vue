@@ -47,7 +47,7 @@
         >. You may also resend your transaction with the costs
       </template>
       <Button
-        class="bg-red radius-10 cancel-btn"
+        class="bg-red radius-10 px-4 cancel-btn"
         size="large"
         @click="cancelGameById(game._id)"
         ><span class="color-snow-white"> Re-try Cancel </span></Button
@@ -55,7 +55,7 @@
     </el-tooltip>
     <Button
       v-else
-      class="bg-red radius-10 cancel-btn"
+      class="bg-red radius-10 cancel-btn px-4"
       size="large"
       @click="cancelGameById(game._id)"
       ><span class="color-snow-white"> Cancel </span></Button
