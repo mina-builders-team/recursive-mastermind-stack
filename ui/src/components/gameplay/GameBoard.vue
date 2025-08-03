@@ -8,10 +8,10 @@
         :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
         :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
         :gameReward="rewardAmount!"
+        :isPenalized="isPenalized"
         :turnCount="
           isPlayingOnChain ? zkAppStates.turnCount : zkProofStates.turnCount
         "
-        :finalTransaction="lastTransactionLink"
       />
 
       <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
@@ -75,7 +75,6 @@ const {
   game,
   userRole,
   isPlayingOnChain,
-  currentTransactionLink,
   currentSlot,
   lastTurnTransactionHash,
 } = storeToRefs(useZkAppStore());
@@ -213,18 +212,15 @@ const isGameEnded = computed(() => {
 const isLastProofSubmitted = computed(() => {
   return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
 });
-const lastTransactionLink = computed(() => {
-  return isPlayingOnChain.value
-    ? currentTransactionLink.value
-    : game.value?.penalizationTransactionHash ||
-        game.value?.settlementTransactionHash;
-});
 const rewardAmount = computed(() => {
-  return isPlayingOnChain.value
-    ? zkAppStates.value?.rewardAmount
-    : game.value?.rewardAmount;
+  return game.value?.rewardAmount || zkAppStates.value?.rewardAmount;
 });
-
+const isPenalized = computed(() => {
+  return isPlayingOnChain.value
+    ? (isLastProofSubmitted.value && remainingSlot.value < 0) ||
+        (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
+    : game.value?.status === 'PENALIZED';
+});
 watch(
   () => zkProofStates.value?.turnCount,
   () => {

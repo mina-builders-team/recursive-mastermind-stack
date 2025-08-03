@@ -148,11 +148,11 @@
               />
             </div>
           </div>
-          <div
-            class="snow-white d-flex flex-column align-items-between h-100"
-          >
+          <div class="snow-white d-flex flex-column align-items-between h-100">
             <div class="fs-16 mb-2">Staked Mina</div>
-            <div class="border-alpha-50-300-50 d-flex align-items-center p-10 radius-10">
+            <div
+              class="border-alpha-50-300-50 d-flex align-items-center p-10 radius-10"
+            >
               <inline-svg
                 src="/icons/cash.svg"
                 class="snow-white me-1"
@@ -357,5 +357,4 @@ const handleSecretChange = (newSecret: Array<AvailableColor>) => {
 .el-carousel__indicators--horizontal {
   display: none !important;
 }
-
 </style>

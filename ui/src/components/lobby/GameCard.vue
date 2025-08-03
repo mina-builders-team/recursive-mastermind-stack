@@ -4,7 +4,11 @@
       <div class="fw-600">{{ game?.roomName }}</div>
       <div class="d-flex align-items-center gap-1 game-status">
         <template v-if="status === 'Waiting'">
-          <el-tooltip placement="bottom" effect="customized" popper-class="game-status-tooltip" >
+          <el-tooltip
+            placement="bottom"
+            effect="customized"
+            popper-class="game-status-tooltip"
+          >
             <template #content>
               <div class="fw-600">Game May Starts Soon</div>
               <div class="fs-12">Please look another game</div>
@@ -36,8 +40,12 @@
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ game.rewardAmount / 1e9 }} MINA
       </div>
-      <Button class="btn-cta3 flex-1 border-alpha-50-300-50" @click="handleJoinGame" size="large">
-        <span class="color-snow-white">Join</span> 
+      <Button
+        class="btn-cta3 flex-1 border-alpha-50-300-50"
+        @click="handleJoinGame"
+        size="large"
+      >
+        <span class="color-snow-white">Join</span>
       </Button>
     </div>
   </div>
@@ -120,4 +128,4 @@ const handleJoinGame = () => {
   background: #af423b;
   top: 5px;
 }
- </style>
+</style>

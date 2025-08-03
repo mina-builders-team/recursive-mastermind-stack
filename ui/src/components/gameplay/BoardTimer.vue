@@ -32,7 +32,16 @@
       >
         <div class="fs-12">
           TX sent. Avoid resend again unless
-          <span class="text-underline">its fails</span>
+          <span class="text-underline">
+            <a
+              class="link"
+              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              its fails
+            </a>
+          </span>
         </div>
         <div class="d-flex gap-2 align-items-center">
           <div class="timer-status bg-yellow"></div>

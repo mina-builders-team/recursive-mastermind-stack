@@ -68,7 +68,6 @@
       @close="handleCloseClaimModal"
       :game="game"
       v-if="isClaimRewardVisible"
-
     />
   </div>
 </template>

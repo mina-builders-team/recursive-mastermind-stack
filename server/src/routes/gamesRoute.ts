@@ -103,7 +103,7 @@ router.get('/my-games/:pubKey', async (req, res) => {
   const limit = parseInt((req.query.limit as string) || '7', 10);
   const skip = (page - 1) * limit;
   const orderBy =
-    req.query.sortOrder === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
+    req.query.orderBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
   const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
   const playedAs = req.query.playedAs;
   try {

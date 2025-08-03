@@ -25,7 +25,7 @@
             Transaction ID: {{ formatAddress(finalTransaction || '') }}
           </div>
           <div class="fs-12 color-gray">
-            Transaction Time: {{ game?.finalTransactionTimestamp }}
+            Transaction Time:
             {{
               dayjs
                 .utc(game?.finalTransactionTimestamp)
@@ -93,7 +93,7 @@ import Modal from '../shared/Modal.vue';
 import { formatAddress, getStoredGame } from '@/utils';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { useCustomMessage } from '@/composables/useCustomMessage';
@@ -197,13 +197,18 @@ const isRewardClaimed = computed(() => {
 onMounted(async () => {
   await initializeGame();
   await fetchCurrentSlot();
-  const game: any = getStoredGame(props.game?._id as string);
+  const game = getStoredGame(props.game?._id as string);
   lastProof.value = game?.lastProof;
   if (lastProof.value) {
     await setLastProof(lastProof.value);
     await getZkProofStates();
   }
   getStoredTransactionsHash();
+});
+onUnmounted(() => {
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+  }
 });
 </script>
 

@@ -51,9 +51,10 @@
         >
           Game Should Have Starts on
           <Timer
+            transparent
             :duration="MINA_APPROX_SLOT_DURATION"
             :startTimestamp="timerStartTime"
-            customClass="ms-1 p-0 bg-transaprent"
+            customClass="ms-1 p-0 color-snow-white"
             :key="timerStartTime"
           />
           .
@@ -92,12 +93,8 @@ import { storeToRefs } from 'pinia';
 import Timer from '../shared/Timer.vue';
 import { ref } from 'vue';
 const { submitGameProof } = useZkAppStore();
-const {
-  error,
-  loading,
-  submitGameTransactionHash,
-  zkAppAddress,
-} = storeToRefs(useZkAppStore());
+const { error, loading, submitGameTransactionHash, zkAppAddress } =
+  storeToRefs(useZkAppStore());
 const { showMessage } = useCustomMessage();
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
@@ -127,7 +124,6 @@ const submitLastProof = async () => {
     });
   }
 };
-
 </script>
 <style lang="scss" scoped>
 .rounded {

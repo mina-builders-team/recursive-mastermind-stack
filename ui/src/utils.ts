@@ -9,12 +9,9 @@
  * - Loading cached verification key files for performance optimizations.
  */
 
-import {
-  Clue,
-  Combination,
-} from 'stan-mastermind';
+import { Clue, Combination } from 'stan-mastermind';
 import { availableColors, cluesColors, initialColor } from './constants/colors';
-import { AvailableColor } from './types';
+import { AvailableColor, Game } from './types';
 import { Field, Cache, Bool } from 'o1js';
 import { MAX_ATTEMPTS } from './constants/config';
 import { leaderboardTitles } from './constants/titles';
@@ -333,7 +330,7 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
  * @param gameId - The ID of the game to retrieve.
  * @returns The stored game data as a string or null if not found.
  */
-export function getStoredGame(gameId: string): string | null {
+export function getStoredGame(gameId: string): any | null {
   const games = localStorage.getItem('games');
   if (games) {
     const jsonGames: any = JSON.parse(games);

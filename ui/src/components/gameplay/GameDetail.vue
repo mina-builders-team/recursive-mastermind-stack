@@ -5,7 +5,9 @@
       v-if="isGameCancelled"
     >
       <div class="color-snow-white">Game has been cancelled</div>
-      <Button class="cta-3" size="large"> Return to Lobby </Button>
+      <Button class="cta-3" size="large" @click="returnToLobby">
+        Return to Lobby
+      </Button>
     </div>
     <div v-else class="default-border radius-20 bg-alpha-50-900-50 p-20">
       <CodeMasterGameDetail v-if="isCodeMaster" />
@@ -22,12 +24,19 @@ import CodeMasterGameDetail from './CodeMasterGameDetail.vue';
 import Button from '@/components/shared/Button.vue';
 import CodeBreakerGameDetail from './CodeBreakerGameDetail.vue';
 import MiniPuzzle from '@/components/shared/MiniPuzzle.vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const { zkAppStates, publicKeyBase58, userRole, game } =
   storeToRefs(useZkAppStore());
-
+const returnToLobby = () => {
+  router.push({ name: 'lobby' });
+};
 const isGameCancelled = computed(() => {
-  return zkAppStates.value?.codeBreakerId === '0'&& zkAppStates.value?.rewardAmount === 0;
+  return (
+    zkAppStates.value?.codeBreakerId === '0' &&
+    zkAppStates.value?.rewardAmount === 0
+  );
 });
 const isCodeMaster = computed(
   () =>

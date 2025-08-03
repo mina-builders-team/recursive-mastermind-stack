@@ -151,7 +151,7 @@ const {
   compiled,
   zkAppStates,
   loading,
-  isPlayingOnChain
+  isPlayingOnChain,
 } = storeToRefs(useZkAppStore());
 const { acceptGame, getZkAppStates } = useZkAppStore();
 const route = useRoute();
@@ -212,7 +212,6 @@ const rewardAmount = computed(() => {
     ? zkAppStates.value?.rewardAmount
     : game.value?.rewardAmount;
 });
-
 </script>
 <style scoped lang="scss">
 .search-btn {

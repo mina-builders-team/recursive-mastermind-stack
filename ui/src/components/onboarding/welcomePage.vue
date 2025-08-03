@@ -26,9 +26,9 @@
 <script lang="ts" setup>
 import Button from '../shared/Button.vue';
 
-const emit = defineEmits(['next'])
+const emit = defineEmits(['next']);
 const handleNextStep = () => {
-    emit('next')
-}
+  emit('next');
+};
 </script>
 <style lang="scss" scoped></style>

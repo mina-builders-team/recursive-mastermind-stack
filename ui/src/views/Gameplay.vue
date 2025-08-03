@@ -46,6 +46,7 @@ const {
   isPlayingOnChain,
   publicKeyBase58,
   error,
+  userRole,
 } = storeToRefs(useZkAppStore());
 const {
   initZkappInstance,
@@ -83,7 +84,7 @@ onMounted(async () => {
   if (!game.value) {
     await getGame(gameId);
     if (error.value === 'Network Error') {
-      setPlayingOnChain(true,gameId);
+      setPlayingOnChain(true, gameId);
     }
   }
   isLoading.value = false;
@@ -94,7 +95,9 @@ const isNotAvailableGame = computed(() => {
       (!game.value ||
         (game.value?.status === 'PENDING' &&
           game.value?.codeMaster !== publicKeyBase58.value))) ||
-    (isPlayingOnChain.value && zkAppStates.value?.codeBreakerId === '0')
+    (isPlayingOnChain.value &&
+      zkAppStates.value?.codeBreakerId === '0' &&
+      userRole.value !== 'CODE_MASTER')
   );
 });
 

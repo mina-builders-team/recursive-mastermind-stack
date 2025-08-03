@@ -42,7 +42,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script lang="ts" setup>
@@ -52,7 +51,7 @@ import { AvailableColor } from '@/types';
 import { ref } from 'vue';
 import Round from '../shared/Round.vue';
 import { generateClue, generateRandomSecret } from '@/utils';
-const emit = defineEmits(['ended'])
+const emit = defineEmits(['ended']);
 const lastGuessIndex = ref(0);
 const secret = ref<Array<number>>(generateRandomSecret());
 const guesses = ref<Array<AvailableColor[]>>(
@@ -73,7 +72,7 @@ const submitGuess = () => {
   clues.value[lastGuessIndex.value] = clue;
   lastGuessIndex.value += 1;
   if (lastGuessIndex.value === 7 || isSolved) {
-    emit("ended",isSolved)
+    emit('ended', isSolved);
   }
 };
 </script>

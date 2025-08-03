@@ -54,6 +54,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     currentTransactionLink: '',
     submitGameTransactionHash: '',
     claimRewardTransactionHash: '',
+    cancelGameTransactionHash: '',
     zkAppStates: null as null | any,
     zkProofStates: null as null | any,
     compiled: false,
@@ -393,11 +394,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         return this.zkAppAddress;
       }
     },
-    async submitGameProof(proof: string,winnerPubKeyBase58?:string) {
+    async submitGameProof(proof: string, winnerPubKeyBase58?: string) {
       try {
         this.loading = true;
         this.stepDisplay = 'Creating a transaction...';
-        await this.zkappWorkerClient!.submitGameProof(proof,winnerPubKeyBase58);
+        await this.zkappWorkerClient!.submitGameProof(
+          proof,
+          winnerPubKeyBase58
+        );
         this.stepDisplay = 'Generating proof...';
         await this.zkappWorkerClient!.proveTransaction();
         this.stepDisplay = 'Getting transaction JSON...';
@@ -587,7 +591,10 @@ export const useZkAppStore = defineStore('useZkAppModule', {
               memo: '',
             },
           });
-          this.currentTransactionLink = hash;
+          this.cancelGameTransactionHash = hash;
+          updateLocalStorageGames(this.zkAppAddress as string, {
+            cancelGameTransactionHash: hash,
+          });
           const res = await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
             signedData,
             hash,
@@ -603,7 +610,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         console.log('error ', err);
       } finally {
         this.loading = false;
-        return this.currentTransactionLink;
+        return this.cancelGameTransactionHash;
       }
     },
     async clearGame() {
@@ -617,6 +624,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = '';
       this.submitGameTransactionHash = '';
       this.claimRewardTransactionHash = '';
+      this.cancelGameTransactionHash = '';
     },
     setMenuStep(step: string) {
       this.menuStep = step;

@@ -87,7 +87,6 @@ const hiddenSecret = Array.from({ length: 4 }, () => ({
   value: '*',
 }));
 const handleSetSecretCode = (selectedColor: AvailableColor, index: number) => {
-
   const newSecret = props.secret.map((color, i) =>
     i === index ? { ...selectedColor } : color
   );

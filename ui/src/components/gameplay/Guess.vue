@@ -25,7 +25,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed} from 'vue';
+import { computed } from 'vue';
 import { AvailableColor } from '@/types';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';

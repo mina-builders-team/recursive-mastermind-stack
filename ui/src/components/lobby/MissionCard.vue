@@ -37,7 +37,7 @@ const tweet = {
 I just completed this challenge in the Mastermind zkApp built on @MinaProtocol 💥
 Think you can do better?
 🎮 Join the game:  https://www.minamastermind.com `,
-hashtag:'MinaProtocol ,zkApps ,Mastermind ,ZKProofs ,CryptoGaming'
-}
+  hashtag: 'MinaProtocol ,zkApps ,Mastermind',
+};
 </script>
 <style lang="scss" scoped></style>

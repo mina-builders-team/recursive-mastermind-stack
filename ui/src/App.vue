@@ -77,5 +77,4 @@ watch(
     padding: 5% 10%;
   }
 }
-
 </style>

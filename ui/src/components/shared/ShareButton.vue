@@ -1,12 +1,22 @@
 <template>
-  <Button
-    :class="'d-flex align-items-center gap-2 fit-content default-style ' + btnClass || ''"
-    size="large"
-    @click="shareOnX"
-  >
-    <inline-svg class="me-2" src="/icons/twitter.svg" v-if="showIcon"></inline-svg>
-    Share on X
-  </Button>
+  <div @click="shareOnX">
+    <slot>
+      <Button
+        :class="
+          'd-flex align-items-center gap-2 fit-content default-style ' +
+            btnClass || ''
+        "
+        size="large"
+      >
+        <inline-svg
+          class="me-2"
+          src="/icons/twitter.svg"
+          v-if="showIcon"
+        ></inline-svg>
+        Share on X
+      </Button>
+    </slot>
+  </div>
 </template>
 <script lang="ts" setup>
 import Button from './Button.vue';
@@ -27,8 +37,8 @@ const props = defineProps({
   showIcon: {
     type: Boolean,
     required: false,
-    default: true
-  }
+    default: true,
+  },
 });
 const shareOnX = () => {
   const message = encodeURIComponent(props.message);
@@ -38,11 +48,15 @@ const shareOnX = () => {
 };
 </script>
 <style lang="scss" scoped>
-.default-style{
-background: linear-gradient(180deg, rgba(59, 61, 63, 0.5) 100%, rgba(255, 255, 255, 0.5) 100%);
-background-blend-mode: screen;
-border-radius: 10px;
-border: 1px solid rgba(59, 61, 63, 0.5);
-color: $snow-white;
+.default-style {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 61, 63, 0.5) 100%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  background-blend-mode: screen;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 61, 63, 0.5);
+  color: $snow-white;
 }
 </style>

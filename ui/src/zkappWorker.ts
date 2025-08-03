@@ -52,9 +52,7 @@ const functions = {
     Mina.setActiveInstance(network);
   },
   loadContract: async () => {
-    const { MastermindZkApp } = await import(
-      'stan-mastermind'
-    );
+    const { MastermindZkApp } = await import('stan-mastermind');
     state.MastermindContract = MastermindZkApp;
   },
   compileContract: async () => {
@@ -295,10 +293,15 @@ const functions = {
   setLastProof: async (args: { zkProof: any }) => {
     state.lastProof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
   },
-  submitGameProof: async (args: { zkProof: string , winnerPubKeyBase58?:string }) => {
+  submitGameProof: async (args: {
+    zkProof: string;
+    winnerPubKeyBase58?: string;
+  }) => {
     const transaction = await Mina.transaction(async () => {
       const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
-      const winnerPubKey = args.winnerPubKeyBase58 ? PublicKey.fromBase58(args.winnerPubKeyBase58) : PublicKey.empty()
+      const winnerPubKey = args.winnerPubKeyBase58
+        ? PublicKey.fromBase58(args.winnerPubKeyBase58)
+        : PublicKey.empty();
       await state.zkappInstance!.submitGameProof(proof, winnerPubKey);
     });
     state.transaction = transaction;

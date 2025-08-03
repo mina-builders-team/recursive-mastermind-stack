@@ -15,7 +15,10 @@
                 :key="game._id"
                 class="d-flex align-items-center p-1 px-3 w-100"
               >
-                <ActiveGameCard :game="game" />
+                <ActiveGameCard
+                  :game="game"
+                  @cancel="handleCancelGame($event, game._id)"
+                />
               </div>
             </div>
             <div
@@ -138,6 +141,7 @@ import MyStats from '@/components/myGames/MyStats.vue';
 import CreateGameModal from '@/components/modals/CreateGameModal.vue';
 import ActiveGameCard from '@/components/myGames/ActiveGameCard.vue';
 import { Game } from '@/types';
+import { useCustomMessage } from '@/composables/useCustomMessage';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
@@ -168,7 +172,7 @@ const limit = ref(7);
 const playedAs = ref<'codeBreaker' | 'codeMaster' | undefined>(undefined);
 const orderBy = ref<'createdAt' | 'rewardAmount'>('createdAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');
-
+const { showMessage } = useCustomMessage();
 const isLoading = ref(false);
 const reachedEnd = ref(false);
 const showCreateChallengeModal = ref(false);
@@ -187,7 +191,7 @@ const toggleSortOrder = () => {
 };
 const sortBy = async (criteria: 'createdAt' | 'rewardAmount') => {
   currentPage.value = 1;
-  reachedEnd.value = false
+  reachedEnd.value = false;
   if (orderBy.value === criteria) {
     toggleSortOrder();
   } else {
@@ -200,7 +204,7 @@ const filterByRole = async (
   role?: 'codeBreaker' | 'codeMaster' | undefined
 ) => {
   currentPage.value = 1;
-  reachedEnd.value = false
+  reachedEnd.value = false;
   playedAs.value = role;
   await getPlayedGames(true);
 };
@@ -249,7 +253,17 @@ const getPlayedGames = async (onlyPlayedGames?: boolean) => {
     }
   }
 };
-
+const handleCancelGame = (cancelTx: string, gameId: string) => {
+  myGames.value.activeGames = myGames?.value?.activeGames.filter(
+    (e) => e._id !== gameId
+  );
+  showMessage({
+    title: 'Transaction Sent',
+    description: 'Transaction Hash : ' + cancelTx,
+    type: 'success',
+    duration: 10000,
+  });
+};
 onMounted(async () => {
   await getPlayedGames(false);
 });

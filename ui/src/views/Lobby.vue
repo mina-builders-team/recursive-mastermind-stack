@@ -122,7 +122,7 @@
       </div>
     </div>
     <div class="missions-container mt-3">
-      <Missions/>
+      <Missions />
     </div>
     <JoinWithCodeModal
       v-if="showJoinWithCodeModal"
@@ -259,8 +259,7 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr 300px;
   grid-template-rows: 1fr;
-    gap: 1rem 2rem;
-
+  gap: 1rem 2rem;
 }
 .top-bar {
   grid-column: 1 / 2;
@@ -272,10 +271,11 @@ onMounted(async () => {
 }
 .infinite-list {
   overflow-y: scroll;
-  height: calc(80vh - 200px);
+  height: calc(70vh - 200px);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   align-items: start;
+  grid-auto-rows: min-content;
   gap: 10px;
 }
 .play-title {
@@ -324,7 +324,7 @@ onMounted(async () => {
 }
 .missions-container {
   grid-column: 2;
-  grid-row: 2 ;
+  grid-row: 2;
   height: 50vh;
   overflow-y: scroll;
 }

@@ -7,7 +7,11 @@
       <div class="fs-30 fw-700">Proof-Powered Puzzles</div>
       <div class="my-3 fs-16">Put MINA on the table. Beat the code.</div>
       <div class="my-3 fs-16">Keep the whole pot.</div>
-      <Button class="my-2 btn-cta3 border-alpha-50-300-50 px-5" size="large" @click="redirectToLobby">
+      <Button
+        class="my-2 btn-cta3 border-alpha-50-300-50 px-5"
+        size="large"
+        @click="redirectToLobby"
+      >
         <span class="color-snow-white"> Play Now </span>
       </Button>
       <div class="d-flex gap-2 my-3">
@@ -19,7 +23,6 @@
     <LandingBoard @ended="handleGameEnded" />
   </div>
   <LandingGameResultModal :isGameSolved="isGameSolved" v-if="isGameEnded" />
- 
 </template>
 <script setup lang="ts">
 import LandingBoard from '@/components/landingPage/landingBoard.vue';
@@ -39,7 +42,6 @@ const handleGameEnded = (isSolved: boolean) => {
 const redirectToLobby = () => {
   router.push({ name: 'lobby' });
 };
-
 </script>
 <style lang="scss" scoped>
 .tags {

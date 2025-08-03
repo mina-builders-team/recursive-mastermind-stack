@@ -64,4 +64,4 @@ export type Player = {
   crackedGames: number;
   crackedInUnder5: number;
   lastGameDate: Date;
-}
+};

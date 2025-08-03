@@ -24,7 +24,7 @@ const routes: Array<RouteRecordRaw> = [
     component: () =>
       import(/* webpackChunkName: "gameplay" */ '@/views/myGames.vue'),
   },
-    {
+  {
     path: '/rank',
     name: 'leaderboard',
     component: () =>
@@ -44,7 +44,10 @@ const router = createRouter({
 });
 router.beforeEach(async (to, from, next) => {
   const completedOnboarding = localStorage.getItem('completedOnboarding');
-  if (to.name !== 'onboarding' && !completedOnboarding || completedOnboarding === 'false') {
+  if (
+    (to.name !== 'onboarding' && !completedOnboarding) ||
+    completedOnboarding === 'false'
+  ) {
     next({ name: 'onboarding', query: { redirect: to.fullPath } });
     return;
   }

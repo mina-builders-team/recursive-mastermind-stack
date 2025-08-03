@@ -19,17 +19,17 @@ const props = defineProps({
   border: {
     required: false,
     type: String,
-    default:'1px solid #2c2f31'
+    default: '1px solid #2c2f31',
   },
   background: {
     required: false,
     type: String,
-    default:'#0c0e1180'
+    default: '#0c0e1180',
   },
   padding: {
     required: false,
     type: String,
-    default:'20px'
+    default: '20px',
   },
 });
 const emit = defineEmits(['close']);
@@ -50,7 +50,7 @@ const handleClose = () => {
   padding: 0px;
 }
 .el-dialog__body {
-  background: v-bind(background)!important;
+  background: v-bind(background) !important;
   background-blend-mode: darken !important;
   border-radius: 20px;
   padding: v-bind(padding);

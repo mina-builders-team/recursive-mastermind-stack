@@ -75,8 +75,7 @@ const tweet = computed(() => {
 Play, strategize, and earn on-chain with zk tech!
 Join the challenge → https://www.minamastermind.com
 `,
-    hashtag:
-      'MinaProtocol ,Web3Gaming ,CryptoGaming',
+    hashtag: 'MinaProtocol ,Web3Gaming ,CryptoGaming',
   };
 });
 </script>

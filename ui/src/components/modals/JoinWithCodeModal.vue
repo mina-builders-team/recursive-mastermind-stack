@@ -22,7 +22,10 @@
           ><span>Search</span>
         </Button>
       </div>
-      <div class="color-snow-white mt-2 fs-16 fw-600 color-pink3" v-if="!gameFound">
+      <div
+        class="color-snow-white mt-2 fs-16 fw-600 color-pink3"
+        v-if="!gameFound"
+      >
         Not Found! Try Again!
       </div>
     </div>
@@ -49,17 +52,13 @@ const handleJoinCodeModalClose = () => {
 };
 const handleJoinWihCode = async () => {
   if (gameAddress.value) {
-    const game = await getGame(gameAddress.value);
-    if (['ACTIVE', 'IN_PROGRESS'].includes(game?.status || '')) {
-      router.push({
-        name: 'gameplay',
-        params: {
-          id: gameAddress.value,
-        },
-      });
-    } else {
-      gameFound.value = false;
-    }
+    await getGame(gameAddress.value);
+    router.push({
+      name: 'gameplay',
+      params: {
+        id: gameAddress.value,
+      },
+    });
   }
 };
 </script>
