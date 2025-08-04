@@ -1,22 +1,48 @@
 <template>
-  <div class="menu-container d-flex justify-content-between align-items-center w-100">
-    <img class="cursor-pointer" src="/logo.png" @click="redirectToLanding"></img>
+  <div
+    class="menu-container d-flex justify-content-between align-items-center w-100"
+  >
+    <img class="cursor-pointer" src="/logo.png" @click="redirectToLanding" />
     <div class="d-flex gap-4 align-items-center">
-      <span class="fs-14 fw-600 cursor-pointer" v-for="link in links" @click="handleLinkClick(link)">
-        {{ link.title }}</span>
-      <Button class="w-100 h-100 btn-cta3 wallet-btn border-alpha-50-300-50" @click="handleConnect">
+      <span
+        class="fs-14 fw-600 cursor-pointer"
+        v-for="link in links"
+        @click="handleLinkClick(link)"
+      >
+        {{ link.title }}</span
+      >
+      <Button
+        class="w-100 h-100 btn-cta3 wallet-btn border-alpha-50-300-50"
+        @click="handleConnect"
+      >
         <div class="color-gray">
           <div class="d-flex align-items-center ps-2">
-            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
-            <span v-if="publicKeyBase58">{{ formatAddress(publicKeyBase58) }}</span>
+            <inline-svg
+              src="/icons/wallet.svg"
+              class="me-1"
+              width="14"
+              height="14"
+            />
+            <span v-if="publicKeyBase58">{{
+              formatAddress(publicKeyBase58)
+            }}</span>
             <span v-else class="me-2">Connect</span>
           </div>
-          <Button class="d-flex align-items-center mt-2 px-3 btn-cta3 border-alpha-50-300-50" @click="handleDisconnect" v-if="publicKeyBase58">
+          <Button
+            class="d-flex align-items-center mt-2 px-3 btn-cta3 border-alpha-50-300-50"
+            @click="handleDisconnect"
+            v-if="publicKeyBase58"
+          >
             <div class="color-gray">
-            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
-            <span>Click to Disconnect</span>
+              <inline-svg
+                src="/icons/wallet.svg"
+                class="me-1"
+                width="14"
+                height="14"
+              />
+              <span>Click to Disconnect</span>
             </div>
-          </Button> 
+          </Button>
         </div>
       </Button>
     </div>
@@ -29,7 +55,7 @@ import { formatAddress } from '@/utils';
 import { useRouter } from 'vue-router';
 import Button from './Button.vue';
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
-const { disconnect,connect } = useZkAppStore();
+const { disconnect, connect } = useZkAppStore();
 
 const router = useRouter();
 const links = [
@@ -44,28 +70,28 @@ const handleLinkClick = (item: { title: string; name: string }) => {
   });
 };
 const handleDisconnect = () => {
-  disconnect()
-}
+  disconnect();
+};
 const handleConnect = async () => {
   if (!publicKeyBase58.value) {
-    await connect()
+    await connect();
   }
-}
+};
 const redirectToLanding = () => {
-  router.push({name:'home'})
-}
+  router.push({ name: 'home' });
+};
 </script>
 <style scoped lang="scss">
-
 .wallet-btn:hover {
-  background: linear-gradient(180deg,
-      $alpha-50-300-50 0%,
-      $alpha-50-700-50 100%);
+  background: linear-gradient(
+    180deg,
+    $alpha-50-300-50 0%,
+    $alpha-50-700-50 100%
+  );
   background-blend-mode: color-dodge;
   box-shadow: 0px 2px 15px 0px $color-600 inset;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(59, 61, 63, 0.5);
   color: $gray;
-
 }
 </style>
