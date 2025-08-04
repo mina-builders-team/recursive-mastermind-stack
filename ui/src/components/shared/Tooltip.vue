@@ -9,7 +9,7 @@
   </el-tooltip>
 </template>
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   placement: {
     type: String,
     required: true,

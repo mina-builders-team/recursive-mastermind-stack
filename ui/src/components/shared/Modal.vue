@@ -15,7 +15,7 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
-const props = defineProps({
+defineProps({
   border: {
     required: false,
     type: String,

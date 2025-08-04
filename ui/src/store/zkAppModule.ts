@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Poseidon, PrivateKey, PublicKey } from 'o1js';
+import { Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 

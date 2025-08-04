@@ -24,7 +24,7 @@
         <BoardTimer
           :isCurrentUserTurn="isCurrentUserTurn"
           :isTurnTimeExceeded="isTurnTimeExceeded"
-          :startTimestamp="timerStartTime"
+          :startTimestamp="timerStartTime!"
           :duration="timerDuration"
           :isPlayingOnChain="isPlayingOnChain"
           :lastTurnTransactionHash="lastTurnTransactionHash"

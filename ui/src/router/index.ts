@@ -22,7 +22,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/my-games',
     name: 'my-games',
     component: () =>
-      import(/* webpackChunkName: "my-games" */ '@/views/myGames.vue'),
+      import(/* webpackChunkName: "myGames" */ '@/views/MyGames.vue'),
   },
   {
     path: '/rank',
@@ -42,7 +42,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const completedOnboarding = localStorage.getItem('completedOnboarding');
   if (
     (to.name !== 'onboarding' && !completedOnboarding) ||

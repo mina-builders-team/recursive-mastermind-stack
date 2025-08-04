@@ -102,7 +102,7 @@
 import Timer from '../shared/Timer.vue';
 
 const emit = defineEmits(['timeEnded']);
-const props = defineProps({
+defineProps({
   duration: {
     type: Number,
     required: true,

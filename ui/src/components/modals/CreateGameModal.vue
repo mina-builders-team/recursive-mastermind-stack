@@ -287,7 +287,7 @@ const handleBackClick = () => {
 };
 const handleNextStep = async () => {
   if (currentStep.value === 0) {
-    const { isValid, message } = validateColorCombination(game.value?.secret);
+    const { isValid } = validateColorCombination(game.value?.secret);
     if (!isValid) {
       showMessage({
         type: 'error',
@@ -331,7 +331,7 @@ const handleNextStep = async () => {
     }
   }
 };
-const handleInfoChange = (current: number, prev: number) => {
+const handleInfoChange = (current: number) => {
   currentInfo.value = current;
 };
 const handleSecretChange = (newSecret: Array<AvailableColor>) => {

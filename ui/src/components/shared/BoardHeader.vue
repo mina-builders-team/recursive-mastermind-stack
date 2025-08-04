@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import RoundedColor from './RoundedColor.vue';
 
-const props = defineProps({
+defineProps({
   rewardAmount: {
     type: Number,
     required: false,

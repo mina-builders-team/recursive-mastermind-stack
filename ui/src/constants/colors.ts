@@ -15,4 +15,7 @@ export const cluesColors = [
   { color: '#5BC56B', value: 2, title: 'Hit' },
 ];
 
-export const initialColor = { color: '#0C0E11', value: 9 };
+export const initialColor: { color: string; value: string | number } = {
+  color: '#0C0E11',
+  value: 9,
+};

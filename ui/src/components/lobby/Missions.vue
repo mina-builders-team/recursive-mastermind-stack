@@ -18,20 +18,19 @@ import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import MissionCard from './MissionCard.vue';
 import { BADGES } from '@/constants/badges';
+import { Player } from '@/types';
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
-const player = ref({});
+const player = ref<Player>();
 const getUser = async () => {
-  const res = await axios.get(
-    SERVER_URL + '/player/' + publicKeyBase58.value
-  );
+  const res = await axios.get(SERVER_URL + '/player/' + publicKeyBase58.value);
   player.value = res?.data?.player;
 };
 onMounted(async () => {
   await getUser();
 });
 const userHasBadge = (badgeName: string) => {
-  return player.value?.badges?.includes(badgeName);
+  return player.value?.badges?.includes(badgeName) || false;
 };
 </script>
 <style lang="scss" scoped></style>

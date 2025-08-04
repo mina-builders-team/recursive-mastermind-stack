@@ -11,7 +11,7 @@
       class="bg-alpha-20-700-20 blend-multiply default-border p-10 radius-4 mb-2"
     >
       <div
-        v-for="item in 3"
+        v-for="_item in 3"
         class="d-flex align-items-center justify-content-center gap-3 my-2"
       >
         <Clue :clue="[missClue, missClue, missClue, missClue]" />

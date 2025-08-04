@@ -32,7 +32,7 @@
 <script lang="ts" setup>
 import { formatAddress, getTitleByRank } from '@/utils';
 
-const props = defineProps({
+defineProps({
   player: {
     required: true,
     type: Object,

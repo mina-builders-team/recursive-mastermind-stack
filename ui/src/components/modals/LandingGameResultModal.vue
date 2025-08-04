@@ -30,7 +30,7 @@
 import { useRouter } from 'vue-router';
 import Modal from '../shared/Modal.vue';
 import Button from '../shared/Button.vue';
-const props = defineProps({
+defineProps({
   isGameSolved: {
     type: Boolean,
     required: true,

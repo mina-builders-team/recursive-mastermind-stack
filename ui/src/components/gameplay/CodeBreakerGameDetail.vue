@@ -131,7 +131,7 @@
 <script lang="ts" setup>
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { ElMessage, ElNotification } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { formatAddress, updateLocalStorageGames } from '@/utils';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

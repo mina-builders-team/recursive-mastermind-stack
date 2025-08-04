@@ -1,5 +1,5 @@
 <template>
-  <el-button @click="handleClick" :class="class" :size="size">
+  <el-button @click="handleClick" :class="props.class" :size="size">
     <slot></slot>
   </el-button>
 </template>

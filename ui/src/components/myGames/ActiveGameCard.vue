@@ -61,7 +61,7 @@ import { storeToRefs } from 'pinia';
 import ShareButton from '../shared/ShareButton.vue';
 dayjs.extend(relativeTime);
 
-const props = defineProps({
+defineProps({
   game: {
     type: Object,
     required: true,

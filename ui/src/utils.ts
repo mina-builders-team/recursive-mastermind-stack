@@ -14,7 +14,7 @@ import {
   Combination,
 } from '@navigators-exploration-team/mina-mastermind';
 import { availableColors, cluesColors, initialColor } from './constants/colors';
-import { AvailableColor, Game } from './types';
+import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';
 import { MAX_ATTEMPTS } from './constants/config';
 import { leaderboardTitles } from './constants/titles';

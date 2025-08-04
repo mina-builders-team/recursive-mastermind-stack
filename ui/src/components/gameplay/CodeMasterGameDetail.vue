@@ -51,7 +51,7 @@
       <div class="d-flex justify-content-between gap-4 w-100">
         <div class="d-flex gap-4 flex-1" v-if="game?.status === 'ACTIVE'">
           <Button
-            class="btn-cta3 border-alpha-50-300-50 color-snow-white flex-1" 
+            class="btn-cta3 border-alpha-50-300-50 color-snow-white flex-1"
             size="large"
             @click="returnToLobby"
           >
@@ -74,7 +74,7 @@ Join now as the Code Breaker 👇
 
  `"
             hashtag="MinaProtocol ,zkApps ,Web3Gaming ,ZeroKnowledge ,MastermindGame"
-            class="radius-10 bg-snow-white color-900 flex-1"
+            btnClass="radius-10 bg-snow-white color-900 flex-1"
           />
         </div>
         <div class="w-100" v-if="timeEnded && zkAppStates">

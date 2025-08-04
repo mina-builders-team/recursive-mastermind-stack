@@ -15,7 +15,7 @@ import { initialColor } from '@/constants/colors';
 import { AvailableColor } from '@/types';
 import RoundedColor from '@/components/shared/RoundedColor.vue';
 
-const props = defineProps({
+defineProps({
   clue: {
     type: Array<AvailableColor>,
     required: false,
