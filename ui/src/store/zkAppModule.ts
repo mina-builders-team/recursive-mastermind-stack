@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Field, Poseidon, PublicKey } from 'o1js';
+import { Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -29,6 +29,7 @@ interface MinaWallet {
   on: (event: string, handler: Function) => void;
   switchChain: (args: ChainInfoArgs) => Promise<ChainInfoArgs | ProviderError>;
   requestNetwork: () => Promise<ChainInfoArgs>;
+  getAccounts: () => Promise<string[]>;
 }
 
 declare global {
@@ -53,6 +54,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     currentTransactionLink: '',
     submitGameTransactionHash: '',
     claimRewardTransactionHash: '',
+    cancelGameTransactionHash: '',
     zkAppStates: null as null | any,
     zkProofStates: null as null | any,
     compiled: false,
@@ -64,75 +66,37 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     isTurnPlayed: false,
     isPlayingOnChain: false,
     currentSlot: null as null | number,
+    benchmark: null as null | {
+      initGameTxDuration: number;
+      createGameProofDuration: number;
+      guessProofDuration: number;
+      clueProofDuration: number;
+    },
   }),
   getters: {},
   actions: {
     async setupZkApp() {
-      if (window.mina) {
-        try {
-          this.requestedConnexion = true;
-          this.stepDisplay = 'Loading web worker...';
-          this.zkappWorkerClient = new ZkappWorkerClient();
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          this.stepDisplay = 'Setting Mina instance...';
-          await this.zkappWorkerClient.setMinaActiveInstance();
-          await this.syncMinaChain();
-          const accounts = await window.mina.requestAccounts();
-          this.publicKeyBase58 = accounts[0];
-          this.stepDisplay = 'Checking if fee payer account exists...';
-          const res = await this.zkappWorkerClient.fetchAccount(
-            this.publicKeyBase58
-          );
-          this.accountExists = res.error === null;
-          await this.zkappWorkerClient.loadContract();
-          this.stepDisplay = 'Compiling zkApp...';
-
-          await this.zkappWorkerClient.compileContract();
-          this.stepDisplay = '';
-          this.compiled = true;
-          this.hasBeenSetup = true;
-          this.hasWallet = true;
-          window.mina?.on('accountsChanged', async (accounts: string[]) => {
-            if (accounts.length) {
-              this.publicKeyBase58 = accounts[0];
-            } else {
-              const newAccounts = await window.mina?.requestAccounts();
-              this.publicKeyBase58 = newAccounts?.[0];
-            }
-            await this.getRole();
-          });
-          console.log('setup completed...');
-          this.error = null;
-        } catch (error: any) {
-          return { message: error.message };
-        }
-      } else {
-        this.hasWallet = false;
-        this.stepDisplay = 'Mina Wallet not detected';
-
-        this.error = {
-          message: 'Mina Wallet not detected. Please install Auro Wallet.',
-        };
-        return;
-      }
-    },
-    async checkAccountExists() {
       try {
-        for (;;) {
-          const res = await this.zkappWorkerClient!.fetchAccount(
-            this.publicKeyBase58
-          );
-          const accountExists = res.error == null;
-          if (accountExists) {
-            break;
-          }
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+        this.requestedConnexion = true;
+        this.stepDisplay = 'Loading web worker...';
+        this.zkappWorkerClient = new ZkappWorkerClient();
+        let accounts = await window.mina?.getAccounts();
+        if (accounts?.[0]) {
+          this.publicKeyBase58 = accounts?.[0];
         }
+        this.stepDisplay = 'Setting Mina instance...';
+        await this.zkappWorkerClient.setMinaActiveInstance();
+        await this.zkappWorkerClient.loadContract();
+        this.stepDisplay = 'Compiling zkApp...';
+        await this.zkappWorkerClient.compileContract();
+        this.stepDisplay = '';
+        this.compiled = true;
+        this.hasBeenSetup = true;
+        console.log('setup completed...');
+        this.error = null;
       } catch (error: any) {
-        this.stepDisplay = `Error checking account: ${error.message}`;
+        return { message: error.message };
       }
-      this.accountExists = true;
-      this.error = null;
     },
     async syncMinaChain() {
       const currentMinaNetworkId: ChainInfoArgs = await window.mina
@@ -187,7 +151,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       separatedSecretCombination: number[],
       salt: string,
       refereePubKeyBase58: string,
-      rewardAmount: number
+      rewardAmount: number,
+      roomName: string
     ) {
       try {
         this.loading = true;
@@ -223,6 +188,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
+        await new Promise((res) => setTimeout(res, 5000));
         if (this.isPlayingOnChain && !this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
@@ -241,6 +207,19 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           separatedSecretCombination,
           salt
         );
+        this.game = {
+          status: 'PENDING',
+          _id: this.zkAppAddress,
+          lastProof: JSON.stringify(res),
+          timestamp: Date.now(),
+          rewardAmount: rewardAmount,
+          turnCount: 1,
+          codeMaster: this.publicKeyBase58,
+          refereePubKeyBase58,
+          isRefereeVerified: true,
+          roomName,
+          gameCreationTransactionHash: hash,
+        };
         this.webSocketInstance?.send({
           action: 'sendProof',
           gameId: this.zkAppAddress,
@@ -248,6 +227,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           rewardAmount,
           refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
+          roomName,
+          gameCreationTransactionHash: hash,
         });
         this.stepDisplay = '';
         this.error = null;
@@ -413,12 +394,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         return this.zkAppAddress;
       }
     },
-
-    async submitGameProof(proof: string) {
+    async submitGameProof(proof: string, winnerPubKeyBase58?: string) {
       try {
         this.loading = true;
         this.stepDisplay = 'Creating a transaction...';
-        await this.zkappWorkerClient!.submitGameProof(proof);
+        await this.zkappWorkerClient!.submitGameProof(
+          proof,
+          winnerPubKeyBase58
+        );
         this.stepDisplay = 'Generating proof...';
         await this.zkappWorkerClient!.proveTransaction();
         this.stepDisplay = 'Getting transaction JSON...';
@@ -499,8 +482,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         await this.joinGame();
         this.stepDisplay = '';
         this.error = null;
-        await axios.post(SERVER_URL + `/games/accept/${this.publicKeyBase58}`, {
+        await axios.post(SERVER_URL + `/games/accept`, {
           gameId: this.zkAppAddress,
+          userId: this.publicKeyBase58,
         });
       } catch (err: any) {
         this.error = err?.message || err;
@@ -558,6 +542,19 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       }
       this.game = game;
     },
+    async getGame(gameId: string) {
+      try {
+        const res = await axios.get(SERVER_URL + `/games/${gameId}`);
+        if (res?.data?.game) {
+          await this.setGame(res?.data?.game);
+        }
+        this.error = null;
+        return res?.data?.game;
+      } catch (err: any) {
+        this.error = err?.message || err;
+        console.log('error ', err);
+      }
+    },
     startGame() {
       this.webSocketInstance?.send({
         action: 'startGame',
@@ -594,7 +591,10 @@ export const useZkAppStore = defineStore('useZkAppModule', {
               memo: '',
             },
           });
-          this.currentTransactionLink = hash;
+          this.cancelGameTransactionHash = hash;
+          updateLocalStorageGames(this.zkAppAddress as string, {
+            cancelGameTransactionHash: hash,
+          });
           const res = await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
             signedData,
             hash,
@@ -610,6 +610,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         console.log('error ', err);
       } finally {
         this.loading = false;
+        return this.cancelGameTransactionHash;
       }
     },
     async clearGame() {
@@ -623,6 +624,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = '';
       this.submitGameTransactionHash = '';
       this.claimRewardTransactionHash = '';
+      this.cancelGameTransactionHash = '';
     },
     setMenuStep(step: string) {
       this.menuStep = step;
@@ -639,11 +641,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setStepDisplay(step: string) {
       this.stepDisplay = step;
     },
-    async setPlayingOnChain(isOnChain: boolean) {
+    async setPlayingOnChain(isOnChain: boolean, gamedId?: string) {
       this.isPlayingOnChain = isOnChain;
       if (isOnChain) {
         await this.getZkAppStates();
-        const game: any = getStoredGame(this.zkAppAddress as string);
+        const game: any = getStoredGame(
+          (this.zkAppAddress || gamedId) as string
+        );
         const proof = game?.lastProof;
         if (proof) {
           await this.setLastProof(proof);
@@ -660,82 +664,21 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.claimRewardTransactionHash = game?.claimRewardTransactionHash;
       this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
-    setLastTurnTransactionHash(hash: string | null) {
-      this.lastTurnTransactionHash = hash ? hash : '';
+    setLastTurnTransactionHash(hash: string) {
+      this.lastTurnTransactionHash = hash;
     },
-    async createDummyGameTransaction() {
-      this.loading = true;
-      const start = performance.now();
-      this.zkAppAddress =
-        await this.zkappWorkerClient!.createInitGameTransaction(
-          this.publicKeyBase58,
-          [1, 2, 3, 4],
-          Field(1).toString(),
-          import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
-          10 * 1e9
-        );
-      await this.zkappWorkerClient!.proveTransaction();
-      this.loading = false;
-      const end = performance.now();
-      return { duration: ((end - start) / 1000).toFixed(2) };
-    },
-    async createDummyGameProof() {
-      this.loading = true;
-      const start = performance.now();
-      const salt = Field(1).toString();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        salt,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.sendNewGameProof(
-        signedData,
-        [1, 2, 3, 4],
-        salt
+    async startBenchmark() {
+      this.benchmark = await this.zkappWorkerClient!.benchmark(
+        import.meta.env.VITE_SERVER_PUBLIC_KEY
       );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
-    },
-    async createDummyGuessProof() {
-      this.loading = true;
-      const start = performance.now();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        1,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.createGuessProof(
-        signedData,
-        [1, 2, 3, 4]
-      );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
-    },
-    async createDummyClueProof() {
-      this.loading = true;
-      const start = performance.now();
-      const signedData = await this.signFields([
-        ...[1, 2, 3, 4],
-        Field(1).toString(),
-        2,
-        ...PublicKey.fromBase58(this.zkAppAddress as string)
-          .toFields()
-          .map((e) => e.toString()),
-      ]);
-      const res = await this.zkappWorkerClient!.createGiveClueProof(
-        signedData,
-        [1, 2, 3, 4],
-        Field(1).toString()
-      );
-      const end = performance.now();
-      this.loading = false;
-      return { duration: ((end - start) / 1000).toFixed(2), proof: res };
+      if (
+        this.benchmark?.initGameTxDuration &&
+        this.benchmark?.clueProofDuration &&
+        this.benchmark?.guessProofDuration &&
+        this.benchmark?.createGameProofDuration
+      ) {
+        localStorage.setItem('benchmark', JSON.stringify(this.benchmark));
+      }
     },
     async establishConnection() {
       if (!this.webSocketInstance?.connected) {
@@ -744,6 +687,36 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (this.isPlayingOnChain) {
           this.isPlayingOnChain = false;
         }
+      }
+    },
+    async disconnect() {
+      this.publicKeyBase58 = null;
+    },
+    async connect() {
+      if (window.mina) {
+        await this.syncMinaChain();
+        const accounts = await window.mina?.requestAccounts();
+        this.publicKeyBase58 = accounts?.[0];
+        this.stepDisplay = 'Checking if fee payer account exists...';
+        const res = await this.zkappWorkerClient?.fetchAccount(
+          this.publicKeyBase58
+        );
+        this.accountExists = res?.error === null;
+        window.mina?.on('accountsChanged', async (accounts: string[]) => {
+          if (accounts.length) {
+            this.publicKeyBase58 = accounts[0];
+          } else {
+            const newAccounts = await window.mina?.requestAccounts();
+            this.publicKeyBase58 = newAccounts?.[0];
+          }
+          await this.getRole();
+        });
+      } else {
+        this.hasWallet = false;
+        this.error = {
+          message: 'Mina Wallet not detected. Please install Auro Wallet.',
+        };
+        return;
       }
     },
   },

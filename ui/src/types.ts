@@ -1,6 +1,6 @@
 export interface AvailableColor {
   color: string;
-  value: number;
+  value: number | string;
   title?: string;
 }
 
@@ -40,4 +40,28 @@ export interface Game {
   lastCancelTimestamp?: number;
   refereePubKeyBase58: string;
   isRefereeVerified: boolean;
+  roomName?: string;
+  gameCreationTransactionHash?: string;
+  lastJoinAttemptBy?: string;
+  finalTransactionTimestamp?: number;
 }
+
+export type Player = {
+  _id: string;
+  publicKey: string;
+  gamesPlayed: number;
+  winsAsCodeBreaker: number;
+  winsAsCodeMaster: number;
+  netRewards: number;
+  creatorScore: number;
+  breakerScore: number;
+  dualScore: number;
+  badges: string[];
+  totalScore: number;
+  currentStreak: number;
+  maxStreak: number;
+  createdGames: number;
+  crackedGames: number;
+  crackedInUnder5: number;
+  lastGameDate: Date;
+};

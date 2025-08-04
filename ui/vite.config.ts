@@ -13,11 +13,18 @@ export default defineConfig({
     host: true,
     hmr: true,
     headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
-  plugins: [ vue() as PluginOption],
+  plugins: [vue() as PluginOption],
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "@/styles/index.scss" as *;`,
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

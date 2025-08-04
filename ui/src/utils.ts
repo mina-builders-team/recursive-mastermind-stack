@@ -17,6 +17,7 @@ import { availableColors, cluesColors, initialColor } from './constants/colors';
 import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';
 import { MAX_ATTEMPTS } from './constants/config';
+import { leaderboardTitles } from './constants/titles';
 
 /**
  * Formats a public key address by truncating the middle for display purposes.
@@ -26,7 +27,7 @@ import { MAX_ATTEMPTS } from './constants/config';
  * @returns The formatted address string.
  */
 export function formatAddress(address: string): string {
-  return `${address?.slice(0, 5)}...${address?.slice(-5)}`;
+  return address ? `${address?.slice(0, 5)}...${address?.slice(-5)}` : '';
 }
 
 /**
@@ -147,7 +148,7 @@ export function validateColorCombination(combination: AvailableColor[]) {
     isValid = false;
     return {
       isValid,
-      message: 'You should choose four distinct colors.',
+      message: 'Please choose a combination of 4 unique digits between 0 and 7',
     };
   }
 }
@@ -332,7 +333,7 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
  * @param gameId - The ID of the game to retrieve.
  * @returns The stored game data as a string or null if not found.
  */
-export function getStoredGame(gameId: string): string | null {
+export function getStoredGame(gameId: string): any | null {
   const games = localStorage.getItem('games');
   if (games) {
     const jsonGames: any = JSON.parse(games);
@@ -340,3 +341,64 @@ export function getStoredGame(gameId: string): string | null {
   }
   return null;
 }
+
+export const getTitleByRank = (rank: number) => {
+  return leaderboardTitles.find(
+    ({ range }) => rank >= range[0] && rank <= range[1]
+  );
+};
+
+export const getNextTitleInfo = (rank: number) => {
+  for (let i = leaderboardTitles.length - 1; i >= 0; i--) {
+    const entry = leaderboardTitles[i];
+    const [min, max] = entry.range;
+    if (rank >= min && rank <= max) {
+      if (i === 0) return null;
+      const next = leaderboardTitles[i - 1];
+      const ranksToNext = rank - next.range[1] + 1;
+      return {
+        nextTitle: next.title,
+        ranksToNext,
+      };
+    }
+  }
+  return null;
+};
+
+export const generateRandomSecret = (): Array<number> => {
+  const solution: Array<number> = [];
+  while (solution.length < 4) {
+    const r = Math.floor(Math.random() * 8);
+    if (!solution.includes(r)) {
+      solution.push(r);
+    }
+  }
+  return solution;
+};
+export const generateClue = (guess: AvailableColor[], secret: number[]) => {
+  const hitColor = cluesColors.find((c) => c.value === 2);
+  const blowColor = cluesColors.find((c) => c.value === 1);
+  const missColor = cluesColors.find((c) => c.value === 0);
+  let hits = 0;
+  let blows = 0;
+  guess.map((e, index) => {
+    if (secret.includes(Number(e.value))) {
+      if (secret[index] === e.value) {
+        hits++;
+      } else {
+        blows++;
+      }
+    }
+  });
+  return {
+    clue: [
+      ...Array.from({ length: Number(hits) }, () => hitColor!),
+      ...Array.from({ length: Number(blows) }, () => blowColor!),
+      ...Array.from(
+        { length: 4 - (Number(hits) + Number(blows)) },
+        () => missColor!
+      ),
+    ],
+    isSolved: hits === 4,
+  };
+};

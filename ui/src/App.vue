@@ -1,17 +1,21 @@
 <template>
-  <div class="h-100 w-100 d-flex flex-column align-items-center">
-    <div class="m-3 mb-0 w-100 game-title fs-1">Mina Mastermind</div>
-    <router-view />
+  <MatrixBackground />
+  <div class="d-flex justify-content-center main-container">
+    <div class="h-100 w-100">
+      <Menu v-if="showMenu"></Menu>
+      <div class="w-100 h-100">
+        <router-view />
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
-import { storeToRefs } from 'pinia';
-
-const { zkappWorkerClient, hasBeenSetup, accountExists } =
-  storeToRefs(useZkAppStore());
-const { checkAccountExists, setupZkApp } = useZkAppStore();
+import MatrixBackground from './components/MatrixBackground.vue';
+import Menu from '@/components/shared/Menu.vue';
+import { useRoute } from 'vue-router';
+const { setupZkApp } = useZkAppStore();
 onMounted(async () => {
   await setupZkApp();
   removePastGames();
@@ -31,35 +35,46 @@ const removePastGames = () => {
     }
   }
 };
+const route = useRoute();
+const showMenu = ref(true);
 watch(
-  [
-    () => zkappWorkerClient.value,
-    () => hasBeenSetup.value,
-    () => accountExists.value,
-  ],
-  async () => {
-    if (hasBeenSetup.value && !accountExists.value) {
-      await checkAccountExists();
+  () => route.name,
+  () => {
+    if (route.name === 'onboarding') {
+      showMenu.value = false;
+    } else {
+      showMenu.value = true;
     }
   }
 );
 </script>
-<style>
-#app {
-  font-family: 'Roboto Mono', Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: white;
+<style scoped>
+.main-container {
+  font-size: 14px;
+  padding: 5% 4%;
 }
 
-.app-container {
-  display: flex;
-  justify-content: center;
-  color: white;
-  padding-top: 20px;
+@media (min-width: 576px) {
+  .main-container {
+    padding: 5% 6%;
+  }
 }
-.game-title {
-  color: #00ffcc;
+
+@media (min-width: 768px) {
+  .main-container {
+    padding: 5% 8%;
+  }
+}
+
+@media (min-width: 992px) {
+  .main-container {
+    padding: 5% 10%;
+  }
+}
+
+@media (min-width: 1300px) {
+  .main-container {
+    padding: 5% 10%;
+  }
 }
 </style>

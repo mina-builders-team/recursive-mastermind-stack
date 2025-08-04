@@ -27,6 +27,7 @@ import gamesRoute from './routes/gamesRoute.js';
 import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
+import playerRoute from './routes/playerRoute.js';
 
 // Environment Setup
 dotenv.config();
@@ -60,6 +61,8 @@ const server = app.listen(PORT, () => {
 
 // Mounts game routes at the '/games' endpoint.
 app.use('/games', gamesRoute);
+
+app.use('/player', playerRoute);
 
 // Healthcheck Endpoint
 app.get('/health', (_req, res) => {
@@ -154,6 +157,8 @@ wss.on('connection', (ws) => {
         rewardAmount,
         playerPubKeyBase58,
         refereePubKeyBase58,
+        roomName,
+        gameCreationTransactionHash,
       } = data;
       console.log('action : ', action);
       if (!gameId || !action) {
@@ -175,7 +180,9 @@ wss.on('connection', (ws) => {
           activePlayers,
           ws,
           gameLifecycleQueue,
-          verificationKeys.stepProgramVerificationKey
+          verificationKeys.stepProgramVerificationKey,
+          roomName,
+          gameCreationTransactionHash
         );
       } else if (action === 'startGame') {
         console.log('starting the game!');

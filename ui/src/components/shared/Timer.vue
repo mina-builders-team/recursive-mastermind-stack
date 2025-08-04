@@ -1,13 +1,24 @@
 <template>
-  <div class="d-flex align-items-center gap-1">
-    <el-icon
-      v-if="showIcon"
-      :size="25"
-      :class="['cursor-pointer timer-icon', { critical: isCritical }]"
-      ><Timer
-    /></el-icon>
-    <span v-if="!isOnChain">{{ minutes }}:{{ seconds }}</span>
-    <span v-else> < {{ remainingSlot * 3 }} Minutes</span>
+  <div
+    :class="
+      [
+        ' d-flex align-items-center gap-1 p-10 radius-10 fs-16 fw-600 ',
+        {
+          'color-black bg-snow-white ': !isCritical && !transparent,
+          'critical color-snow-white ': isCritical,
+        },
+      ].concat(customClass)
+    "
+  >
+    <inline-svg
+      class="me-1"
+      v-if="isCritical"
+      src="/icons/alert.svg"
+    ></inline-svg>
+    <span
+      ><span v-if="minutes !== '00'">{{ minutes || 0 }} min </span>
+      {{ seconds || 0 }} s</span
+    >
   </div>
 </template>
 
@@ -33,13 +44,18 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  isOnChain: {
-    type: Boolean,
-    default: false,
-  },
-  remainingSlot: {
+  criticalOn: {
     type: Number,
     required: false,
+  },
+  customClass: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  transparent: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -49,11 +65,6 @@ const isCritical = ref(false);
 
 let interval;
 const updateCountdown = () => {
-  if (props.isOnChain) {
-    clearInterval(interval);
-    isCritical.value = false;
-    return;
-  }
   const now = Date.now();
   const elapsed = now - props.startTimestamp;
   if (elapsed >= props.duration) {
@@ -71,7 +82,7 @@ const updateCountdown = () => {
 
   minutes.value = String(m).padStart(2, '0');
   seconds.value = String(s).padStart(2, '0');
-  isCritical.value = timeLeft <= 30000;
+  isCritical.value = props.criticalOn && timeLeft <= props.criticalOn;
 };
 
 const startTimer = () => {
@@ -80,22 +91,14 @@ const startTimer = () => {
 };
 
 onMounted(() => {
-  if (!props.isOnChain) {
-    startTimer();
-  }
+  startTimer();
 });
 onUnmounted(() => clearInterval(interval));
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .critical {
-  color: rgb(217, 103, 103);
-  animation: blink 0.5s step-start infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
+  background: #ff375f4d;
+  border: 1px solid #ff375f;
 }
 </style>

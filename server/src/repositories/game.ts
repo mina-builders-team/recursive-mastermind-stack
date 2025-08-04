@@ -126,3 +126,73 @@ export const resumeOnGoingGames = async (): Promise<UpdateResult> => {
     throw new Error('Error while resuming games on chain: ' + err);
   }
 };
+
+export const getLobbyData = async (options: {
+  baseMatch: Object;
+  sortBy: string;
+  sortOrder: 1 | -1 | 'asc' | 'desc';
+  skip: number;
+  limit: number;
+}): Promise<[IGame[], number]> => {
+  try {
+    return await Promise.all([
+      Game.find(options.baseMatch)
+        .sort({ [options.sortBy]: options.sortOrder })
+        .skip(options.skip)
+        .limit(options.limit)
+        .select(
+          '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
+        )
+        .lean(),
+      Game.countDocuments(options.baseMatch),
+    ]);
+  } catch (err) {
+    throw new Error('Error while getting lobby data: ' + err);
+  }
+};
+
+export const getInProgressGamesByPlayer = async (
+  userId: string
+): Promise<IGame[]> => {
+  try {
+    return await Game.find({
+      status: GameStatus.IN_PROGRESS,
+      $or: [{ codeMaster: userId }, { codeBreaker: userId }],
+    })
+      .select(
+        '_id rewardAmount createdAt turnCount roomName status lastAcceptTimestamp codeMaster codeBreaker timestamp'
+      )
+      .lean();
+  } catch (err) {
+    throw new Error('Error while getting in progress games: ' + err);
+  }
+};
+
+export const getPlayedGames = async (options: {
+  playedGamesQuery: Object;
+  orderBy: string;
+  sortOrder: 1 | -1 | 'asc' | 'desc';
+  skip: number;
+  limit: number;
+}) => {
+  return await Promise.all([
+    await Game.find(options.playedGamesQuery)
+      .sort({ [options.orderBy]: options.sortOrder })
+      .skip(options.skip)
+      .limit(options.limit)
+      .select(
+        ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster settlementTransactionHash penalizationTransactionHash finalTransactionTimestamp'
+      )
+      .lean(),
+    await Game.countDocuments(options.playedGamesQuery),
+  ]);
+};
+
+export const getUserCreatedGames = async (playerId: string) => {
+  return await Game.find({
+    codeMaster: playerId,
+    status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
+  })
+    .sort({ timestamp: -1 })
+    .lean();
+};

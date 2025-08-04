@@ -29,6 +29,10 @@ export interface IGame extends Document {
   lastCancelTimestamp: number;
   refereePubKeyBase58: string;
   isRefereeVerified: boolean;
+  gameCreationTransactionHash: string;
+  roomName: string;
+  lastJoinAttemptBy: string;
+  finalTransactionTimestamp: number;
 }
 
 const gameSchema: Schema = new Schema(
@@ -54,9 +58,18 @@ const gameSchema: Schema = new Schema(
     lastCancelTimestamp: { type: Number, required: false },
     refereePubKeyBase58: { type: String, required: true },
     isRefereeVerified: { type: Boolean, required: true },
+    gameCreationTransactionHash: { type: String, required: true },
+    roomName: { type: String, required: true },
+    lastJoinAttemptBy: { type: String, required: false },
+    finalTransactionTimestamp: { type: Number, required: false },
   },
   { timestamps: true }
 );
+
+gameSchema.index({ codeMaster: 1 });
+gameSchema.index({ codeBreaker: 1 });
+gameSchema.index({ status: 1 });
+gameSchema.index({ winnerPublicKeyBase58: 1 });
 
 const Game = mongoose.model<IGame>('Game', gameSchema);
 

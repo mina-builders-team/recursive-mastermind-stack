@@ -1,40 +1,53 @@
 <template>
   <div class="d-flex flex-column align-items-center">
-    <div
-      class="exit-game cursor-pointer mb-4 d-flex align-items-center gap-2"
-      @click="handleLeaveGame"
-    >
-      <el-icon class="pt-1 fw-bold"><Back /></el-icon>
-      Exit game
+    <div v-if="isLoading">
+      <Modal class="w-500">
+        <GameBoardSkeleton />
+      </Modal>
     </div>
-    <div v-if="zkAppStates" class="w-100">
-      <GameDetail
+    <div v-else-if="isNotAvailableGame">
+      <Modal class="w-400">
+        <NotFound />
+      </Modal>
+    </div>
+    <div v-else class="w-100">
+      <Modal
         v-if="
           !isGameAcceptedOnChain ||
           (!isPlayingOnChain &&
             ['ACTIVE', 'PENDING'].includes(game?.status || ''))
         "
-      />
+        background="transparent"
+        border="unset"
+        padding="0px"
+      >
+        <GameDetail />
+      </Modal>
       <GameBoard v-else />
-    </div>
-    <div v-else class="mt-5">
-      <GameBoardSkeleton />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
-import { useRoute, useRouter } from 'vue-router';
-import GameBoard from '@/components/GameBoard.vue';
-import GameDetail from '@/components/GameDetail.vue';
-import GameBoardSkeleton from '@/components/GameBoardSkeleton.vue';
+import { useRoute } from 'vue-router';
+import GameBoard from '@/components/gameplay/GameBoard.vue';
+import GameDetail from '@/components/gameplay/GameDetail.vue';
+import Modal from '@/components/shared/Modal.vue';
+import GameBoardSkeleton from '@/components/gameplay/skeleton/GameBoardSkeleton.vue';
+import NotFound from '@/views/NotFound.vue';
 const route = useRoute();
-const router = useRouter();
-const { compiled, zkAppStates, game, isPlayingOnChain } =
-  storeToRefs(useZkAppStore());
+const {
+  compiled,
+  zkAppStates,
+  game,
+  isPlayingOnChain,
+  publicKeyBase58,
+  error,
+  userRole,
+} = storeToRefs(useZkAppStore());
 const {
   initZkappInstance,
   joinGame,
@@ -43,13 +56,19 @@ const {
   clearGame,
   setPlayingOnChain,
   establishConnection,
+  getRole,
+  getGame,
 } = useZkAppStore();
 const gameId = route?.params?.id as string;
 const isGameAcceptedOnChain = ref(false);
+const isLoading = ref(true);
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
+    await getZkAppStates();
     await joinGame(gameId);
+    await getRole();
+
     intervalId.value = setInterval(async () => {
       await getZkAppStates();
       if (zkAppStates.value && zkAppStates.value.codeBreakerId !== '0') {
@@ -60,12 +79,28 @@ const initializeGame = async () => {
     }, 30000);
   }
 };
-const handleLeaveGame = () => {
-  router.push({ name: 'home' });
-};
 onMounted(async () => {
   await initializeGame();
+  if (!game.value) {
+    await getGame(gameId);
+    if (error.value === 'Network Error') {
+      setPlayingOnChain(true, gameId);
+    }
+  }
+  isLoading.value = false;
 });
+const isNotAvailableGame = computed(() => {
+  return (
+    (!isPlayingOnChain.value &&
+      (!game.value ||
+        (game.value?.status === 'PENDING' &&
+          game.value?.codeMaster !== publicKeyBase58.value))) ||
+    (isPlayingOnChain.value &&
+      zkAppStates.value?.codeBreakerId === '0' &&
+      userRole.value !== 'CODE_MASTER')
+  );
+});
+
 watch(
   () => compiled.value,
   async () => {
@@ -75,8 +110,6 @@ watch(
 watch(
   () => zkAppStates.value?.codeBreakerId,
   async () => {
-    await establishConnection();
-
     isGameAcceptedOnChain.value =
       zkAppStates.value?.codeBreakerId &&
       zkAppStates.value?.codeBreakerId !== '0';
@@ -85,6 +118,7 @@ watch(
       ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
       isGameAcceptedOnChain.value
     ) {
+      await establishConnection();
       startGame();
     }
   }
@@ -102,12 +136,4 @@ onUnmounted(async () => {
   }
 });
 </script>
-<style lang="css" scoped>
-.board__container {
-  border: 1px solid #222;
-  box-shadow: 0 0 10px #00ffcc55;
-}
-.exit-game {
-  color: #00ffcc;
-}
-</style>
+<style lang="scss" scoped></style>

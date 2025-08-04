@@ -130,8 +130,8 @@ export default class ZkappWorkerClient {
   async setLastProof(zkProof: any) {
     return this._call('setLastProof', { zkProof });
   }
-  async submitGameProof(zkProof: string) {
-    return this._call('submitGameProof', {zkProof});
+  async submitGameProof(zkProof: string, winnerPubKeyBase58?: string) {
+    return this._call('submitGameProof', { zkProof, winnerPubKeyBase58 });
   }
   async createClaimRewardTransaction(feePayer: string) {
     return this._call('createClaimRewardTransaction', {
@@ -157,6 +157,20 @@ export default class ZkappWorkerClient {
   async fetchCurrentSlot() {
     const result = this._call('fetchCurrentSlot', {});
     return result as Promise<number>;
+  }
+  async benchmark(feePayer: string): Promise<{
+    initGameTxDuration: number;
+    createGameProofDuration: number;
+    guessProofDuration: number;
+    clueProofDuration: number;
+  }> {
+    const result = await this._call('benchmark', { feePayer });
+    return result as Promise<{
+      initGameTxDuration: number;
+      createGameProofDuration: number;
+      guessProofDuration: number;
+      clueProofDuration: number;
+    }>;
   }
 
   // worker initialization

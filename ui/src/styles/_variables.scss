@@ -1,0 +1,81 @@
+$color-100: #c7c7c7;
+$color-200: #5b5d60;
+$color-300: #3b3d3f;
+$color-400: #303134;
+$color-500: #27282a;
+$color-600: #1e1f22;
+$color-700: #191b1d;
+$color-800: #161719;
+$color-900: #0c0e11;
+$snow-white: #fefefe;
+$gray-passive: $color-500;
+$white: #fff;
+$black: #000;
+$yellow: #ffd60a;
+$alpha-20-000-20: #ffffff33;
+$alpha-20-300-20: #3b3d3f33;
+$alpha-20-700-20: #191b1d33;
+$alpha-20-900-20: #0c0e1133;
+
+$alpha-50-000-50: #ffffff80;
+$alpha-50-300-50: #3b3d3f80;
+$alpha-50-700-50: #191b1d80;
+$alpha-50-900-50: #0c0e1180;
+
+$alpha-8-000-8: #ffffff14;
+$alpha-8-300-8: #3b3d3f14;
+$alpha-8-700-8: #191b1d14;
+$alpha-8-900-8: #0c0e1114;
+
+$glass-idle: #27282a80;
+$green: #5bc56b;
+$red: #af423b;
+$gray: #98989d;
+$pink3: #ff375f;
+$colors: (
+  100: $color-100,
+  200: $color-200,
+  300: $color-300,
+  400: $color-400,
+  500: $color-500,
+  600: $color-600,
+  700: $color-700,
+  800: $color-800,
+  900: $color-900,
+  'gray-passive': $gray-passive,
+  'alpha-20-000-20': $alpha-20-000-20,
+  'alpha-20-300-20': $alpha-20-300-20,
+  'alpha-20-700-20': $alpha-20-700-20,
+  'alpha-20-900-20': $alpha-20-900-20,
+  'alpha-50-000-50': $alpha-50-000-50,
+  'alpha-50-300-50': $alpha-50-300-50,
+  'alpha-50-700-50': $alpha-50-700-50,
+  'alpha-50-900-50': $alpha-50-900-50,
+  'alpha-8-000-8': $alpha-8-000-8,
+  'alpha-8-300-8': $alpha-8-300-8,
+  'alpha-8-700-8': $alpha-8-700-8,
+  'alpha-8-900-8': $alpha-8-900-8,
+  'glass-idle': $glass-idle,
+  'green': $green,
+  'gray': $gray,
+  'white': $white,
+  'black': $black,
+  'snow-white': $snow-white,
+  'yellow': $yellow,
+  'red': $red,
+  'pink3': $pink3,
+);
+
+@each $name, $value in $colors {
+  .color-#{$name} {
+    color: #{$value} !important;
+  }
+
+  .bg-#{$name} {
+    background: #{$value} !important;
+  }
+
+  .border-#{$name} {
+    border: 1px solid #{$value} !important;
+  }
+}

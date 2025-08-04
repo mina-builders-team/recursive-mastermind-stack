@@ -1,25 +1,21 @@
 <template>
-  <el-input
-    :placeholder="placeholder"
-    size="large"
-    :model-value="inputValue"
-    @input="handleInputChange"
-    class="w-100"
-  >
-    <template #append>
-      <el-button
-        type="primary"
-        class="d-flex align-items-center justify-content-center gap-2"
-        :icon="FolderOpened"
-        @click="pasteFromClipboard"
-      >
-        Paste
-      </el-button>
-    </template>
-  </el-input>
+  <div class="w-100 default-border radius-10 d-flex">
+    <div
+      class="flex-1 d-flex align-items-center ps-3 fs-16 color-snow-white paste-input"
+    >
+      {{ inputValue }}
+    </div>
+    <el-button
+      size="large"
+      type="primary"
+      class="h-100 d-flex align-items-center justify-content-center fw-400 gray paste-btn"
+      @click="pasteFromClipboard"
+    >
+      Paste
+    </el-button>
+  </div>
 </template>
 <script lang="ts" setup>
-import { FolderOpened } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 // @ts-expect-error
 const props = defineProps({
@@ -34,9 +30,6 @@ const props = defineProps({
 });
 const emit = defineEmits(['change']);
 
-const handleInputChange = (value: string) => {
-  emit('change', value);
-};
 const pasteFromClipboard = async () => {
   try {
     const text = await navigator.clipboard.readText();
@@ -52,3 +45,12 @@ const pasteFromClipboard = async () => {
   }
 };
 </script>
+<style lang="scss" scoped>
+.paste-input {
+  background: $alpha-8-300-8;
+}
+.paste-btn {
+  border: none;
+  background: $alpha-8-300-8 !important;
+}
+</style>

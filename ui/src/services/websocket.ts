@@ -10,7 +10,7 @@ export class WebSocketService {
 
   constructor(gameId: string) {
     this.gameId = gameId;
-    this.connected = false
+    this.connected = false;
     console.log('web socket server : ', import.meta.env.VITE_WEB_SOCKET_URL);
     this.socket = useWebSocket(import.meta.env.VITE_WEB_SOCKET_URL, {
       autoReconnect: {
@@ -49,7 +49,7 @@ export class WebSocketService {
               this.onMessageCallback(data);
           }
           if (data.game) {
-            if (data?.game.status === 'ON_CHAIN' && !isPlayingOnChain) {
+            if (data?.game.status === 'ON_CHAIN') {
               await setPlayingOnChain(true);
               return;
             }
