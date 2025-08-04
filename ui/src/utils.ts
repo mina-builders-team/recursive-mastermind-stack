@@ -159,13 +159,9 @@ export function validateColorCombination(combination: AvailableColor[]) {
  * @param length - Length of the salt string (default is 20).
  * @returns Random numeric salt string.
  */
-export function generateRandomSalt(length = 20): string {
-  const chars = '123456789';
-  let randomSalt = '';
-  for (let i = 0; i < length; i++) {
-    randomSalt += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return randomSalt;
+export function generateRandomSalt(): string {
+  const randomSalt = Field.random();
+  return randomSalt.toString();
 }
 
 /**
