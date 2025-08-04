@@ -23,6 +23,7 @@ import {
   fetchAccount,
   fetchLastBlock,
   Field,
+  Poseidon,
   PublicKey,
   UInt32,
   VerificationKey,
@@ -147,6 +148,22 @@ export const handleProof = async (
   if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
     ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
     return;
+  }
+
+  // Verify that the Code Breaker's public key matches the one stored on-chain
+  if (receivedTurnCount === 2) {
+    const receivedCodeBreaker =
+      receivedProof.publicOutput.codeBreakerId.toString();
+    if (
+      !game ||
+      !game.codeBreaker ||
+      Poseidon.hash(
+        PublicKey.fromBase58(game.codeBreaker).toFields()
+      ).toString() !== receivedCodeBreaker
+    ) {
+      ws.send(JSON.stringify({ error: 'You are not the code breaker of this game!' }));
+      return;
+    }
   }
 
   // If it's the code master's turn (odd turn), check if game is solved
