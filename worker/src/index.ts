@@ -14,7 +14,7 @@ import { fetchAccount, Field, Mina, PublicKey } from 'o1js';
 import {
   MastermindZkApp,
   StepProgram,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import dotenv from 'dotenv';
 import {
   checkGameCreation,

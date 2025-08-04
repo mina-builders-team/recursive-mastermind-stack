@@ -1,9 +1,9 @@
 <template>
-  <div @click="shareOnX">
+  <div @click="shareOnX" class="w-100">
     <slot>
       <Button
         :class="
-          'd-flex align-items-center gap-2 fit-content default-style ' +
+          'd-flex align-items-center gap-2 fit-content default-style w-100 ' +
             btnClass || ''
         "
         size="large"

@@ -112,7 +112,7 @@
         >
       </div>
     </div>
-    <div class="w-100 d-flex">
+    <div class="w-100 d-flex gap-2">
       <Button
         class="default-border p-10-30 btn-cta3 flex-1"
         size="large"
@@ -133,8 +133,7 @@
             ? masterWinnerTweet.hashtag
             : breakerWinnerTweet.hashtag
         "
-      >
-      </ShareButton>
+      />
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 services:
   server-dev:
-    profiles: ['devv','test','simulate']
+    profiles: ['dev','test','simulate']
     build:
       context: .
       dockerfile: server/docker/dockerfile.dev
@@ -29,7 +29,7 @@ services:
       - server/.env
     restart: unless-stopped
   vue-app-dev-client:
-    profiles: ['devv']
+    profiles: ['dev']
     build:
       context: .
       dockerfile: ui/docker/dockerfile.dev
@@ -66,7 +66,7 @@ services:
     restart: unless-stopped
 
   worker-dev-1:
-    profiles: ['devv','test','simulate']
+    profiles: ['dev','test','simulate']
     build:
       context: .
       dockerfile: worker/docker/dockerfile.dev

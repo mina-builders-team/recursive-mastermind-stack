@@ -17,7 +17,7 @@ import {
   StepProgramProof,
   GameState,
   Clue,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import { Queue } from 'bullmq';
 import {
   fetchAccount,

@@ -10,7 +10,7 @@ import {
   MastermindZkApp,
   MAX_ATTEMPTS,
   StepProgramProof,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import dotenv from 'dotenv';
 import {
   createOrUpdateGame,
