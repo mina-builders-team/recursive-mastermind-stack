@@ -6,7 +6,7 @@ const SENTRY_DSN = process.env.SENTRY_DSN as string;
 
 Sentry.init({
   dsn: SENTRY_DSN,
-  sendDefaultPii: true,
+  sendDefaultPii: false,
 
   integrations: [nodeProfilingIntegration()],
   tracesSampleRate: 1.0,
