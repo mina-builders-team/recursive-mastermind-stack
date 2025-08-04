@@ -1,6 +1,8 @@
 import { useWebSocket } from '@vueuse/core';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { updateLocalStorageGames } from '@/utils';
+import { useCustomMessage } from '@/composables/useCustomMessage';
+import router from '@/router';
 
 export class WebSocketService {
   socket: ReturnType<typeof useWebSocket>;
@@ -62,6 +64,26 @@ export class WebSocketService {
       onConnected: async (_ws: WebSocket) => {
         this.send({ action: 'join', gameId });
         this.connected = true;
+      },
+      onDisconnected: (_ws: WebSocket, event: CloseEvent) => {
+        const { destroyWebsocket } = useZkAppStore();
+        const { showMessage } = useCustomMessage();
+        console.warn(`WebSocket disconnected with code: ${event.code}`);
+        if (event.code === 1008) {
+          console.warn(
+            'WebSocket closed due to server-side rejection (1008). Disabling reconnect.'
+          );
+          this.close();
+          destroyWebsocket();
+          showMessage({
+            type: 'error',
+            title: 'Connection Limit Reached',
+            description: 'Too many connections from this IP',
+            duration: 6000,
+          });
+          router.push({ name: 'lobby' });
+          throw new Error('Too many connections from this IP');
+        }
       },
     });
   }

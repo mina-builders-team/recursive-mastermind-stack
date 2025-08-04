@@ -73,6 +73,12 @@ app.get('/health', (_req, res) => {
 const wss = new WebSocketServer({ server });
 const activePlayers = new Map<string, Set<WebSocket>>();
 
+// Define Max connection per IP
+const MAX_CONNECTIONS_PER_IP = 3;
+
+// Map to store number of connection per IP <IP,connection_count>
+const connectionCounts = new Map<string, number>();
+
 // Queue to manage game tasks like game creation check, submitting final proof on chain, penalty, server balance check,etc.
 const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
@@ -146,7 +152,18 @@ await gameLifecycleQueue.upsertJobScheduler(
 );
 
 // WebSocket Handler
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+  // Check connection count per IP
+  const ip = req.socket.remoteAddress || 'unknown';
+  // Count active connections per IP
+  const currentCount = connectionCounts.get(ip) || 0;
+  if (currentCount >= MAX_CONNECTIONS_PER_IP) {
+    ws.close(1008, 'Too many connections from this IP');
+    return;
+  }
+  // Increment connection count
+  connectionCounts.set(ip, currentCount + 1);
+
   ws.on('message', async (message) => {
     try {
       const data = JSON.parse(message.toString());
@@ -207,6 +224,14 @@ wss.on('connection', (ws) => {
 
   // Clean up on socket close
   ws.on('close', () => {
+    // Decrement connection count per IP on close
+    const count = connectionCounts.get(ip) || 1;
+    if (count <= 1) {
+      // Delete IP from Map
+      connectionCounts.delete(ip);
+    } else {
+      connectionCounts.set(ip, count - 1);
+    }
     activePlayers.forEach((players, gameId) => {
       players.delete(ws);
       if (players.size === 0) {
