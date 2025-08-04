@@ -10,25 +10,25 @@ const routes: Array<RouteRecordRaw> = [
     path: '/onboarding',
     name: 'onboarding',
     component: () =>
-      import(/* webpackChunkName: "gameplay" */ '@/views/OnBoarding.vue'),
+      import(/* webpackChunkName: "onboarding" */ '@/views/OnBoarding.vue'),
   },
   {
     path: '/lobby',
     name: 'lobby',
     component: () =>
-      import(/* webpackChunkName: "gameplay" */ '@/views/Lobby.vue'),
+      import(/* webpackChunkName: "lobby" */ '@/views/Lobby.vue'),
   },
   {
     path: '/my-games',
     name: 'my-games',
     component: () =>
-      import(/* webpackChunkName: "gameplay" */ '@/views/myGames.vue'),
+      import(/* webpackChunkName: "my-games" */ '@/views/myGames.vue'),
   },
   {
     path: '/rank',
     name: 'leaderboard',
     component: () =>
-      import(/* webpackChunkName: "gameplay" */ '@/views/Leaderboard.vue'),
+      import(/* webpackChunkName: "leaderboard" */ '@/views/Leaderboard.vue'),
   },
   {
     path: '/:id',
