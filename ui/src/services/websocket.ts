@@ -30,6 +30,7 @@ export class WebSocketService {
         try {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
+          const { showMessage } = useCustomMessage();
           const {
             setTurnPlayed,
             verifyProof,
@@ -56,6 +57,14 @@ export class WebSocketService {
               return;
             }
             await setGame(data.game);
+          }
+          if (data.error) {
+            showMessage({
+              type: 'error',
+              title: 'Error',
+              description: data.error,
+              duration: 6000,
+            });
           }
         } catch (e) {
           console.log('Error handling message:', e);
