@@ -92,6 +92,10 @@ export const handleProof = async (
     ws.send(JSON.stringify({ error: 'Missing zkProof!' }));
     return;
   }
+   if (zkProof.length > 36000) {
+    ws.send(JSON.stringify({ error: 'Too large zkProof!' }));
+    return;
+  }
   // Check whether the game should be penalized due to timeout exceeded
   let { game, isPenalized } = await checkForPenalization(
     gameId,
