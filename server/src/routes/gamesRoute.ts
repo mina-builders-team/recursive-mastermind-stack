@@ -75,9 +75,8 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
       await redisClient.set(
         cacheKey,
         JSON.stringify({ filteredActiveGames, totalActiveCount }),
-        {
-          expiration: { type: 'EX', value: 60 },
-        }
+        'EX',
+        60
       );
     }
 
@@ -155,9 +154,7 @@ router.get('/my-games/:pubKey', async (req, res) => {
         badges: playerStats?.badges || [],
       };
 
-      await redisClient.set(statsCacheKey, JSON.stringify(stats), {
-        expiration: { type: 'EX', value: 60 },
-      });
+      await redisClient.set(statsCacheKey, JSON.stringify(stats), 'EX', 60);
     }
 
     //Active games

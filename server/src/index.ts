@@ -28,6 +28,11 @@ import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
 import playerRoute from './routes/playerRoute.js';
+import {
+  rateLimitMiddleware,
+  wsActionLimiter,
+  wsConnectionLimiter,
+} from './middlewares/rateLimiters.js';
 
 // Environment Setup
 dotenv.config();
@@ -54,15 +59,19 @@ connectDatabase();
 // Resume all in-progress games on startup by marking them as "on_chain" to continue execution on the blockchain
 await resumeOnChain();
 
-// Start Express Server
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// rate limiting middleware for HTTP routes
+app.use(rateLimitMiddleware);
 
 // Mounts game routes at the '/games' endpoint.
 app.use('/games', gamesRoute);
 
+// Mounts player routes at the '/player' endpoint.
 app.use('/player', playerRoute);
+
+// Start Express Server
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 // Healthcheck Endpoint
 app.get('/health', (_req, res) => {
@@ -72,12 +81,6 @@ app.get('/health', (_req, res) => {
 // WebSocket Server Setup
 const wss = new WebSocketServer({ server });
 const activePlayers = new Map<string, Set<WebSocket>>();
-
-// Define Max connection per IP
-const MAX_CONNECTIONS_PER_IP = 3;
-
-// Map to store number of connection per IP <IP,connection_count>
-const connectionCounts = new Map<string, number>();
 
 // Queue to manage game tasks like game creation check, submitting final proof on chain, penalty, server balance check,etc.
 const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
@@ -152,20 +155,25 @@ await gameLifecycleQueue.upsertJobScheduler(
 );
 
 // WebSocket Handler
-wss.on('connection', (ws, req) => {
-  // Check connection count per IP
+wss.on('connection', async (ws, req) => {
   const ip = req.socket.remoteAddress || 'unknown';
-  // Count active connections per IP
-  const currentCount = connectionCounts.get(ip) || 0;
-  if (currentCount >= MAX_CONNECTIONS_PER_IP) {
+  try {
+    await wsConnectionLimiter.consume(ip);
+  } catch {
+    await wsConnectionLimiter.reward(ip, 1);
     ws.close(1008, 'Too many connections from this IP');
     return;
   }
-  // Increment connection count
-  connectionCounts.set(ip, currentCount + 1);
 
   ws.on('message', async (message) => {
     try {
+      try {
+        await wsActionLimiter.consume(ip);
+      } catch {
+        ws.send(JSON.stringify({ error: 'Too many actions from this IP' }));
+        return;
+      }
+
       const data = JSON.parse(message.toString());
       const {
         gameId,
@@ -223,14 +231,13 @@ wss.on('connection', (ws, req) => {
   });
 
   // Clean up on socket close
-  ws.on('close', () => {
+  ws.on('close', async () => {
     // Decrement connection count per IP on close
-    const count = connectionCounts.get(ip) || 1;
-    if (count <= 1) {
-      // Delete IP from Map
-      connectionCounts.delete(ip);
-    } else {
-      connectionCounts.set(ip, count - 1);
+    try {
+      await wsConnectionLimiter.reward(ip, 1);
+    } catch (err) {
+      console.error('WebSocket disconnect error:', err);
+      Sentry.captureException(err);
     }
     activePlayers.forEach((players, gameId) => {
       players.delete(ws);
