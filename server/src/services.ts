@@ -11,6 +11,7 @@ import {
   createOrUpdateGame,
   deleteGame,
   resumeOnGoingGames,
+  findOneAndUpdate,
 } from './repositories/game.js';
 import {
   MastermindZkApp,
@@ -161,7 +162,9 @@ export const handleProof = async (
         PublicKey.fromBase58(game.codeBreaker).toFields()
       ).toString() !== receivedCodeBreaker
     ) {
-      ws.send(JSON.stringify({ error: 'You are not the code breaker of this game!' }));
+      ws.send(
+        JSON.stringify({ error: 'You are not the code breaker of this game!' })
+      );
       return;
     }
   }
@@ -307,12 +310,15 @@ export async function handleGameStart(
     // Check if the game has already started on chain
     const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
     if (Number(turnCount.toString()) > 1) {
-      const updatedGame = await createOrUpdateGame({
-        _id: gameId,
-        codeBreaker: acceptedGame.codeBreakerPubKey,
-        status: GameStatus.ON_CHAIN,
-        timestamp: Date.now(),
-      });
+      const updatedGame = await findOneAndUpdate(
+        { _id: gameId, codeBreaker: null },
+        {
+          _id: gameId,
+          codeBreaker: acceptedGame.codeBreakerPubKey,
+          status: GameStatus.ON_CHAIN,
+          timestamp: Date.now(),
+        }
+      );
 
       // Notify all connected players
       const players = activePlayers.get(gameId) || new Set();
@@ -322,22 +328,25 @@ export async function handleGameStart(
       return;
     }
 
-    // Create or update the game in DB with the latest metadata
-    const updatedGame = await createOrUpdateGame({
-      _id: gameId,
-      codeBreaker: acceptedGame.codeBreakerPubKey,
-      status,
-      timestamp: Date.now(),
-      winnerPublicKeyBase58: winnerPublicKeyBase58
-        ? winnerPublicKeyBase58
-        : undefined,
-    });
-
-    // Broadcast updated game state
-    const players = activePlayers.get(gameId) || new Set();
-    players.forEach((player: WebSocket) => {
-      player.send(JSON.stringify({ game: updatedGame }));
-    });
+    // update the game in DB with the latest metadata
+    const updatedGame = await findOneAndUpdate(
+      { _id: gameId, codeBreaker: null },
+      {
+        codeBreaker: acceptedGame.codeBreakerPubKey,
+        status,
+        timestamp: Date.now(),
+        winnerPublicKeyBase58: winnerPublicKeyBase58
+          ? winnerPublicKeyBase58
+          : undefined,
+      }
+    );
+    if (updatedGame) {
+      // Broadcast updated game state
+      const players = activePlayers.get(gameId) || new Set();
+      players.forEach((player: WebSocket) => {
+        player.send(JSON.stringify({ game: updatedGame }));
+      });
+    }
     return;
   }
 

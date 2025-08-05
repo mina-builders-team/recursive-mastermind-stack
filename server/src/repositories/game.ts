@@ -36,6 +36,33 @@ export const createOrUpdateGame = async (
 };
 
 /**
+ * Finds a single document based on the provided filter and updates it with the given data.
+ *
+ *
+ * @param filter - Filter criteria to find the document.
+ * @param updateData - Fields to update in the document.
+ * @returns {Promise<T | null>} The updated document, or null if no match was found.
+ * @throws If MongoDB update operation fails.
+ */
+export const findOneAndUpdate = async <T>(
+  filter: Record<string, unknown>,
+  updateData: Partial<T>
+): Promise<IGame | null> => {
+  try {
+    const game = await Game.findOneAndUpdate(
+      filter,
+      { $set: updateData },
+      {
+        new: true,
+      }
+    );
+    return game;
+  } catch (err) {
+    throw new Error('Error updating document: ' + err);
+  }
+};
+
+/**
  * Retrieves a game document by its ID.
  *
  * @param _id - The unique ID of the game.
