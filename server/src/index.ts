@@ -33,6 +33,7 @@ import {
   wsActionLimiter,
   wsConnectionLimiter,
 } from './middlewares/rateLimiters.js';
+import mongoSanitize from 'express-mongo-sanitize';
 
 // Environment Setup
 dotenv.config();
@@ -41,6 +42,8 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use(mongoSanitize({replaceWith:'_'}));
 
 // Port configuration
 const PORT = process.env.SERVER_PORT || 3000;
@@ -175,6 +178,7 @@ wss.on('connection', async (ws, req) => {
       }
 
       const data = JSON.parse(message.toString());
+      const sanitizedData = mongoSanitize.sanitize(data,{replaceWith:'_'})
       const {
         gameId,
         action,
@@ -184,7 +188,7 @@ wss.on('connection', async (ws, req) => {
         refereePubKeyBase58,
         roomName,
         gameCreationTransactionHash,
-      } = data;
+      } = sanitizedData;
       console.log('action : ', action);
       if (!gameId || !action) {
         ws.send(JSON.stringify({ error: 'Bad request!' }));

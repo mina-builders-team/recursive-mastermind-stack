@@ -22,6 +22,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
     "ioredis": "^5.7.0",
     "mongoose": "^8.13.2",
     "node-cron": "^3.0.3",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/express-mongo-sanitize": "^2.1.2",
     "@types/node": "^22.13.5",
     "@types/node-cron": "^3.0.11",
     "@types/ws": "^8.5.14",
