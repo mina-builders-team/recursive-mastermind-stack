@@ -129,7 +129,7 @@ const timerDuration = computed(() => {
     ? 60 * 1000 * 3
     : isCurrentUserTurn.value
       ? 60 * 1000 * 2
-      : 60 * 1000 * 2.5;
+      : 60 * 1000 * 3;
 });
 const handleTurnEnded = () => {
   isTurnTimeExceeded.value = true;

@@ -9,3 +9,4 @@ export const VERIFIED_REFEREES =
     : minaNetwork === 'devnet'
       ? ['B62qihpfJjEcwDYkLhHoTAST1uFChgStMSM2mLVdPB5ybSRqKkocXao']
       : [];
+export const TURN_DURATION = 1000 * 60 * 3;

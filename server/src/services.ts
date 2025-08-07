@@ -31,7 +31,7 @@ import {
   verify,
 } from 'o1js';
 import { GameStatus, IGame } from './models/Game.js';
-import { MAX_ATTEMPTS, VERIFIED_REFEREES } from './constants.js';
+import { MAX_ATTEMPTS, TURN_DURATION, VERIFIED_REFEREES } from './constants.js';
 import * as Sentry from '@sentry/node';
 
 /**
@@ -423,9 +423,6 @@ async function checkForPenalization(
     };
   }
   const lastTurnTimestamp = game?.timestamp || Date.now();
-
-  // Define max allowed turn duration (2.5 minutes in milliseconds)
-  const TURN_DURATION = 1000 * 60 * 2.5;
 
   // Check if time since last move exceeds allowed duration
   if (game?.turnCount && now - lastTurnTimestamp > TURN_DURATION) {
