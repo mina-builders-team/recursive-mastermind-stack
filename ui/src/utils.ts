@@ -211,7 +211,6 @@ export const MinaFileSystem = (files: any): Cache => ({
 export function fetchZkAppCacheFiles() {
   const files = [
     { name: 'lagrange-basis-fp-2048', type: 'string' },
-    { name: 'lagrange-basis-fp-4096', type: 'string' },
 
     { name: 'step-vk-mastermindzkapp-acceptgame', type: 'string' },
     { name: 'step-vk-mastermindzkapp-claimreward', type: 'string' },

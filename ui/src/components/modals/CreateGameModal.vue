@@ -264,7 +264,6 @@ const game = ref({
   secret: Array.from({ length: 4 }, () => initialColor),
   reward: 10,
   roomName: roomNames[0],
-  refereePubKeyBase58: import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
   randomSalt: Field.random().toString(),
 });
 const generateRoomName = () => {
@@ -308,7 +307,6 @@ const handleNextStep = async () => {
     await createInitGameTransaction(
       game.value.secret.map((e: AvailableColor) => Number(e.value)),
       game.value.randomSalt,
-      game.value.refereePubKeyBase58 as string,
       game.value.reward! * 1e9,
       game.value.roomName
     );

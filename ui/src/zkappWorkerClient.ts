@@ -52,14 +52,12 @@ export default class ZkappWorkerClient {
     feePayer: string,
     separatedSecretCombination: number[],
     salt: string,
-    refereePubKeyBase58: string,
     rewardAmount: number
   ): Promise<string> {
     const result = this._call('createInitGameTransaction', {
       feePayer,
       separatedSecretCombination,
       salt,
-      refereePubKeyBase58,
       rewardAmount,
     });
     return result as Promise<string>;

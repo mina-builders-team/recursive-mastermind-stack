@@ -21,7 +21,6 @@ export interface CodePicker {
 
 export interface GameParams {
   rewardAmount: number | null;
-  refereePubKeyBase58: string;
 }
 export interface Game {
   _id: string;
@@ -38,8 +37,6 @@ export interface Game {
   turnCount: number;
   cancelTransactionHash?: string;
   lastCancelTimestamp?: number;
-  refereePubKeyBase58: string;
-  isRefereeVerified: boolean;
   roomName?: string;
   gameCreationTransactionHash?: string;
   lastJoinAttemptBy?: string;
