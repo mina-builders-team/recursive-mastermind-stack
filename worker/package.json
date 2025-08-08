@@ -23,7 +23,7 @@
     "o1js": "2.4.0",
     "prettier": "^3.5.3",
     "ioredis": "^5.7.0",
-    "@navigators-exploration-team/mina-mastermind": "1.7.2",
+    "@navigators-exploration-team/mina-mastermind": "2.0.0",
     "ws": "^8.18.1"
   },
   "devDependencies": {

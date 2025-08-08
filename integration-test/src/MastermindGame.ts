@@ -21,9 +21,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 const SALT = Field.random();
 const SOLUTION = Combination.from([1, 2, 3, 4]);
-export const REFEREE = PublicKey.fromBase58(
-  process.env.SERVER_PUBLIC_KEY as string
-);
 const REWARD_AMOUNT = 1e10;
 const SERVER_URL = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 export enum PlayerRole {
@@ -86,7 +83,6 @@ export class MastermindGame {
         await this.zkApp.initGame(
           SOLUTION,
           SALT,
-          REFEREE,
           UInt64.from(REWARD_AMOUNT)
         );
       }
@@ -125,7 +121,6 @@ export class MastermindGame {
       gameId: this.gameId,
       zkProof: JSON.stringify(proof),
       rewardAmount: REWARD_AMOUNT,
-      refereePubKeyBase58: REFEREE.toBase58(),
       playerPubKeyBase58: this.codeMasterKey.toPublicKey().toBase58(),
     });
   }

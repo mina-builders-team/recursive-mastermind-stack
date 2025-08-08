@@ -31,7 +31,7 @@ import {
   verify,
 } from 'o1js';
 import { GameStatus, IGame } from './models/Game.js';
-import { MAX_ATTEMPTS, TURN_DURATION, VERIFIED_REFEREES } from './constants.js';
+import { MAX_ATTEMPTS, TURN_DURATION } from './constants.js';
 import * as Sentry from '@sentry/node';
 
 /**
@@ -68,7 +68,6 @@ export const handleJoinGame = async (
  * @param zkProof - The serialized zkProof (JSON string).
  * @param receivedRewardAmount - The reward amount sent by the code master.
  * @param playerPubKeyBase58 - Public key of the player sending the proof.
- * @param refereePubKeyBase58 - Public key of the referee of the game.
  * @param activePlayers - A map of active WebSocket connections by game ID.
  * @param ws - The WebSocket instance of the sender.
  * @param gameLifecycleQueue - The BullMQ queue managing game lifecycle jobs.
@@ -79,7 +78,6 @@ export const handleProof = async (
   zkProof: string,
   receivedRewardAmount: number,
   playerPubKeyBase58: string,
-  refereePubKeyBase58: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
   gameLifecycleQueue: Queue,
@@ -215,12 +213,6 @@ export const handleProof = async (
       ? winnerPublicKeyBase58
       : undefined,
     status: winnerPublicKeyBase58 ? GameStatus.ENDED : undefined,
-    refereePubKeyBase58:
-      lastTurnCount === null ? refereePubKeyBase58 : undefined,
-    isRefereeVerified:
-      lastTurnCount === null
-        ? VERIFIED_REFEREES.includes(refereePubKeyBase58)
-        : undefined,
     gameCreationTransactionHash:
       lastTurnCount === null ? gameCreationTransactionHash : undefined,
     roomName: lastTurnCount === null ? roomName : undefined,

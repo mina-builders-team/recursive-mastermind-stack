@@ -150,7 +150,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async createInitGameTransaction(
       separatedSecretCombination: number[],
       salt: string,
-      refereePubKeyBase58: string,
       rewardAmount: number,
       roomName: string
     ) {
@@ -169,7 +168,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             this.publicKeyBase58,
             separatedSecretCombination,
             salt,
-            refereePubKeyBase58,
             rewardAmount
           );
         const signedData = await this.signFields([
@@ -215,8 +213,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           rewardAmount: rewardAmount,
           turnCount: 1,
           codeMaster: this.publicKeyBase58,
-          refereePubKeyBase58,
-          isRefereeVerified: true,
           roomName,
           gameCreationTransactionHash: hash,
         };
@@ -225,7 +221,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           gameId: this.zkAppAddress,
           zkProof: JSON.stringify(res),
           rewardAmount,
-          refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
           roomName,
           gameCreationTransactionHash: hash,

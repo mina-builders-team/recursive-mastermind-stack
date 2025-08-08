@@ -673,10 +673,12 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.3.tgz#0aa5502d547b57abfc4ac492de68e2006e417242"
   integrity sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==
 
-"@navigators-exploration-team/mina-mastermind@^1.7.2":
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-1.7.2.tgz#7467eb16021fee36dc6ce243c447b38c28e7836f"
-  integrity sha512-xFQ3E0zhaNmKoZXAr5Y1ugIVwzjWwlQOIURVgwbG/pmLHF3X/wWsuJ8QyAjSsMsmhgB2eu+c37hiLiW3c8yeIQ==
+"@navigators-exploration-team/mina-mastermind@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-2.0.0.tgz#a266b1092087e1cd55e5ed5421796b4a9b532c2d"
+  integrity sha512-2KAT1iRIpwLaCu+znfoNj4h+039DlTeSvn2gLhR23B/96/KWcna7cNw1HwboC/4fIi4V+Mf7paorLg36Zs8ocg==
+  dependencies:
+    dotenv "^17.2.1"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -1430,6 +1432,11 @@ dotenv@^16.4.7:
   version "16.5.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
   integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
+
+dotenv@^17.2.1:
+  version "17.2.1"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-17.2.1.tgz#6f32e10faf014883515538dc922a0fb8765d9b32"
+  integrity sha512-kQhDYKZecqnM0fCnzI5eIv5L4cAe/iRI+HqMbO/hbRdTAeXDG+M9FjipUxNfbARuEg4iHIbhnhs78BCHNbSxEQ==
 
 dunder-proto@^1.0.1:
   version "1.0.1"

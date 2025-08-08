@@ -185,7 +185,6 @@ wss.on('connection', async (ws, req) => {
         zkProof,
         rewardAmount,
         playerPubKeyBase58,
-        refereePubKeyBase58,
         roomName,
         gameCreationTransactionHash,
       } = sanitizedData;
@@ -205,7 +204,6 @@ wss.on('connection', async (ws, req) => {
           zkProof,
           rewardAmount,
           playerPubKeyBase58,
-          refereePubKeyBase58,
           activePlayers,
           ws,
           gameLifecycleQueue,

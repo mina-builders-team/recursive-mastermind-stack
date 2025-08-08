@@ -27,8 +27,6 @@ export interface IGame extends Document {
   turnCount: number;
   cancelTransactionHash?: string;
   lastCancelTimestamp: number;
-  refereePubKeyBase58: string;
-  isRefereeVerified: boolean;
   gameCreationTransactionHash: string;
   roomName: string;
   lastJoinAttemptBy: string;
@@ -56,8 +54,6 @@ const gameSchema: Schema = new Schema(
     turnCount: { type: Number, required: false },
     cancelTransactionHash: { type: String, required: false },
     lastCancelTimestamp: { type: Number, required: false },
-    refereePubKeyBase58: { type: String, required: true },
-    isRefereeVerified: { type: Boolean, required: true },
     gameCreationTransactionHash: { type: String, required: true },
     roomName: { type: String, required: true },
     lastJoinAttemptBy: { type: String, required: false },

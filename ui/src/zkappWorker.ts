@@ -90,14 +90,12 @@ const functions = {
     feePayer: string;
     separatedSecretCombination: number[];
     salt: string;
-    refereePubKeyBase58: string;
     rewardAmount: number;
   }) => {
     let zkAppPrivateKey = PrivateKey.random();
     let zkAppAddress = zkAppPrivateKey.toPublicKey();
     state.zkappInstance = new state.MastermindContract!(zkAppAddress);
     const feePayerPublickKey = PublicKey.fromBase58(args.feePayer);
-    const refereePubKey = PublicKey.fromBase58(args.refereePubKeyBase58);
     const combination = Combination.from(args.separatedSecretCombination);
     const transaction = await Mina.transaction(feePayerPublickKey, async () => {
       AccountUpdate.fundNewAccount(feePayerPublickKey);
@@ -105,7 +103,6 @@ const functions = {
       await state.zkappInstance!.initGame(
         combination,
         Field(args.salt),
-        refereePubKey,
         UInt64.from(args.rewardAmount)
       );
     });
@@ -363,7 +360,6 @@ const functions = {
     const codeMasterKey = PrivateKey.random();
     const codeMasterPublicKey = codeMasterKey.toPublicKey();
     const codeBreakerKey = PrivateKey.random();
-    const refereePubKey = PublicKey.empty();
     const secret = Combination.from([1, 2, 3, 4]);
     const salt = Field.random();
     try {
@@ -376,7 +372,6 @@ const functions = {
         await zkApp.initGame(
           secret,
           salt,
-          refereePubKey,
           UInt64.from(10 * 1e9)
         );
       });
