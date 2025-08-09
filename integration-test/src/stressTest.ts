@@ -1,9 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { Mina } from 'o1js';
-import {
-  MastermindZkApp,
-  StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+import { Mina, Transaction } from 'o1js';
+import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
@@ -11,7 +8,8 @@ import { MastermindGame } from './MastermindGame.js';
 dotenv.config();
 
 const NETWORK_URL = process.env.MINA_NETWORK_URL as string;
-
+let createdGames: Array<{ tx: Transaction<true, true>; game: MastermindGame }> =
+  [];
 const network = Mina.Network(NETWORK_URL);
 Mina.setActiveInstance(network);
 async function initialize() {
@@ -27,7 +25,7 @@ async function initialize() {
   console.timeEnd('zkApp compilation');
 }
 
-initialize().then(() => {
+initialize().then(async () => {
   try {
     const jsonGames = readFileSync('games.json', 'utf-8');
     const gameList = JSON.parse(jsonGames);
@@ -38,13 +36,29 @@ initialize().then(() => {
       codeBreaker: string;
       attempts: number;
     }>;
-    const args = process.argv.slice(2); 
-    const index = parseInt(args[0], 10);
-    new MastermindGame({
-      codeMasterPrivateKeyBase58: games[index].codeMaster,
-      codeBreakerPrivateKeyBase58: games[index].codeBreaker,
-      attempts: 7,
+    console.log(games);
+
+    for (let i = 0; i < games.length; i++) {
+      const game = new MastermindGame({
+        codeMasterPrivateKeyBase58: games[i].codeMaster,
+        codeBreakerPrivateKeyBase58: games[i].codeBreaker,
+        attempts: 7,
+        autoPlay: false,
+      });
+      await game.createGame();
+      const tx = await game.acceptGame();
+      createdGames.push({ game, tx });
+    }
+    const promises = createdGames.map(async (game) => {
+      const sentTx = await game.tx.send();
+      console.log('accept game tx hash ', sentTx.hash);
+      return await sentTx.wait();
     });
+    await Promise.all(promises);
+    for (let i = 0; i < games.length; i++) {
+      createdGames[i].game.setAutoPlay(true);
+      createdGames[i].game.startGame();
+    }
   } catch (e) {
     console.log(e);
   }

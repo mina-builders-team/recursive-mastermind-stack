@@ -1,8 +1,5 @@
 import { Cache } from 'o1js';
-import {
-  MastermindZkApp,
-  StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 
 const cacheZkApp = async () => {
   const zkAppCache: Cache = Cache.FileSystem('./zkAppCache');

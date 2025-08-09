@@ -12,6 +12,11 @@ export class WebSocketService {
   public messageHandler?: (_data: Message, role: PlayerRole) => Promise<void>;
   public lastReceivedMessage: any;
   public isClosed: boolean;
+
+  private reconnectTimeout?: NodeJS.Timeout;
+  private pingInterval?: NodeJS.Timeout;
+  private isReconnecting: boolean;
+
   constructor(
     gameId: string,
     role: PlayerRole,
@@ -21,6 +26,7 @@ export class WebSocketService {
     this.url = url;
     this.role = role;
     this.isClosed = false;
+    this.isReconnecting = false;
     this.socket = this.connect();
   }
 
@@ -29,7 +35,13 @@ export class WebSocketService {
 
     socket.on('open', () => {
       console.log(`WebSocket Connected to ${this.url}`);
+      this.isReconnecting = false;
+
+      // Send join message
       this.send({ action: 'join', gameId: this.gameId });
+
+      // Start keep-alive ping every 25s
+      this.startPing(socket);
     });
 
     socket.on('message', async (data, isBinary) => {
@@ -43,10 +55,17 @@ export class WebSocketService {
       }
     });
 
-    socket.on('close', () => {
-      if (!this.isClosed) {
-        console.warn('WebSocket Connection closed. Attempting reconnect...');
-        setTimeout(() => {
+    socket.on('close', (code, reason) => {
+      console.warn(
+        `WebSocket Connection closed. Code: ${code}, Reason: ${reason.toString()}`
+      );
+      this.stopPing();
+
+      if (!this.isClosed && !this.isReconnecting) {
+        this.isReconnecting = true;
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = setTimeout(() => {
+          console.warn('Attempting reconnect...');
           this.socket = this.connect();
         }, 1000);
       }
@@ -57,6 +76,22 @@ export class WebSocketService {
     });
 
     return socket;
+  }
+
+  private startPing(socket: WebSocket) {
+    this.stopPing();
+    this.pingInterval = setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.ping();
+      }
+    }, 25000); // 25s to avoid typical 30s idle timeouts
+  }
+
+  private stopPing() {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = undefined;
+    }
   }
 
   private async onMessage(event: { data: any }) {
@@ -73,12 +108,17 @@ export class WebSocketService {
     if (this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(msg));
     } else {
-      console.warn('WebSocket Tried to send but socket not open.');
+      console.warn('WebSocket not open. Message dropped (or queue for later).');
+      setTimeout(() => {
+         this.send(msg);
+      }, 1000);
     }
   }
 
   close() {
-    this.socket.close();
     this.isClosed = true;
+    clearTimeout(this.reconnectTimeout);
+    this.stopPing();
+    this.socket.close();
   }
 }

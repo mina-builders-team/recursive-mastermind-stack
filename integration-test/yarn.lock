@@ -673,11 +673,6 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.3.tgz#0aa5502d547b57abfc4ac492de68e2006e417242"
   integrity sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==
 
-"@navigators-exploration-team/mina-mastermind@1.6.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@navigators-exploration-team/mina-mastermind/-/mina-mastermind-1.6.0.tgz#3b60abb616f3df4a169ebb15e25556cec3131bd2"
-  integrity sha512-XOOFn3213ps5vhXn5fmHx5vpZW7nf63BneQGN9OhLnk34j93Fm44q/6UGQ8DhKAk8Z6i5exnHtKixvUlBMcq3Q==
-
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -3367,6 +3362,11 @@ stacktrace-js@^2.0.2:
     error-stack-parser "^2.0.6"
     stack-generator "^2.0.5"
     stacktrace-gps "^3.0.4"
+
+stan-mastermind@1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/stan-mastermind/-/stan-mastermind-1.7.2.tgz#7824999e5cfb57a961fec6646f1f10b5072a38b0"
+  integrity sha512-05ZgnPDSJdVl/0gd3nRlyXLWUQNrsrkt3FfE4sG1I+IGdBSoRyh6LGS3Q+0/kvCYmALG/qBkA3fNUALPYB1OAA==
 
 standard-as-callback@^2.1.0:
   version "2.1.0"

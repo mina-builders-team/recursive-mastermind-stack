@@ -1,37 +1,38 @@
 {
   "devnet": [
     {
-      "codeMaster": "EKEYRySiwGEg6STExU7RaTraUZusN1REFoEiU2QTLnVz4TLBCE5n",
-      "codeBreaker": "EKF39HmmZ91vsedHx1jUXg9MNFrefAeThX5u3tFTSPhEyhHBnU3B",
+      "codeMaster": "EKF39HmmZ91vsedHx1jUXg9MNFrefAeThX5u3tFTSPhEyhHBnU3B",
+      "codeBreaker": "EKEYRySiwGEg6STExU7RaTraUZusN1REFoEiU2QTLnVz4TLBCE5n",
       "attempts": 3
     },
     {
-      "codeMaster": "EKFRoL9SANxCbpvhwi7QJaughsmPHmMa4WXjPRm6e81cu7DTjFaX",
-      "codeBreaker": "EKFWs727JfmAH2VTmar3jQZQVDwZbM1NKGhVE2Cii6N6FCJWmHPs",
+      "codeMaster": "EKFWs727JfmAH2VTmar3jQZQVDwZbM1NKGhVE2Cii6N6FCJWmHPs",
+      "codeBreaker": "EKFRoL9SANxCbpvhwi7QJaughsmPHmMa4WXjPRm6e81cu7DTjFaX",
       "attempts": 5
     },
     {
-      "codeMaster": "EKDwhYSd1cueokdnuKvEbrA2JunnPYzkKxQsMcGJLiZvuoEsYbW9",
-      "codeBreaker": "EKESz3gsypjRhitjmyiu2wfnziWiJkYQ82ABbACyiDgJSzukRhGJ",
+      "codeMaster": "EKESz3gsypjRhitjmyiu2wfnziWiJkYQ82ABbACyiDgJSzukRhGJ",
+      "codeBreaker": "EKDwhYSd1cueokdnuKvEbrA2JunnPYzkKxQsMcGJLiZvuoEsYbW9",
       "attempts": 1
     },
     {
-      "codeMaster": "EKETu5ipsdV1Wk6myb5LWQfktJu514sk3gb2cu9FDCBMmJCdePTS",
-      "codeBreaker": "EKE3pS7QLEXKcJ4cNTGGo5hE6EMPYVz5Snex5DyceKFeDhphuH48",
+      "codeMaster": "EKE3pS7QLEXKcJ4cNTGGo5hE6EMPYVz5Snex5DyceKFeDhphuH48",
+      "codeBreaker": "EKETu5ipsdV1Wk6myb5LWQfktJu514sk3gb2cu9FDCBMmJCdePTS",
       "attempts": 2
     },
     {
-      "codeMaster": "EKFXdaRqs6nwHN15awkLWv9fdqpeZKuqSGzBvJMn2u1mvHJL4GHp",
-      "codeBreaker": "EKF88K1evmaK7ebVrxFFczf7TbveJSxTtnTVdnYM6u2F8TzeUXzh",
+      "codeMaster": "EKF88K1evmaK7ebVrxFFczf7TbveJSxTtnTVdnYM6u2F8TzeUXzh",
+      "codeBreaker": "EKFXdaRqs6nwHN15awkLWv9fdqpeZKuqSGzBvJMn2u1mvHJL4GHp",
       "attempts": 8
     },
      {
-      "codeMaster": "EKFG3ibpoTkd26gQsaWnJ62fHK9vwsMvApi1xBSziYiy2zYALPbs",
-      "codeBreaker": "EKEwoN8dwUR4GEDF3wJmWsz37zbCSLB6BjueDoh3Vzr8uSwVUFrM",
+      "codeMaster": "EKEwoN8dwUR4GEDF3wJmWsz37zbCSLB6BjueDoh3Vzr8uSwVUFrM",
+      "codeBreaker": "EKFG3ibpoTkd26gQsaWnJ62fHK9vwsMvApi1xBSziYiy2zYALPbs",
       "attempts": 8
-    }, {
-      "codeMaster": "EKEyo62rJVTpEUV4zRKn1rsS8JWMMEx2sQ6F5iH1DHkrCa3f6oB2",
-      "codeBreaker": "EKEzPN7VNZjm75xPs1TcNGUnXExL2Kt9bJt8KFK4M1qSkFEmV7YP",
+    }, 
+    {
+      "codeMaster": "EKEzPN7VNZjm75xPs1TcNGUnXExL2Kt9bJt8KFK4M1qSkFEmV7YP",
+      "codeBreaker": "EKEyo62rJVTpEUV4zRKn1rsS8JWMMEx2sQ6F5iH1DHkrCa3f6oB2",
       "attempts": 8
     }
   ],

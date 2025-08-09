@@ -11,10 +11,7 @@ import './instrument.js';
 import * as Sentry from '@sentry/node';
 import { Worker, Job, Queue } from 'bullmq';
 import { fetchAccount, Field, Mina, PublicKey } from 'o1js';
-import {
-  MastermindZkApp,
-  StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 import dotenv from 'dotenv';
 import {
   checkGameCreation,

@@ -8,13 +8,14 @@ import {
   Signature,
   UInt64,
   Poseidon,
+  Transaction,
 } from 'o1js';
 import {
   Combination,
   MastermindZkApp,
   StepProgram,
   StepProgramProof,
-} from '@navigators-exploration-team/mina-mastermind';
+} from 'stan-mastermind';
 import { WebSocketService } from './websocket.js';
 import fs from 'fs';
 import path from 'path';
@@ -133,7 +134,6 @@ export class MastermindGame {
     if (!existingProof) {
       this.storeProofData(proof);
     }
-
     this.codeMasterWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
@@ -143,7 +143,7 @@ export class MastermindGame {
       playerPubKeyBase58: this.codeMasterKey.toPublicKey().toBase58(),
     });
   }
-  async acceptGame() {
+  async acceptGame(): Promise<Transaction<true, true>> {
     this.joinGame(PlayerRole.CODE_BREAKER);
     while (true) {
       console.log('Accepting Game: ', this.gameId);
@@ -155,10 +155,6 @@ export class MastermindGame {
             await this.zkApp.acceptGame();
           }
         );
-        await tx.prove();
-        tx.sign([this.codeBreakerKey]);
-        const sentAt = Date.now();
-        const sentTx = await tx.send();
         await fetch(
           `${SERVER_URL}/games/accept/${codeBreakerPubKey.toBase58()}`,
           {
@@ -167,17 +163,7 @@ export class MastermindGame {
             body: JSON.stringify({ gameId: this.gameId }),
           }
         );
-
-        const res = await sentTx.wait();
-        const waitingTime = Date.now() - sentAt;
-        console.log(
-          `${res.status} after ${Math.floor(waitingTime / 60000)
-            .toString()
-            .padStart(2, '0')}:${Math.floor((waitingTime % 60000) / 1000)
-            .toString()
-            .padStart(2, '0')} `
-        );
-        break;
+        return (await tx.prove()).sign([this.codeBreakerKey]);
       } catch (e) {
         console.log('Error : ', e);
         console.log('Re-accepting the game ');
@@ -219,7 +205,7 @@ export class MastermindGame {
     this.lastPlayedTimestamp = Date.now();
   }
   async giveClue() {
-    console.log("giving clue")
+    console.log('giving clue');
     const turnCount = Number(
       this.lastReceivedProof!.publicOutput.turnCount.value
     );
@@ -312,6 +298,9 @@ export class MastermindGame {
       console.log('Error : ', e);
       console.log('Re-accepting the game ');
     }
+  }
+  async setAutoPlay(autoPlay: boolean) {
+    this.autoPlay = autoPlay;
   }
   private webSocketMessageHandler = async (data: any, role: PlayerRole) => {
     try {

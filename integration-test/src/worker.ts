@@ -1,9 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Mina } from 'o1js';
-import {
-  MastermindZkApp,
-  StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 import dotenv from 'dotenv';
 
 import { Worker, Job } from 'bullmq';

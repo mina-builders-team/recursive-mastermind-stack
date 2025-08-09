@@ -2,7 +2,7 @@ import {
   MastermindZkApp,
   StepProgram,
   StepProgramProof,
-} from '@navigators-exploration-team/mina-mastermind';
+} from 'stan-mastermind';
 import {
   Mina,
   Poseidon,

@@ -9,10 +9,7 @@
 
 import { Mina } from 'o1js';
 import dotenv from 'dotenv';
-import {
-  MastermindZkApp,
-  StepProgram,
-} from '@navigators-exploration-team/mina-mastermind';
+import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 dotenv.config();
 
 /**

@@ -9,10 +9,7 @@
  * - Loading cached verification key files for performance optimizations.
  */
 
-import {
-  Clue,
-  Combination,
-} from '@navigators-exploration-team/mina-mastermind';
+import { Clue, Combination } from 'stan-mastermind';
 import { availableColors, cluesColors, initialColor } from './constants/colors';
 import { AvailableColor } from './types';
 import { Field, Cache, Bool } from 'o1js';

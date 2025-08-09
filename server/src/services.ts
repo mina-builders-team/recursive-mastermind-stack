@@ -17,7 +17,7 @@ import {
   StepProgramProof,
   GameState,
   Clue,
-} from '@navigators-exploration-team/mina-mastermind';
+} from 'stan-mastermind';
 import { Queue } from 'bullmq';
 import {
   fetchAccount,
@@ -95,7 +95,6 @@ export const handleProof = async (
     gameId,
     gameLifecycleQueue
   );
-
   // If penalized, broadcast updated game state to all players
   if (isPenalized) {
     const players = activePlayers.get(gameId) || new Set();
