@@ -25,7 +25,6 @@
 import GuessSkeleton from './GuessSkeleton.vue';
 </script>
 <style scoped>
-
 .el-skeleton.is-animated .el-skeleton__item {
   background: linear-gradient(90deg, #222 25%, #15181d 37%, #222 63%);
   background-size: 400% 100% !important;

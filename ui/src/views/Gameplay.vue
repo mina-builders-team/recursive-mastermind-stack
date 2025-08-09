@@ -39,8 +39,15 @@ import Modal from '@/components/shared/Modal.vue';
 import GameBoardSkeleton from '@/components/gameplay/skeleton/GameBoardSkeleton.vue';
 import NotFound from '@/views/NotFound.vue';
 const route = useRoute();
-const { compiled, zkAppStates, game, isPlayingOnChain, publicKeyBase58 } =
-  storeToRefs(useZkAppStore());
+const {
+  compiled,
+  zkAppStates,
+  game,
+  isPlayingOnChain,
+  publicKeyBase58,
+  error,
+  userRole,
+} = storeToRefs(useZkAppStore());
 const {
   initZkappInstance,
   joinGame,
@@ -58,8 +65,10 @@ const isLoading = ref(true);
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
+    await getZkAppStates();
     await joinGame(gameId);
     await getRole();
+
     intervalId.value = setInterval(async () => {
       await getZkAppStates();
       if (zkAppStates.value && zkAppStates.value.codeBreakerId !== '0') {
@@ -74,14 +83,21 @@ onMounted(async () => {
   await initializeGame();
   if (!game.value) {
     await getGame(gameId);
+    if (error.value === 'Network Error') {
+      setPlayingOnChain(true, gameId);
+    }
   }
   isLoading.value = false;
 });
 const isNotAvailableGame = computed(() => {
   return (
-    !game.value ||
-    (game.value?.status === 'PENDING' &&
-      game.value?.codeMaster !== publicKeyBase58.value)
+    (!isPlayingOnChain.value &&
+      (!game.value ||
+        (game.value?.status === 'PENDING' &&
+          game.value?.codeMaster !== publicKeyBase58.value))) ||
+    (isPlayingOnChain.value &&
+      zkAppStates.value?.codeBreakerId === '0' &&
+      userRole.value !== 'CODE_MASTER')
   );
 });
 
@@ -94,8 +110,6 @@ watch(
 watch(
   () => zkAppStates.value?.codeBreakerId,
   async () => {
-    await establishConnection();
-
     isGameAcceptedOnChain.value =
       zkAppStates.value?.codeBreakerId &&
       zkAppStates.value?.codeBreakerId !== '0';
@@ -104,6 +118,7 @@ watch(
       ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
       isGameAcceptedOnChain.value
     ) {
+      await establishConnection();
       startGame();
     }
   }

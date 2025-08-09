@@ -26,5 +26,5 @@ export const BADGES = [
   {
     name: 'The Grinder',
     description: 'Play a total of 50 games.',
-  }
+  },
 ];

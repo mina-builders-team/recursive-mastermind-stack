@@ -7,7 +7,6 @@ export const availableColors = [
   { color: '#191B1D33', value: 5 },
   { color: '#191B1D33', value: 6 },
   { color: '#191B1D33', value: 7 },
-  
 ];
 
 export const cluesColors = [
@@ -16,4 +15,7 @@ export const cluesColors = [
   { color: '#5BC56B', value: 2, title: 'Hit' },
 ];
 
-export const initialColor = { color: '#0C0E11', value: 9 };
+export const initialColor: { color: string; value: string | number } = {
+  color: '#0C0E11',
+  value: 9,
+};

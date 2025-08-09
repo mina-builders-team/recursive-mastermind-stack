@@ -1,0 +1,46 @@
+<template>
+  <div
+    class="d-flex justify-content-between align-items-center color-snow-white py-2 px-3 player"
+  >
+    <div class="d-flex gap-4 align-items-center">
+      <div class="tags d-flex align-items-center h-fit-content py-2 px-4">
+        {{ index + 1 }}
+      </div>
+      <div
+        class="d-flex align-items-center gap-1 ms-2 me-2 px-2 py-3 tags radius-10 player-id"
+      >
+        <inline-svg src="/icons/person.svg"></inline-svg>
+        {{ formatAddress(player._id) }}
+      </div>
+      <div>
+        {{ getTitleByRank(index + 1)?.title }}
+      </div>
+    </div>
+    <div class="d-flex gap-5">
+      <div class="fs-12 fw-600 d-flex justify-content-end pe-3 stat">
+        {{ player.winsAsCodeMaster }}
+      </div>
+      <div class="fs-12 fw-600 d-flex justify-content-end pe-3 stat">
+        {{ player.winsAsCodeBreaker }}
+      </div>
+      <div class="d-flex justify-content-end stat">
+        {{ player.totalScore }} Points
+      </div>
+    </div>
+  </div>
+</template>
+<script lang="ts" setup>
+import { formatAddress, getTitleByRank } from '@/utils';
+
+defineProps({
+  player: {
+    required: true,
+    type: Object,
+  },
+  index: {
+    required: true,
+    type: Number,
+  },
+});
+</script>
+<style lang="scss" scoped></style>

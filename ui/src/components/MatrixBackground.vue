@@ -27,15 +27,6 @@ onMounted(() => {
     canvasId: 'matrixExportCanvas',
   };
 
-  const BASE_FADE_IN_FRAMES = 60;
-  const BASE_VISIBLE_DURATION_FRAMES = 120;
-  const BASE_FADE_OUT_FRAMES = 60;
-
-  const FADE_IN_FRAMES = BASE_FADE_IN_FRAMES / config.fadeSpeedMultiplier;
-  const VISIBLE_DURATION_FRAMES =
-    BASE_VISIBLE_DURATION_FRAMES / config.fadeSpeedMultiplier;
-  const FADE_OUT_FRAMES = BASE_FADE_OUT_FRAMES / config.fadeSpeedMultiplier;
-
   const canvas = document.getElementById(config.canvasId) as HTMLCanvasElement;
   const ctx = canvas.getContext('2d');
   if (!canvas || !ctx) return;
@@ -74,39 +65,41 @@ onMounted(() => {
   }
 
   function draw() {
-    ctx.fillStyle = `rgba(0,0,0, ${config.trailOpacity})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = `${config.fontSize}px monospace`;
-    wavePhase += config.waveSpeed;
+    if (ctx) {
+      ctx.fillStyle = `rgba(0,0,0, ${config.trailOpacity})`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${config.fontSize}px monospace`;
+      wavePhase += config.waveSpeed;
 
-    for (let i = 0; i < drops.length; i++) {
-      const drop = drops[i];
-      if (!config.characterPersistence || drop.char === undefined) {
-        drop.char = getRandomChar();
-      }
+      for (let i = 0; i < drops.length; i++) {
+        const drop = drops[i];
+        if (!config.characterPersistence || drop.char === undefined) {
+          drop.char = getRandomChar();
+        }
 
-      let xP = i * config.fontSize;
-      let yP = drop.position * config.fontSize;
+        let xP = i * config.fontSize;
+        let yP = drop.position * config.fontSize;
 
-      if (config.animationType === 'wave-rain-down') {
-        xP +=
-          config.waveAmplitude *
-          Math.sin(
-            (yP / canvas.height) * config.waveFrequency * Math.PI * 2 +
-              wavePhase +
-              drop.waveOffset
-          );
-      }
+        if (config.animationType === 'wave-rain-down') {
+          xP +=
+            config.waveAmplitude *
+            Math.sin(
+              (yP / canvas.height) * config.waveFrequency * Math.PI * 2 +
+                wavePhase +
+                drop.waveOffset
+            );
+        }
 
-      ctx.fillStyle = config.highlightLeadingChar
-        ? config.leadingCharColor
-        : config.charColor;
-      ctx.fillText(drop.char, xP, yP);
+        ctx.fillStyle = config.highlightLeadingChar
+          ? config.leadingCharColor
+          : config.charColor;
+        ctx.fillText(drop.char, xP, yP);
 
-      drop.position++;
-      if (yP > canvas.height && Math.random() > 0.975) {
-        drop.position = 0;
-        if (config.characterPersistence) drop.char = getRandomChar();
+        drop.position++;
+        if (yP > canvas.height && Math.random() > 0.975) {
+          drop.position = 0;
+          if (config.characterPersistence) drop.char = getRandomChar();
+        }
       }
     }
   }

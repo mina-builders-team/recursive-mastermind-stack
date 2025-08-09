@@ -48,16 +48,35 @@
         <div class="fw-600 fs-21">{{ stats?.totalPlayed }}</div>
       </div>
     </div>
-    <ShareButton message="Mina" hashtag="Mina" customClass="fw-400 fs-14" />
+    <ShareButton
+      :message="tweet.message"
+      :hashtag="tweet.hashtag"
+      customClass="fw-400 fs-14"
+    />
   </div>
 </template>
 <script setup lang="ts">
+import { computed } from 'vue';
 import ShareButton from '../shared/ShareButton.vue';
 const props = defineProps({
   stats: {
     required: true,
     type: Object,
   },
+});
+const tweet = computed(() => {
+  return {
+    message: `🔥 My Mastermind zkApp Stats on @MinaProtocol 🔐
+🎯 Total Games: ${props.stats?.totalPlayed}
+🧠 Code Breaker Wins: ${props.stats?.winsAsCodeBreaker}
+🛡️ Code Master Wins: ${props.stats?.winsAsCodeMaster}
+💰 Net Rewards: ${props.stats?.balance / 1e9} MINA
+
+Play, strategize, and earn on-chain with zk tech!
+Join the challenge → https://www.minamastermind.com
+`,
+    hashtag: 'MinaProtocol ,Web3Gaming ,CryptoGaming',
+  };
 });
 </script>
 <style lang="scss" scoped></style>

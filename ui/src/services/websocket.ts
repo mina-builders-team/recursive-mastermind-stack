@@ -1,6 +1,8 @@
 import { useWebSocket } from '@vueuse/core';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { updateLocalStorageGames } from '@/utils';
+import { useCustomMessage } from '@/composables/useCustomMessage';
+import router from '@/router';
 
 export class WebSocketService {
   socket: ReturnType<typeof useWebSocket>;
@@ -10,7 +12,7 @@ export class WebSocketService {
 
   constructor(gameId: string) {
     this.gameId = gameId;
-    this.connected = false
+    this.connected = false;
     console.log('web socket server : ', import.meta.env.VITE_WEB_SOCKET_URL);
     this.socket = useWebSocket(import.meta.env.VITE_WEB_SOCKET_URL, {
       autoReconnect: {
@@ -28,6 +30,7 @@ export class WebSocketService {
         try {
           const data = JSON.parse(event.data);
           console.log('Received data:', data);
+          const { showMessage } = useCustomMessage();
           const {
             setTurnPlayed,
             verifyProof,
@@ -49,11 +52,19 @@ export class WebSocketService {
               this.onMessageCallback(data);
           }
           if (data.game) {
-            if (data?.game.status === 'ON_CHAIN' && !isPlayingOnChain) {
+            if (data?.game.status === 'ON_CHAIN') {
               await setPlayingOnChain(true);
               return;
             }
             await setGame(data.game);
+          }
+          if (data.error) {
+            showMessage({
+              type: 'error',
+              title: 'Error',
+              description: data.error,
+              duration: 6000,
+            });
           }
         } catch (e) {
           console.log('Error handling message:', e);
@@ -62,6 +73,26 @@ export class WebSocketService {
       onConnected: async (_ws: WebSocket) => {
         this.send({ action: 'join', gameId });
         this.connected = true;
+      },
+      onDisconnected: (_ws: WebSocket, event: CloseEvent) => {
+        const { destroyWebsocket } = useZkAppStore();
+        const { showMessage } = useCustomMessage();
+        console.warn(`WebSocket disconnected with code: ${event.code}`);
+        if (event.code === 1008) {
+          console.warn(
+            'WebSocket closed due to server-side rejection (1008). Disabling reconnect.'
+          );
+          this.close();
+          destroyWebsocket();
+          showMessage({
+            type: 'error',
+            title: 'Connection Limit Reached',
+            description: 'Too many connections from this IP',
+            duration: 6000,
+          });
+          router.push({ name: 'lobby' });
+          throw new Error('Too many connections from this IP');
+        }
       },
     });
   }

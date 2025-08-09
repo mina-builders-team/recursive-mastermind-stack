@@ -15,7 +15,7 @@ import { initialColor } from '@/constants/colors';
 import { AvailableColor } from '@/types';
 import RoundedColor from '@/components/shared/RoundedColor.vue';
 
-const props = defineProps({
+defineProps({
   clue: {
     type: Array<AvailableColor>,
     required: false,
@@ -29,6 +29,5 @@ const props = defineProps({
   grid-template-columns: repeat(2, 22px);
   grid-template-rows: repeat(2, 22px);
   gap: 1px;
-
 }
 </style>

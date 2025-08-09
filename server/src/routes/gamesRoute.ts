@@ -12,9 +12,11 @@ import {
   getGameById,
   getInProgressGamesByPlayer,
   getLobbyData,
+  getPlayedGames,
+  getUserCreatedGames,
   getUserGames,
 } from '../repositories/game.js';
-import Game, { GameStatus } from '../models/Game.js';
+import { GameStatus } from '../models/Game.js';
 import { Poseidon, PublicKey, Signature } from 'o1js';
 import dotenv from 'dotenv';
 import redisClient from '../redisClient.js';
@@ -22,24 +24,6 @@ import Player from '../models/Player.js';
 
 dotenv.config();
 const router = Router();
-
-router.get('/player/:id', async (req: Request, res: Response) => {
-  try {
-    const playerId = req.params.id;
-
-    const player = await Player.findById(playerId);
-
-    if (!player) {
-      res.status(404).json({ message: 'Player not found' });
-      return;
-    }
-
-    res.status(200).json({ player });
-  } catch (error) {
-    console.error('Error fetching player:', error);
-    res.status(500).json({ message: 'Failed to fetch player' });
-  }
-});
 
 router.get('/active-games/:userId', async (req: Request, res: Response) => {
   const { userId } = req.params;
@@ -91,15 +75,14 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
       await redisClient.set(
         cacheKey,
         JSON.stringify({ filteredActiveGames, totalActiveCount }),
-        {
-          expiration: { type: 'EX', value: 60 },
-        }
+        'EX',
+        60
       );
     }
 
     let inProgressGames: any[] = [];
     if (includeInProgress) {
-      inProgressGames = await getInProgressGamesByPlayer(userId)
+      inProgressGames = await getInProgressGamesByPlayer(userId);
     }
     res.status(200).json({
       filteredActiveGames,
@@ -112,39 +95,6 @@ router.get('/active-games/:userId', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/leaderboard/:userId', async (req: Request, res: Response) => {
-  const userId = req.params.userId;
-  const limit = parseInt(req.query.limit as string) || 10;
-
-  try {
-    const leaderboard = await Player.find()
-      .sort({ totalScore: -1 })
-      .limit(limit)
-      .select('_id winsAsCodeMaster winsAsCodeBreaker totalScore')
-      .lean();
-
-    const userStats = await Player.findOne({ _id: userId })
-      .select('_id winsAsCodeBreaker winsAsCodeMaster totalScore')
-      .lean();
-
-    let userRank = null;
-    if (userStats) {
-      userRank =
-        (await Player.countDocuments({
-          totalScore: { $gt: userStats?.totalScore || 0 },
-        })) + 1;
-    }
-
-    res.status(200).json({
-      leaderboard,
-      user: userStats ? { ...userStats, rank: userRank } : null,
-    });
-  } catch (err) {
-    console.error('Error fetching leaderboard:', err);
-    res.status(500).json({ message: 'Failed to fetch leaderboard' });
-  }
-});
-
 router.get('/my-games/:pubKey', async (req, res) => {
   const { pubKey } = req.params;
   const onlyPlayedGames = req.query.onlyPlayedGames === 'true';
@@ -152,7 +102,7 @@ router.get('/my-games/:pubKey', async (req, res) => {
   const limit = parseInt((req.query.limit as string) || '7', 10);
   const skip = (page - 1) * limit;
   const orderBy =
-    req.query.sortOrder === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
+    req.query.orderBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
   const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
   const playedAs = req.query.playedAs;
   try {
@@ -171,17 +121,13 @@ router.get('/my-games/:pubKey', async (req, res) => {
       ],
     };
 
-    const [playedGames, totalPlayedCount] = await Promise.all([
-      await Game.find(playedGamesQuery)
-        .sort({ [orderBy]: sortOrder })
-        .skip(skip)
-        .limit(limit)
-        .select(
-          ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster'
-        )
-        .lean(),
-      await Game.countDocuments(playedGamesQuery),
-    ]);
+    const [playedGames, totalPlayedCount] = await getPlayedGames({
+      playedGamesQuery,
+      orderBy,
+      sortOrder,
+      skip,
+      limit,
+    });
 
     if (onlyPlayedGames) {
       res.status(200).json({
@@ -208,18 +154,11 @@ router.get('/my-games/:pubKey', async (req, res) => {
         badges: playerStats?.badges || [],
       };
 
-      await redisClient.set(statsCacheKey, JSON.stringify(stats), {
-        expiration: { type: 'EX', value: 60 },
-      });
+      await redisClient.set(statsCacheKey, JSON.stringify(stats), 'EX', 60);
     }
 
     //Active games
-    const activeGames = await Game.find({
-      codeMaster: pubKey,
-      status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
-    })
-      .sort({ timestamp: -1 })
-      .lean();
+    const activeGames = await getUserCreatedGames(pubKey);
     res.json({
       stats,
       activeGames,

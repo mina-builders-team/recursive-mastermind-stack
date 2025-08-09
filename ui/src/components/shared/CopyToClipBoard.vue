@@ -6,7 +6,7 @@
   >
     <div @click="copyToClipBoard" class="cursor-pointer">
       <slot>
-        <el-icon :size="25"  :color="color">
+        <el-icon :size="25" :color="color">
           <CopyDocument />
         </el-icon>
       </slot>

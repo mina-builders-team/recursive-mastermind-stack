@@ -148,11 +148,11 @@
               />
             </div>
           </div>
-          <div
-            class="snow-white d-flex flex-column align-items-between h-100"
-          >
+          <div class="snow-white d-flex flex-column align-items-between h-100">
             <div class="fs-16 mb-2">Staked Mina</div>
-            <div class="border-alpha-50-300-50 d-flex align-items-center p-10 radius-10">
+            <div
+              class="border-alpha-50-300-50 d-flex align-items-center p-10 radius-10"
+            >
               <inline-svg
                 src="/icons/cash.svg"
                 class="snow-white me-1"
@@ -264,7 +264,6 @@ const game = ref({
   secret: Array.from({ length: 4 }, () => initialColor),
   reward: 10,
   roomName: roomNames[0],
-  refereePubKeyBase58: import.meta.env.VITE_SERVER_PUBLIC_KEY as string,
   randomSalt: Field.random().toString(),
 });
 const generateRoomName = () => {
@@ -287,7 +286,7 @@ const handleBackClick = () => {
 };
 const handleNextStep = async () => {
   if (currentStep.value === 0) {
-    const { isValid, message } = validateColorCombination(game.value?.secret);
+    const { isValid } = validateColorCombination(game.value?.secret);
     if (!isValid) {
       showMessage({
         type: 'error',
@@ -308,7 +307,6 @@ const handleNextStep = async () => {
     await createInitGameTransaction(
       game.value.secret.map((e: AvailableColor) => Number(e.value)),
       game.value.randomSalt,
-      game.value.refereePubKeyBase58 as string,
       game.value.reward! * 1e9,
       game.value.roomName
     );
@@ -331,7 +329,7 @@ const handleNextStep = async () => {
     }
   }
 };
-const handleInfoChange = (current: number, prev: number) => {
+const handleInfoChange = (current: number) => {
   currentInfo.value = current;
 };
 const handleSecretChange = (newSecret: Array<AvailableColor>) => {
@@ -357,5 +355,4 @@ const handleSecretChange = (newSecret: Array<AvailableColor>) => {
 .el-carousel__indicators--horizontal {
   display: none !important;
 }
-
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex justify-content-center w-100 h-100 mt-2 mb-4">
+  <div class="d-flex justify-content-center w-100 h-100 mt-5 mb-4">
     <div class="board__container">
       <GameResult
         v-if="isGameEnded"
@@ -7,20 +7,24 @@
         :userRole="userRole!"
         :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
         :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
-        :gameReward="game?.rewardAmount!"
-        :finalTransaction="lastTransactionLink"
+        :gameReward="rewardAmount!"
+        :isPenalized="isPenalized"
+        :turnCount="
+          isPlayingOnChain ? zkAppStates.turnCount : zkProofStates.turnCount
+        "
       />
-  
-      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3" v-else>
+
+      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
         <BoardHeader
-          :rewardAmount="game?.rewardAmount"
+          :rewardAmount="rewardAmount"
           :userRole="userRole!"
           :secret="gameSecret.secretCode"
+          :isPlayingOnChain="isPlayingOnChain"
         />
         <BoardTimer
           :isCurrentUserTurn="isCurrentUserTurn"
           :isTurnTimeExceeded="isTurnTimeExceeded"
-          :startTimestamp="timerStartTime"
+          :startTimestamp="timerStartTime!"
           :duration="timerDuration"
           :isPlayingOnChain="isPlayingOnChain"
           :lastTurnTransactionHash="lastTurnTransactionHash"
@@ -39,8 +43,8 @@
       </div>
     </div>
     <SubmitLastProofModal
-        v-if="isPlayingOnChain && !isLastProofSubmitted && !isGameEnded"
-      />
+      v-if="isPlayingOnChain && !isLastProofSubmitted && !isGameEnded"
+    />
   </div>
 </template>
 
@@ -71,9 +75,8 @@ const {
   game,
   userRole,
   isPlayingOnChain,
-  currentTransactionLink,
   currentSlot,
-  lastTurnTransactionHash
+  lastTurnTransactionHash,
 } = storeToRefs(useZkAppStore());
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
 import GameResult from './GameResult.vue';
@@ -114,9 +117,11 @@ const clues = computed<Array<AvailableColor[]>>(() =>
     : zkAppStates.value?.cluesHistory
 );
 const isTurnTimeExceeded = ref(false);
-const onChainTimerStartTimestamp = ref(Date.now())
+const onChainTimerStartTimestamp = ref(Date.now());
 const timerStartTime = computed(() => {
-  return isPlayingOnChain.value ? onChainTimerStartTimestamp.value : game.value?.timestamp;
+  return isPlayingOnChain.value
+    ? onChainTimerStartTimestamp.value
+    : game.value?.timestamp;
 });
 
 const timerDuration = computed(() => {
@@ -124,7 +129,7 @@ const timerDuration = computed(() => {
     ? 60 * 1000 * 3
     : isCurrentUserTurn.value
       ? 60 * 1000 * 2
-      : 60 * 1000 * 2.5;
+      : 60 * 1000 * 3;
 });
 const handleTurnEnded = () => {
   isTurnTimeExceeded.value = true;
@@ -207,14 +212,15 @@ const isGameEnded = computed(() => {
 const isLastProofSubmitted = computed(() => {
   return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
 });
-const lastTransactionLink = computed(() => {
-  return isPlayingOnChain.value
-    ? currentTransactionLink.value
-    : game.value?.penalizationTransactionHash ||
-        game.value?.settlementTransactionHash;
+const rewardAmount = computed(() => {
+  return game.value?.rewardAmount || zkAppStates.value?.rewardAmount;
 });
-
-
+const isPenalized = computed(() => {
+  return isPlayingOnChain.value
+    ? (isLastProofSubmitted.value && remainingSlot.value < 0) ||
+        (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
+    : game.value?.status === 'PENALIZED';
+});
 watch(
   () => zkProofStates.value?.turnCount,
   () => {
@@ -231,9 +237,9 @@ watch(
     if (isPlayingOnChain.value) {
       guesses.value = zkAppStates.value.guessesHistory;
       isTurnTimeExceeded.value = false;
-      onChainTimerStartTimestamp.value = Date.now()
+      onChainTimerStartTimestamp.value = Date.now();
       setTurnPlayed(false);
-      setLastTurnTransactionHash("");
+      setLastTurnTransactionHash('');
       playSound();
     }
   }

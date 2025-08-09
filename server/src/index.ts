@@ -27,6 +27,13 @@ import gamesRoute from './routes/gamesRoute.js';
 import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
+import playerRoute from './routes/playerRoute.js';
+import {
+  rateLimitMiddleware,
+  wsActionLimiter,
+  wsConnectionLimiter,
+} from './middlewares/rateLimiters.js';
+import mongoSanitize from 'express-mongo-sanitize';
 
 // Environment Setup
 dotenv.config();
@@ -35,6 +42,8 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use(mongoSanitize({replaceWith:'_'}));
 
 // Port configuration
 const PORT = process.env.SERVER_PORT || 3000;
@@ -53,13 +62,19 @@ connectDatabase();
 // Resume all in-progress games on startup by marking them as "on_chain" to continue execution on the blockchain
 await resumeOnChain();
 
+// rate limiting middleware for HTTP routes
+app.use(rateLimitMiddleware);
+
+// Mounts game routes at the '/games' endpoint.
+app.use('/games', gamesRoute);
+
+// Mounts player routes at the '/player' endpoint.
+app.use('/player', playerRoute);
+
 // Start Express Server
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// Mounts game routes at the '/games' endpoint.
-app.use('/games', gamesRoute);
 
 // Healthcheck Endpoint
 app.get('/health', (_req, res) => {
@@ -143,20 +158,36 @@ await gameLifecycleQueue.upsertJobScheduler(
 );
 
 // WebSocket Handler
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws, req) => {
+  const ip = req.socket.remoteAddress || 'unknown';
+  try {
+    await wsConnectionLimiter.consume(ip);
+  } catch {
+    await wsConnectionLimiter.reward(ip, 1);
+    ws.close(1008, 'Too many connections from this IP');
+    return;
+  }
+
   ws.on('message', async (message) => {
     try {
+      try {
+        await wsActionLimiter.consume(ip);
+      } catch {
+        ws.send(JSON.stringify({ error: 'Too many actions from this IP' }));
+        return;
+      }
+
       const data = JSON.parse(message.toString());
+      const sanitizedData = mongoSanitize.sanitize(data,{replaceWith:'_'})
       const {
         gameId,
         action,
         zkProof,
         rewardAmount,
         playerPubKeyBase58,
-        refereePubKeyBase58,
         roomName,
         gameCreationTransactionHash,
-      } = data;
+      } = sanitizedData;
       console.log('action : ', action);
       if (!gameId || !action) {
         ws.send(JSON.stringify({ error: 'Bad request!' }));
@@ -173,7 +204,6 @@ wss.on('connection', (ws) => {
           zkProof,
           rewardAmount,
           playerPubKeyBase58,
-          refereePubKeyBase58,
           activePlayers,
           ws,
           gameLifecycleQueue,
@@ -203,7 +233,14 @@ wss.on('connection', (ws) => {
   });
 
   // Clean up on socket close
-  ws.on('close', () => {
+  ws.on('close', async () => {
+    // Decrement connection count per IP on close
+    try {
+      await wsConnectionLimiter.reward(ip, 1);
+    } catch (err) {
+      console.error('WebSocket disconnect error:', err);
+      Sentry.captureException(err);
+    }
     activePlayers.forEach((players, gameId) => {
       players.delete(ws);
       if (players.size === 0) {

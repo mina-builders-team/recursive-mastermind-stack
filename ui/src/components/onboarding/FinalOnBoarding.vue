@@ -37,7 +37,7 @@
     <div class="my-4">Here is mainnet rules:</div>
     <div class="d-flex gap-2 align-items-center my-3">
       <inline-svg src="/icons/alarm.svg"></inline-svg>
-      <div>2.5 Minute Turn Timer</div>
+      <div>3 Minute Turn Timer</div>
     </div>
     <div class="d-flex gap-2 align-items-center my-3">
       <inline-svg src="/icons/ordered-list.svg"></inline-svg>

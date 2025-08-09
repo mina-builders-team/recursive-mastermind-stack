@@ -166,9 +166,7 @@ const handleDelete = () => {
   background-blend-mode: multiply;
   width: 50px;
   height: 50px;
-
 }
-
 
 :deep(.el-input__wrapper) {
   outline: none !important;
@@ -189,7 +187,6 @@ const handleDelete = () => {
   background-blend-mode: screen;
   border: 1px solid (59, 61, 63, 0.5);
 }
-
 
 .char-box {
   position: relative;
@@ -233,7 +230,7 @@ const handleDelete = () => {
 }
 .hidden {
   background: $alpha-8-300-8;
-  border: 1px solid rgba(59, 61, 63, 0.5)!important;
+  border: 1px solid rgba(59, 61, 63, 0.5) !important;
   backdrop-filter: blur(15px);
   box-shadow: 0px 20px 40px -10px #0c0e1166;
   box-shadow: 0px 3px 41px 56px $alpha-20-300-20 inset;
@@ -241,11 +238,11 @@ const handleDelete = () => {
   font-weight: 400;
 }
 .played {
-  color: #aeb4a3!important;
+  color: #aeb4a3 !important;
   background: $alpha-20-700-20;
   background-blend-mode: multiply;
   border: 1px solid $alpha-20-300-20;
   font-family: michroma;
-  font-size: 21px!important;
+  font-size: 21px !important;
 }
 </style>

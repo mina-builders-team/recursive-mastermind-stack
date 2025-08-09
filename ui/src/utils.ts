@@ -156,13 +156,9 @@ export function validateColorCombination(combination: AvailableColor[]) {
  * @param length - Length of the salt string (default is 20).
  * @returns Random numeric salt string.
  */
-export function generateRandomSalt(length = 20): string {
-  const chars = '123456789';
-  let randomSalt = '';
-  for (let i = 0; i < length; i++) {
-    randomSalt += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return randomSalt;
+export function generateRandomSalt(): string {
+  const randomSalt = Field.random();
+  return randomSalt.toString();
 }
 
 /**
@@ -212,7 +208,6 @@ export const MinaFileSystem = (files: any): Cache => ({
 export function fetchZkAppCacheFiles() {
   const files = [
     { name: 'lagrange-basis-fp-2048', type: 'string' },
-    { name: 'lagrange-basis-fp-4096', type: 'string' },
 
     { name: 'step-vk-mastermindzkapp-acceptgame', type: 'string' },
     { name: 'step-vk-mastermindzkapp-claimreward', type: 'string' },
@@ -330,7 +325,7 @@ export function updateLocalStorageGames(gameId: string, data: any): void {
  * @param gameId - The ID of the game to retrieve.
  * @returns The stored game data as a string or null if not found.
  */
-export function getStoredGame(gameId: string): string | null {
+export function getStoredGame(gameId: string): any | null {
   const games = localStorage.getItem('games');
   if (games) {
     const jsonGames: any = JSON.parse(games);

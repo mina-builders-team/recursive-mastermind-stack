@@ -4,18 +4,14 @@ WORKDIR /app
 
 COPY server/package.json ./
 COPY yarn.lock ./
+RUN yarn --check-files
 
-RUN yarn install
-FROM node:20-slim AS dev
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
-COPY --from=deps /app/node_modules /app/node_modules
-COPY --from=deps /app/package.json /app/yarn.lock /app/
-
-COPY server/ .
-
-# Install `nodemon` globally for hot-reloading
-RUN yarn global add nodemon
-
+ADD server/ .
+COPY --from=deps /app/node_modules/ /app/node_modules/
+COPY --from=deps /app/package.json /app/yarn.lock  /app/
 CMD ["yarn", "dev"]
+

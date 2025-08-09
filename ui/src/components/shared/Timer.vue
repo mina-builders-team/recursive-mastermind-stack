@@ -4,7 +4,7 @@
       [
         ' d-flex align-items-center gap-1 p-10 radius-10 fs-16 fw-600 ',
         {
-          'color-black bg-snow-white ': !isCritical,
+          'color-black bg-snow-white ': !isCritical && !transparent,
           'critical color-snow-white ': isCritical,
         },
       ].concat(customClass)
@@ -52,6 +52,10 @@ const props = defineProps({
     type: String,
     required: false,
     default: '',
+  },
+  transparent: {
+    type: Boolean,
+    default: false,
   },
 });
 

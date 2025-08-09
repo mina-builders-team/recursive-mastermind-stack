@@ -10,7 +10,7 @@ import {
   MastermindZkApp,
   MAX_ATTEMPTS,
   StepProgramProof,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import dotenv from 'dotenv';
 import {
   createOrUpdateGame,
@@ -134,6 +134,7 @@ export const sendFinalProof = async (job: Job) => {
     const game = await createOrUpdateGame({
       _id: gameId,
       settlementTransactionHash: txHash,
+      finalTransactionTimestamp: Date.now(),
     });
     console.log(
       `Proof submitted for game ${gameId}, transaction hash: ${txHash}`
@@ -186,6 +187,7 @@ export const forfeitWin = async (job: Job) => {
     const game = await createOrUpdateGame({
       _id: gameId,
       penalizationTransactionHash: txHash,
+      finalTransactionTimestamp: Date.now(),
     });
     await updatePlayerStatsFromGame(game);
     return game;

@@ -12,7 +12,7 @@ import {
   VerificationKey,
   verify,
 } from 'o1js';
-import { MastermindGame, PlayerRole, REFEREE } from '../MastermindGame.js';
+import { MastermindGame, PlayerRole } from '../MastermindGame.js';
 import { readFileSync } from 'fs';
 import { WebSocketService } from '../websocket.js';
 const WEB_SOCKET_URL = process.env.WEB_SOCKET_URL;
@@ -124,8 +124,6 @@ describe('Mastermind Integration Tests', () => {
             codeMaster: mastermindGame.codeMasterKey.toPublicKey().toBase58(),
             _id: mastermindGame.gameId,
             turnCount: 1,
-            refereePubKeyBase58: REFEREE.toBase58(),
-            isRefereeVerified: true,
             lastProof:
               mastermindGame.codeMasterWebSocket?.lastReceivedMessage?.zkProof,
           },
@@ -155,8 +153,6 @@ describe('Mastermind Integration Tests', () => {
             codeMaster: mastermindGame.codeMasterKey.toPublicKey().toBase58(),
             _id: mastermindGame.gameId,
             turnCount: 1,
-            refereePubKeyBase58: REFEREE.toBase58(),
-            isRefereeVerified: true,
             lastProof:
               mastermindGame.codeMasterWebSocket?.lastReceivedMessage?.zkProof,
           },
@@ -177,7 +173,6 @@ describe('Mastermind Integration Tests', () => {
           gameId: mastermindGame.gameId,
           zkProof: JSON.stringify(mastermindGame.lastReceivedProof),
           rewardAmount: 1e10,
-          refereePubKeyBase58: REFEREE.toBase58(),
           playerPubKeyBase58: mastermindGame.codeMasterKey
             .toPublicKey()
             .toBase58(),
@@ -237,8 +232,6 @@ describe('Mastermind Integration Tests', () => {
             status: 'IN_PROGRESS',
             codeBreaker: mastermindGame.codeBreakerKey.toPublicKey().toBase58(),
             turnCount: 1,
-            refereePubKeyBase58: REFEREE.toBase58(),
-            isRefereeVerified: true,
           },
         });
       });

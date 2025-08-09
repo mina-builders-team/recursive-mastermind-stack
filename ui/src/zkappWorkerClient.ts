@@ -52,14 +52,12 @@ export default class ZkappWorkerClient {
     feePayer: string,
     separatedSecretCombination: number[],
     salt: string,
-    refereePubKeyBase58: string,
     rewardAmount: number
   ): Promise<string> {
     const result = this._call('createInitGameTransaction', {
       feePayer,
       separatedSecretCombination,
       salt,
-      refereePubKeyBase58,
       rewardAmount,
     });
     return result as Promise<string>;
@@ -130,8 +128,8 @@ export default class ZkappWorkerClient {
   async setLastProof(zkProof: any) {
     return this._call('setLastProof', { zkProof });
   }
-  async submitGameProof(zkProof: string) {
-    return this._call('submitGameProof', { zkProof });
+  async submitGameProof(zkProof: string, winnerPubKeyBase58?: string) {
+    return this._call('submitGameProof', { zkProof, winnerPubKeyBase58 });
   }
   async createClaimRewardTransaction(feePayer: string) {
     return this._call('createClaimRewardTransaction', {

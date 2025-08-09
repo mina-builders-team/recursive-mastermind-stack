@@ -36,6 +36,33 @@ export const createOrUpdateGame = async (
 };
 
 /**
+ * Finds a single document based on the provided filter and updates it with the given data.
+ *
+ *
+ * @param filter - Filter criteria to find the document.
+ * @param updateData - Fields to update in the document.
+ * @returns {Promise<T | null>} The updated document, or null if no match was found.
+ * @throws If MongoDB update operation fails.
+ */
+export const findOneAndUpdate = async <T>(
+  filter: Record<string, unknown>,
+  updateData: Partial<T>
+): Promise<IGame | null> => {
+  try {
+    const game = await Game.findOneAndUpdate(
+      filter,
+      { $set: updateData },
+      {
+        new: true,
+      }
+    );
+    return game;
+  } catch (err) {
+    throw new Error('Error updating document: ' + err);
+  }
+};
+
+/**
  * Retrieves a game document by its ID.
  *
  * @param _id - The unique ID of the game.
@@ -166,4 +193,33 @@ export const getInProgressGamesByPlayer = async (
   } catch (err) {
     throw new Error('Error while getting in progress games: ' + err);
   }
+};
+
+export const getPlayedGames = async (options: {
+  playedGamesQuery: Object;
+  orderBy: string;
+  sortOrder: 1 | -1 | 'asc' | 'desc';
+  skip: number;
+  limit: number;
+}) => {
+  return await Promise.all([
+    await Game.find(options.playedGamesQuery)
+      .sort({ [options.orderBy]: options.sortOrder })
+      .skip(options.skip)
+      .limit(options.limit)
+      .select(
+        ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster settlementTransactionHash penalizationTransactionHash finalTransactionTimestamp'
+      )
+      .lean(),
+    await Game.countDocuments(options.playedGamesQuery),
+  ]);
+};
+
+export const getUserCreatedGames = async (playerId: string) => {
+  return await Game.find({
+    codeMaster: playerId,
+    status: { $in: [GameStatus.ACTIVE, GameStatus.PENDING] },
+  })
+    .sort({ timestamp: -1 })
+    .lean();
 };

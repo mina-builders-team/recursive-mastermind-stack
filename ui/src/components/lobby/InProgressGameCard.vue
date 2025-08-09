@@ -24,7 +24,7 @@
       <span v-else>Opponents Turn</span>
     </div>
     <Timer
-      :duration="2.5 * 1000 * 60"
+      :duration="3 * 1000 * 60"
       :startTimestamp="game.timestamp"
       v-if="!isUserTurn"
       @timeEnded="handleTurnEnded"

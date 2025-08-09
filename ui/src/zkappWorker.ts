@@ -128,7 +128,6 @@ const functions = {
         },
         combination,
         Field(args.salt),
-        PublicKey.fromBase58(state.zkAppAddress as string)
       );
       state.lastProof = stepProof.proof;
       return stepProof.proof.toJSON();
@@ -149,7 +148,6 @@ const functions = {
       },
       state.lastProof as StepProgramProof,
       Combination.from(args.separatedGuess),
-      PublicKey.fromBase58(state.zkAppAddress as string)
     );
     state.lastProof = stepProof.proof;
     return stepProof.proof.toJSON();
@@ -201,7 +199,6 @@ const functions = {
       state.lastProof as StepProgramProof,
       Combination.from(args.secretCombination),
       Field(args.randomSalt),
-      PublicKey.fromBase58(state.zkAppAddress as string)
     );
     state.lastProof = stepProof.proof;
     return stepProof.proof.toJSON();
@@ -293,10 +290,16 @@ const functions = {
   setLastProof: async (args: { zkProof: any }) => {
     state.lastProof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
   },
-  submitGameProof: async (args: { zkProof: string }) => {
+  submitGameProof: async (args: {
+    zkProof: string;
+    winnerPubKeyBase58?: string;
+  }) => {
     const transaction = await Mina.transaction(async () => {
       const proof = await StepProgramProof.fromJSON(JSON.parse(args.zkProof));
-      await state.zkappInstance!.submitGameProof(proof, PublicKey.empty());
+      const winnerPubKey = args.winnerPubKeyBase58
+        ? PublicKey.fromBase58(args.winnerPubKeyBase58)
+        : PublicKey.empty();
+      await state.zkappInstance!.submitGameProof(proof, winnerPubKey);
     });
     state.transaction = transaction;
   },
@@ -380,7 +383,6 @@ const functions = {
       const signature = Signature.create(codeMasterKey, [
         ...secret.digits,
         salt,
-        ...zkAppAddress.toFields(),
       ]);
       const baseProof = await StepProgram.createGame(
         {
@@ -389,7 +391,6 @@ const functions = {
         },
         secret,
         salt,
-        zkAppAddress
       );
       const endCreateGameProof = performance.now();
       /// Create Guess Proof
@@ -401,12 +402,10 @@ const functions = {
           authSignature: Signature.create(codeBreakerKey, [
             ...guessCombination.digits,
             baseProof.proof.publicOutput.turnCount.value,
-            ...zkAppAddress.toFields(),
           ]),
         },
         baseProof.proof,
         guessCombination,
-        zkAppAddress
       );
       const endGuessProof = performance.now();
 
@@ -419,13 +418,11 @@ const functions = {
             ...secret.digits,
             salt,
             guessProof.proof.publicOutput.turnCount.value,
-            ...zkAppAddress.toFields(),
           ]),
         },
         guessProof.proof,
         secret,
         salt,
-        zkAppAddress
       );
       const endClueProof = performance.now();
       return {

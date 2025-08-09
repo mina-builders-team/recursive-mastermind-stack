@@ -11,25 +11,27 @@ import {
   createOrUpdateGame,
   deleteGame,
   resumeOnGoingGames,
+  findOneAndUpdate,
 } from './repositories/game.js';
 import {
   MastermindZkApp,
   StepProgramProof,
   GameState,
   Clue,
-} from 'stan-mastermind';
+} from '@navigators-exploration-team/mina-mastermind';
 import { Queue } from 'bullmq';
 import {
   fetchAccount,
   fetchLastBlock,
   Field,
+  Poseidon,
   PublicKey,
   UInt32,
   VerificationKey,
   verify,
 } from 'o1js';
 import { GameStatus, IGame } from './models/Game.js';
-import { MAX_ATTEMPTS, VERIFIED_REFEREES } from './constants.js';
+import { MAX_ATTEMPTS, TURN_DURATION } from './constants.js';
 import * as Sentry from '@sentry/node';
 
 /**
@@ -66,7 +68,6 @@ export const handleJoinGame = async (
  * @param zkProof - The serialized zkProof (JSON string).
  * @param receivedRewardAmount - The reward amount sent by the code master.
  * @param playerPubKeyBase58 - Public key of the player sending the proof.
- * @param refereePubKeyBase58 - Public key of the referee of the game.
  * @param activePlayers - A map of active WebSocket connections by game ID.
  * @param ws - The WebSocket instance of the sender.
  * @param gameLifecycleQueue - The BullMQ queue managing game lifecycle jobs.
@@ -77,7 +78,6 @@ export const handleProof = async (
   zkProof: string,
   receivedRewardAmount: number,
   playerPubKeyBase58: string,
-  refereePubKeyBase58: string,
   activePlayers: Map<string, Set<WebSocket>>,
   ws: WebSocket,
   gameLifecycleQueue: Queue,
@@ -88,6 +88,10 @@ export const handleProof = async (
   // Validate that a zkProof has been submitted
   if (!zkProof) {
     ws.send(JSON.stringify({ error: 'Missing zkProof!' }));
+    return;
+  }
+   if (zkProof.length > 36000) {
+    ws.send(JSON.stringify({ error: 'Too large zkProof!' }));
     return;
   }
   // Check whether the game should be penalized due to timeout exceeded
@@ -148,6 +152,24 @@ export const handleProof = async (
     return;
   }
 
+  // Verify that the Code Breaker's public key matches the one stored on-chain
+  if (receivedTurnCount === 2) {
+    const receivedCodeBreaker =
+      receivedProof.publicOutput.codeBreakerId.toString();
+    if (
+      !game ||
+      !game.codeBreaker ||
+      Poseidon.hash(
+        PublicKey.fromBase58(game.codeBreaker).toFields()
+      ).toString() !== receivedCodeBreaker
+    ) {
+      ws.send(
+        JSON.stringify({ error: 'You are not the code breaker of this game!' })
+      );
+      return;
+    }
+  }
+
   // If it's the code master's turn (odd turn), check if game is solved
   if (receivedTurnCount % 2 !== 0 && receivedTurnCount > 1) {
     turnCount = Number(receivedProof.publicOutput.turnCount.toString());
@@ -190,12 +212,6 @@ export const handleProof = async (
       ? winnerPublicKeyBase58
       : undefined,
     status: winnerPublicKeyBase58 ? GameStatus.ENDED : undefined,
-    refereePubKeyBase58:
-      lastTurnCount === null ? refereePubKeyBase58 : undefined,
-    isRefereeVerified:
-      lastTurnCount === null
-        ? VERIFIED_REFEREES.includes(refereePubKeyBase58)
-        : undefined,
     gameCreationTransactionHash:
       lastTurnCount === null ? gameCreationTransactionHash : undefined,
     roomName: lastTurnCount === null ? roomName : undefined,
@@ -289,12 +305,15 @@ export async function handleGameStart(
     // Check if the game has already started on chain
     const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
     if (Number(turnCount.toString()) > 1) {
-      const updatedGame = await createOrUpdateGame({
-        _id: gameId,
-        codeBreaker: acceptedGame.codeBreakerPubKey,
-        status: GameStatus.ON_CHAIN,
-        timestamp: Date.now(),
-      });
+      const updatedGame = await findOneAndUpdate(
+        { _id: gameId, codeBreaker: null },
+        {
+          _id: gameId,
+          codeBreaker: acceptedGame.codeBreakerPubKey,
+          status: GameStatus.ON_CHAIN,
+          timestamp: Date.now(),
+        }
+      );
 
       // Notify all connected players
       const players = activePlayers.get(gameId) || new Set();
@@ -304,22 +323,25 @@ export async function handleGameStart(
       return;
     }
 
-    // Create or update the game in DB with the latest metadata
-    const updatedGame = await createOrUpdateGame({
-      _id: gameId,
-      codeBreaker: acceptedGame.codeBreakerPubKey,
-      status,
-      timestamp: Date.now(),
-      winnerPublicKeyBase58: winnerPublicKeyBase58
-        ? winnerPublicKeyBase58
-        : undefined,
-    });
-
-    // Broadcast updated game state
-    const players = activePlayers.get(gameId) || new Set();
-    players.forEach((player: WebSocket) => {
-      player.send(JSON.stringify({ game: updatedGame }));
-    });
+    // update the game in DB with the latest metadata
+    const updatedGame = await findOneAndUpdate(
+      { _id: gameId, codeBreaker: null },
+      {
+        codeBreaker: acceptedGame.codeBreakerPubKey,
+        status,
+        timestamp: Date.now(),
+        winnerPublicKeyBase58: winnerPublicKeyBase58
+          ? winnerPublicKeyBase58
+          : undefined,
+      }
+    );
+    if (updatedGame) {
+      // Broadcast updated game state
+      const players = activePlayers.get(gameId) || new Set();
+      players.forEach((player: WebSocket) => {
+        player.send(JSON.stringify({ game: updatedGame }));
+      });
+    }
     return;
   }
 
@@ -392,9 +414,6 @@ async function checkForPenalization(
     };
   }
   const lastTurnTimestamp = game?.timestamp || Date.now();
-
-  // Define max allowed turn duration (2.5 minutes in milliseconds)
-  const TURN_DURATION = 1000 * 60 * 2.5;
 
   // Check if time since last move exceeds allowed duration
   if (game?.turnCount && now - lastTurnTimestamp > TURN_DURATION) {

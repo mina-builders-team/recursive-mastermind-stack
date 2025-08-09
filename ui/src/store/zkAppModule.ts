@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import ZkappWorkerClient from '../zkappWorkerClient';
 import { WebSocketService } from '../services/websocket';
 import axios from 'axios';
-import { Poseidon, PrivateKey, PublicKey } from 'o1js';
+import { Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
 
@@ -54,6 +54,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     currentTransactionLink: '',
     submitGameTransactionHash: '',
     claimRewardTransactionHash: '',
+    cancelGameTransactionHash: '',
     zkAppStates: null as null | any,
     zkProofStates: null as null | any,
     compiled: false,
@@ -149,7 +150,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     async createInitGameTransaction(
       separatedSecretCombination: number[],
       salt: string,
-      refereePubKeyBase58: string,
       rewardAmount: number,
       roomName: string
     ) {
@@ -168,7 +168,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             this.publicKeyBase58,
             separatedSecretCombination,
             salt,
-            refereePubKeyBase58,
             rewardAmount
           );
         const signedData = await this.signFields([
@@ -187,7 +186,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
-        if (this.isPlayingOnChain && !this.webSocketInstance?.connected) {
+        await new Promise((res) => setTimeout(res, 5000));
+        if (this.isPlayingOnChain || !this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
           );
@@ -213,8 +213,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           rewardAmount: rewardAmount,
           turnCount: 1,
           codeMaster: this.publicKeyBase58,
-          refereePubKeyBase58,
-          isRefereeVerified: true,
           roomName,
           gameCreationTransactionHash: hash,
         };
@@ -223,7 +221,6 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           gameId: this.zkAppAddress,
           zkProof: JSON.stringify(res),
           rewardAmount,
-          refereePubKeyBase58,
           playerPubKeyBase58: this.publicKeyBase58,
           roomName,
           gameCreationTransactionHash: hash,
@@ -392,11 +389,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         return this.zkAppAddress;
       }
     },
-    async submitGameProof(proof: string) {
+    async submitGameProof(proof: string, winnerPubKeyBase58?: string) {
       try {
         this.loading = true;
         this.stepDisplay = 'Creating a transaction...';
-        await this.zkappWorkerClient!.submitGameProof(proof);
+        await this.zkappWorkerClient!.submitGameProof(
+          proof,
+          winnerPubKeyBase58
+        );
         this.stepDisplay = 'Generating proof...';
         await this.zkappWorkerClient!.proveTransaction();
         this.stepDisplay = 'Getting transaction JSON...';
@@ -543,7 +543,8 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (res?.data?.game) {
           await this.setGame(res?.data?.game);
         }
-        return res?.data?.game
+        this.error = null;
+        return res?.data?.game;
       } catch (err: any) {
         this.error = err?.message || err;
         console.log('error ', err);
@@ -585,7 +586,10 @@ export const useZkAppStore = defineStore('useZkAppModule', {
               memo: '',
             },
           });
-          this.currentTransactionLink = hash;
+          this.cancelGameTransactionHash = hash;
+          updateLocalStorageGames(this.zkAppAddress as string, {
+            cancelGameTransactionHash: hash,
+          });
           const res = await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {
             signedData,
             hash,
@@ -601,7 +605,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         console.log('error ', err);
       } finally {
         this.loading = false;
-        return this.currentTransactionLink
+        return this.cancelGameTransactionHash;
       }
     },
     async clearGame() {
@@ -615,6 +619,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = '';
       this.submitGameTransactionHash = '';
       this.claimRewardTransactionHash = '';
+      this.cancelGameTransactionHash = '';
     },
     setMenuStep(step: string) {
       this.menuStep = step;
@@ -631,11 +636,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     setStepDisplay(step: string) {
       this.stepDisplay = step;
     },
-    async setPlayingOnChain(isOnChain: boolean) {
+    async setPlayingOnChain(isOnChain: boolean, gamedId?: string) {
       this.isPlayingOnChain = isOnChain;
       if (isOnChain) {
         await this.getZkAppStates();
-        const game: any = getStoredGame(this.zkAppAddress as string);
+        const game: any = getStoredGame(
+          (this.zkAppAddress || gamedId) as string
+        );
         const proof = game?.lastProof;
         if (proof) {
           await this.setLastProof(proof);
@@ -653,13 +660,18 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = game.lastTurnTransactionHash;
     },
     setLastTurnTransactionHash(hash: string) {
-      this.lastTurnTransactionHash = hash ;
+      this.lastTurnTransactionHash = hash;
     },
     async startBenchmark() {
       this.benchmark = await this.zkappWorkerClient!.benchmark(
         import.meta.env.VITE_SERVER_PUBLIC_KEY
       );
-      if (this.benchmark?.initGameTxDuration &&this.benchmark?.clueProofDuration && this.benchmark?.guessProofDuration && this.benchmark?.createGameProofDuration ) {
+      if (
+        this.benchmark?.initGameTxDuration &&
+        this.benchmark?.clueProofDuration &&
+        this.benchmark?.guessProofDuration &&
+        this.benchmark?.createGameProofDuration
+      ) {
         localStorage.setItem('benchmark', JSON.stringify(this.benchmark));
       }
     },
@@ -701,6 +713,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         };
         return;
       }
+    },
+    destroyWebsocket() {
+      this.webSocketInstance = null;
     },
   },
 });
