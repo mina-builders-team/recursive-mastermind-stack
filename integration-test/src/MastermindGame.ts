@@ -25,6 +25,7 @@ dotenv.config();
 
 const NETWORK_NAME = process.env.MINA_NETWORK || 'unknown';
 const PROOFS_FILE_PATH = path.join(process.cwd(), 'proofs.json');
+const PERF_FILE_PATH = path.join(process.cwd(), 'performance.json');
 
 const SALT = Field(1);
 const SOLUTION = Combination.from([1, 2, 3, 4]);
@@ -51,6 +52,9 @@ export class MastermindGame {
   lastPlayedTimestamp: number;
   relayingTotalTime: number;
   autoPlay?: boolean = false;
+  concurrentGameCount: number = 1;
+  createGameTx?: Transaction<true, true>;
+  acceptGameTx?: Transaction<true, true>;
   constructor(options: {
     codeMasterPrivateKeyBase58: string;
     codeBreakerPrivateKeyBase58: string;
@@ -58,10 +62,12 @@ export class MastermindGame {
     penalizedPlayer?: PlayerRole;
     autoPlay?: boolean;
     gameKey?: string;
+    concurrentGameCount?: number;
   }) {
     this.attempts = options?.attempts || 8;
     this.lastPlayedTimestamp = 0;
     this.relayingTotalTime = 0;
+    this.concurrentGameCount = options?.concurrentGameCount || 1;
     this.penalizedPlayer = options?.penalizedPlayer;
     this.autoPlay = options?.autoPlay ?? true;
     this.codeMasterKey = PrivateKey.fromBase58(
@@ -102,21 +108,10 @@ export class MastermindGame {
         );
       }
     );
-    await tx.prove();
-    tx.sign([this.codeMasterKey, this.zkAppKey]);
-    const sentAt = Date.now();
-    const sentTx = await tx.send();
-    console.log(`Tx hash: ${sentTx.hash}`);
-    const res = await sentTx.wait();
-    const waitingTime = Date.now() - sentAt;
-    console.log(
-      `Tx ${res.status} after ${Math.floor(waitingTime / 60000)
-        .toString()
-        .padStart(2, '0')}:${Math.floor((waitingTime % 60000) / 1000)
-        .toString()
-        .padStart(2, '0')} `
-    );
-
+    this.createGameTx = (await tx.prove()).sign([
+      this.codeMasterKey,
+      this.zkAppKey,
+    ]);
     const existingProof = await this.getStoredProof(0);
     const { proof } = existingProof
       ? { proof: existingProof }
@@ -143,31 +138,29 @@ export class MastermindGame {
       playerPubKeyBase58: this.codeMasterKey.toPublicKey().toBase58(),
     });
   }
-  async acceptGame(): Promise<Transaction<true, true>> {
+  async acceptGame() {
     this.joinGame(PlayerRole.CODE_BREAKER);
-    while (true) {
-      console.log('Accepting Game: ', this.gameId);
-      try {
-        const codeBreakerPubKey = this.codeBreakerKey.toPublicKey();
-        const tx = await Mina.transaction(
-          { sender: codeBreakerPubKey, fee: 1e8 },
-          async () => {
-            await this.zkApp.acceptGame();
-          }
-        );
-        await fetch(
-          `${SERVER_URL}/games/accept/${codeBreakerPubKey.toBase58()}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gameId: this.gameId }),
-          }
-        );
-        return (await tx.prove()).sign([this.codeBreakerKey]);
-      } catch (e) {
-        console.log('Error : ', e);
-        console.log('Re-accepting the game ');
-      }
+    console.log('Accepting Game: ', this.gameId);
+    try {
+      const codeBreakerPubKey = this.codeBreakerKey.toPublicKey();
+      const tx = await Mina.transaction(
+        { sender: codeBreakerPubKey, fee: 1e8 },
+        async () => {
+          await this.zkApp.acceptGame();
+        }
+      );
+      await fetch(
+        `${SERVER_URL}/games/accept/${codeBreakerPubKey.toBase58()}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gameId: this.gameId }),
+        }
+      );
+      this.acceptGameTx = (await tx.prove()).sign([this.codeBreakerKey]);
+    } catch (e) {
+      console.log('Error : ', e);
+      console.log('Re-accepting the game ');
     }
   }
   async makeGuess(correct = false) {
@@ -193,15 +186,19 @@ export class MastermindGame {
           this.lastReceivedProof!,
           guess
         );
+    console.log('genrated a proof');
     if (!existingProof) {
       this.storeProofData(proof);
     }
+    console.log('sending a proof');
 
     this.codeBreakerWebSocket?.send({
       action: 'sendProof',
       gameId: this.gameId,
       zkProof: JSON.stringify(proof),
     });
+    console.log('proof sent');
+
     this.lastPlayedTimestamp = Date.now();
   }
   async giveClue() {
@@ -305,14 +302,8 @@ export class MastermindGame {
   private webSocketMessageHandler = async (data: any, role: PlayerRole) => {
     try {
       const recivedAt = Date.now();
+      console.log('Received as ', role);
       if (['ENDED', 'PENALIZED'].includes(data?.game?.status)) {
-        console.log(
-          'Game Ended  (since last action) ',
-          this.lastPlayedTimestamp
-            ? (recivedAt - this.lastPlayedTimestamp) / 1000
-            : 0,
-          's'
-        );
         const isWinner =
           (role === PlayerRole.CODE_MASTER &&
             data.game?.winnerPublicKeyBase58 ===
@@ -321,11 +312,14 @@ export class MastermindGame {
             data.game?.winnerPublicKeyBase58 ===
               this.codeBreakerKey.toPublicKey().toBase58());
         if (isWinner) {
+          const sinceLastAction = this.lastPlayedTimestamp
+            ? (recivedAt - this.lastPlayedTimestamp) / 1000
+            : 0;
+          console.log('Game Ended  (since last action) ', sinceLastAction, 's');
           this.updateRelayingTotalTime(recivedAt);
-          console.log(
-            'relaying average time : ',
-            this.relayingTotalTime / 1000 / (this.attempts * 2)
-          );
+          const avgTime = this.relayingTotalTime / 1000 / (this.attempts * 2);
+          console.log(' relaying average time : ', avgTime);
+          this.storeGamePerformance(avgTime);
         }
         if (this.autoPlay) {
           this.codeBreakerWebSocket?.close();
@@ -340,6 +334,15 @@ export class MastermindGame {
         const turnCount = Number(
           this.lastReceivedProof.publicOutput.turnCount.value
         );
+        console.log(
+          'received a proof with turnCount ',
+          turnCount,
+          ' status ',
+          data.game?.status,
+          ' role ',
+          role
+        );
+
         if (
           this.penalizedPlayer === role &&
           turnCount >= this.attempts * 2 - 1
@@ -368,6 +371,7 @@ export class MastermindGame {
                 : 0,
               's'
             );
+            console.log('turnCount : ', turnCount, ' making a guess');
             this.updateRelayingTotalTime(recivedAt);
             if (this.autoPlay) {
               const generateCorrectAnswer = turnCount === this.attempts * 2 - 1;
@@ -394,8 +398,9 @@ export class MastermindGame {
     }
   };
   private updateRelayingTotalTime = (recivedAt: number) => {
-    this.relayingTotalTime +=
-      this.lastPlayedTimestamp && recivedAt - this.lastPlayedTimestamp;
+    this.relayingTotalTime += this.lastPlayedTimestamp
+      ? recivedAt - this.lastPlayedTimestamp
+      : 0;
   };
   private storeProofData(proof: StepProgramProof) {
     try {
@@ -449,6 +454,39 @@ export class MastermindGame {
         err
       );
       return undefined;
+    }
+  }
+  private storeGamePerformance(avgTime: number) {
+    try {
+      let currentData: any = {};
+
+      if (fs.existsSync(PERF_FILE_PATH)) {
+        const raw = fs.readFileSync(PERF_FILE_PATH, 'utf-8');
+        currentData = raw ? JSON.parse(raw) : {};
+      }
+      const gameData = {
+        server: SERVER_URL,
+        utcDate: new Date().toLocaleString('en-US', {
+          timeZone: 'UTC',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }),
+        averageRelayingTime: avgTime,
+        concurrentGameCount: this.concurrentGameCount,
+      };
+      if (!currentData[NETWORK_NAME]) {
+        currentData[NETWORK_NAME] = [gameData];
+      } else {
+        currentData[NETWORK_NAME].push(gameData);
+      }
+      fs.writeFileSync(PERF_FILE_PATH, JSON.stringify(currentData, null, 2));
+    } catch (err) {
+      console.error(`Failed to store game ${this.gameId}:`, err);
     }
   }
 }

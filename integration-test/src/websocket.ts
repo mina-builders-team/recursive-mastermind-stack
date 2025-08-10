@@ -34,7 +34,7 @@ export class WebSocketService {
     const socket = new WebSocket(this.url);
 
     socket.on('open', () => {
-      console.log(`WebSocket Connected to ${this.url}`);
+      console.log(`WebSocket Connected to ${this.url} as ${this.role}`);
       this.isReconnecting = false;
 
       // Send join message

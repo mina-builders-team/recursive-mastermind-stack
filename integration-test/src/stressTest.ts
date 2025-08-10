@@ -4,12 +4,11 @@ import { MastermindZkApp, StepProgram } from 'stan-mastermind';
 import dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 
-import { MastermindGame } from './MastermindGame.js';
+import { MastermindGame, PlayerRole } from './MastermindGame.js';
 dotenv.config();
 
 const NETWORK_URL = process.env.MINA_NETWORK_URL as string;
-let createdGames: Array<{ tx: Transaction<true, true>; game: MastermindGame }> =
-  [];
+let createdGames: Array<MastermindGame> = [];
 const network = Mina.Network(NETWORK_URL);
 Mina.setActiveInstance(network);
 async function initialize() {
@@ -44,20 +43,30 @@ initialize().then(async () => {
         codeBreakerPrivateKeyBase58: games[i].codeBreaker,
         attempts: 7,
         autoPlay: false,
+        concurrentGameCount: games.length,
       });
       await game.createGame();
-      const tx = await game.acceptGame();
-      createdGames.push({ game, tx });
+      createdGames.push(game);
     }
-    const promises = createdGames.map(async (game) => {
-      const sentTx = await game.tx.send();
-      console.log('accept game tx hash ', sentTx.hash);
-      return await sentTx.wait();
+    const createPromises = createdGames.map(async (game) => {
+      const sentTx = await game.createGameTx?.send();
+      console.log('create game tx hash ', sentTx?.hash);
+      return await sentTx?.wait();
     });
-    await Promise.all(promises);
+    await Promise.all(createPromises);
+    for (let i = 0; i < createdGames.length; i++) {
+      await createdGames[i].acceptGame();
+    }
+    const sendAcceptPromises = createdGames.map(async (game) => {
+      const sentTx = await game.acceptGameTx?.send();
+      console.log('accept game tx hash ', sentTx?.hash);
+      return await sentTx?.wait();
+    });
+    await Promise.all(sendAcceptPromises);
+
     for (let i = 0; i < games.length; i++) {
-      createdGames[i].game.setAutoPlay(true);
-      createdGames[i].game.startGame();
+      createdGames[i].setAutoPlay(true);
+      createdGames[i].startGame();
     }
   } catch (e) {
     console.log(e);

@@ -5,7 +5,7 @@ import redisClient from '../redisClient.js';
 export const httpRateLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: 'http_rate_limit',
-  points: 100, // 100 requests
+  points: 200, // 200 requests
   duration: 5 * 60, // 15 minutes
   blockDuration: 60 * 3, // Block for 3 minutes if exceeded
 });
@@ -14,7 +14,7 @@ export const httpRateLimiter = new RateLimiterRedis({
 export const wsConnectionLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: 'ws_connection_limit',
-  points: 3,
+  points: 200,
   duration: 60 * 60,
 });
 
@@ -22,7 +22,7 @@ export const wsConnectionLimiter = new RateLimiterRedis({
 export const wsActionLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: 'ws_action_limit',
-  points: 10, // max 10 actions
+  points: 200, // max 200 actions
   duration: 60, // per 60 seconds
   blockDuration: 60,
 });

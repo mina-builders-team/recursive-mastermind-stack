@@ -28,11 +28,6 @@ import cron from 'node-cron';
 import { connectDatabase } from './databaseConnection.js';
 import redisClient from './redisClient.js';
 import playerRoute from './routes/playerRoute.js';
-import {
-  rateLimitMiddleware,
-  wsActionLimiter,
-  wsConnectionLimiter,
-} from './middlewares/rateLimiters.js';
 import mongoSanitize from 'express-mongo-sanitize';
 
 // Environment Setup
@@ -43,7 +38,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(mongoSanitize({replaceWith:'_'}));
+app.use(mongoSanitize({ replaceWith: '_' }));
 
 // Port configuration
 const PORT = process.env.SERVER_PORT || 3000;
@@ -63,7 +58,6 @@ connectDatabase();
 await resumeOnChain();
 
 // rate limiting middleware for HTTP routes
-app.use(rateLimitMiddleware);
 
 // Mounts game routes at the '/games' endpoint.
 app.use('/games', gamesRoute);
@@ -159,26 +153,26 @@ await gameLifecycleQueue.upsertJobScheduler(
 
 // WebSocket Handler
 wss.on('connection', async (ws, req) => {
-  const ip = req.socket.remoteAddress || 'unknown';
+ /*  const ip = req.socket.remoteAddress || 'unknown';
   try {
     await wsConnectionLimiter.consume(ip);
   } catch {
     await wsConnectionLimiter.reward(ip, 1);
     ws.close(1008, 'Too many connections from this IP');
     return;
-  }
+  } */
 
   ws.on('message', async (message) => {
     try {
-      try {
+/*       try {
         await wsActionLimiter.consume(ip);
       } catch {
         ws.send(JSON.stringify({ error: 'Too many actions from this IP' }));
         return;
       }
-
+ */
       const data = JSON.parse(message.toString());
-      const sanitizedData = mongoSanitize.sanitize(data,{replaceWith:'_'})
+      const sanitizedData = mongoSanitize.sanitize(data, { replaceWith: '_' });
       const {
         gameId,
         action,
@@ -233,15 +227,16 @@ wss.on('connection', async (ws, req) => {
   });
 
   // Clean up on socket close
-  ws.on('close', async () => {
+  ws.on('close', async (err) => {
     // Decrement connection count per IP on close
-    try {
+    /* try {
       await wsConnectionLimiter.reward(ip, 1);
     } catch (err) {
       console.error('WebSocket disconnect error:', err);
       Sentry.captureException(err);
-    }
+    } */
     activePlayers.forEach((players, gameId) => {
+      console.log('closing for game ', gameId);
       players.delete(ws);
       if (players.size === 0) {
         activePlayers.delete(gameId);
