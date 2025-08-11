@@ -14,7 +14,7 @@ export const httpRateLimiter = new RateLimiterRedis({
 export const wsConnectionLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: 'ws_connection_limit',
-  points: 3,
+  points: 50,
   duration: 60 * 60,
 });
 
@@ -22,7 +22,7 @@ export const wsConnectionLimiter = new RateLimiterRedis({
 export const wsActionLimiter = new RateLimiterRedis({
   storeClient: redisClient,
   keyPrefix: 'ws_action_limit',
-  points: 10, // max 10 actions
+  points: 20, // max 20 actions
   duration: 60, // per 60 seconds
   blockDuration: 60,
 });
