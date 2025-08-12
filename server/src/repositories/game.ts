@@ -208,7 +208,7 @@ export const getPlayedGames = async (options: {
       .skip(options.skip)
       .limit(options.limit)
       .select(
-        ' _id createdAt rewardAmount winnerPublicKeyBase58 turnCount codeBreaker codeMaster settlementTransactionHash penalizationTransactionHash finalTransactionTimestamp'
+        ' _id createdAt rewardAmount status winnerPublicKeyBase58 turnCount codeBreaker codeMaster settlementTransactionHash penalizationTransactionHash finalTransactionTimestamp'
       )
       .lean(),
     await Game.countDocuments(options.playedGamesQuery),
