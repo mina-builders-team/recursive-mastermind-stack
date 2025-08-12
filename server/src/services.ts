@@ -54,7 +54,6 @@ export const handleJoinGame = async (
     activePlayers.set(gameId, new Set());
   }
   activePlayers.get(gameId)?.add(ws);
-
   if (lastProof) {
     ws.send(JSON.stringify({ zkProof: lastProof, timestamp, game }));
   }
@@ -90,7 +89,7 @@ export const handleProof = async (
     ws.send(JSON.stringify({ error: 'Missing zkProof!' }));
     return;
   }
-   if (zkProof.length > 36000) {
+  if (zkProof.length > 36000) {
     ws.send(JSON.stringify({ error: 'Too large zkProof!' }));
     return;
   }

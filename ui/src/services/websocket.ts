@@ -39,6 +39,10 @@ export class WebSocketService {
             isPlayingOnChain,
             zkAppAddress,
           } = useZkAppStore();
+          if (data?.type === 'ready') {
+            this.send({ action: 'join', gameId: this.gameId });
+            return;
+          }
           if (data.zkProof) {
             const isValidProof = await verifyProof(data.zkProof);
             if (!isValidProof) {
@@ -71,7 +75,6 @@ export class WebSocketService {
         }
       },
       onConnected: async (_ws: WebSocket) => {
-        this.send({ action: 'join', gameId });
         this.connected = true;
       },
       onDisconnected: (_ws: WebSocket, event: CloseEvent) => {

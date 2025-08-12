@@ -43,7 +43,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(mongoSanitize({replaceWith:'_'}));
+app.use(mongoSanitize({ replaceWith: '_' }));
 
 // Port configuration
 const PORT = process.env.SERVER_PORT || 3000;
@@ -168,6 +168,8 @@ wss.on('connection', async (ws, req) => {
     return;
   }
 
+  ws.send(JSON.stringify({ type: 'ready' }));
+
   ws.on('message', async (message) => {
     try {
       try {
@@ -178,7 +180,7 @@ wss.on('connection', async (ws, req) => {
       }
 
       const data = JSON.parse(message.toString());
-      const sanitizedData = mongoSanitize.sanitize(data,{replaceWith:'_'})
+      const sanitizedData = mongoSanitize.sanitize(data, { replaceWith: '_' });
       const {
         gameId,
         action,

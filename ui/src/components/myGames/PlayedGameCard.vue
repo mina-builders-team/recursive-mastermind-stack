@@ -52,9 +52,23 @@
     </div>
 
     <div class="fs-12">{{ creationDate }}</div>
-    <span class="icon cursor-pointer">
-      <inline-svg src="/icons/zk.svg"></inline-svg
-    ></span>
+    <el-tooltip
+      :disabled="game?.status !== 'PENALIZED'"
+      :content="`Server penalized ${isWinner ? 'Opponent' : 'You'}`"
+      placement="top"
+      trigger="hover"
+    >
+      <span
+        :class="[
+          'cursor-pointer',
+          game?.status === 'PENALIZED'
+            ? 'color-snow-white'
+            : 'color-gray-passive',
+        ]"
+      >
+        <inline-svg src="/icons/zk.svg"></inline-svg
+      ></span>
+    </el-tooltip>
     <span class="icon cursor-pointer" @click="showClaimModal">
       <inline-svg src="/icons/claim.svg"></inline-svg
     ></span>
