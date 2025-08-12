@@ -1,0 +1,2294 @@
+{
+  "lightnet": {
+    "2025-08-11 11:20": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:23:50",
+        "utcStartDate": "08/11/2025, 11:20:15",
+        "averageRelayingTime": 15.289357142857142,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.29 GB",
+              "max": "8.31 GB",
+              "min": "8.28 GB",
+              "last": "8.29 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.30%",
+              "max": "0.44%",
+              "min": "0.09%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.02 GB",
+              "max": "3.03 GB",
+              "min": "3.00 GB",
+              "last": "3.02 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:23:50",
+        "utcStartDate": "08/11/2025, 11:20:15",
+        "averageRelayingTime": 15.24692857142857,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.29 GB",
+              "max": "8.31 GB",
+              "min": "8.28 GB",
+              "last": "8.29 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.30%",
+              "max": "0.44%",
+              "min": "0.09%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.02 GB",
+              "max": "3.03 GB",
+              "min": "3.00 GB",
+              "last": "3.02 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:23:51",
+        "utcStartDate": "08/11/2025, 11:20:15",
+        "averageRelayingTime": 15.313500000000001,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.29 GB",
+              "max": "8.31 GB",
+              "min": "8.28 GB",
+              "last": "8.29 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.30%",
+              "max": "0.44%",
+              "min": "0.09%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.02 GB",
+              "max": "3.03 GB",
+              "min": "3.00 GB",
+              "last": "3.02 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:23:53",
+        "utcStartDate": "08/11/2025, 11:20:15",
+        "averageRelayingTime": 15.309214285714287,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.29 GB",
+              "max": "8.31 GB",
+              "min": "8.28 GB",
+              "last": "8.29 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.30%",
+              "max": "0.44%",
+              "min": "0.09%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.02 GB",
+              "max": "3.03 GB",
+              "min": "3.00 GB",
+              "last": "3.02 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 11:39": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:42:36",
+        "utcStartDate": "08/11/2025, 11:39:33",
+        "averageRelayingTime": 13.010499999999999,
+        "concurrentGameCount": 2,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.24 GB",
+              "max": "8.25 GB",
+              "min": "8.24 GB",
+              "last": "8.24 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "0.62%",
+              "min": "0.07%",
+              "last": "0.42%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.07 GB",
+              "max": "3.07 GB",
+              "min": "3.06 GB",
+              "last": "3.07 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 11:42:36",
+        "utcStartDate": "08/11/2025, 11:39:33",
+        "averageRelayingTime": 13.017714285714286,
+        "concurrentGameCount": 2,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.24 GB",
+              "max": "8.25 GB",
+              "min": "8.24 GB",
+              "last": "8.24 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "0.62%",
+              "min": "0.07%",
+              "last": "0.42%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.07 GB",
+              "max": "3.07 GB",
+              "min": "3.06 GB",
+              "last": "3.07 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 12:15": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 12:18:44",
+        "utcStartDate": "08/11/2025, 12:15:47",
+        "averageRelayingTime": 12.574714285714284,
+        "concurrentGameCount": 1,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.19 GB",
+              "max": "8.20 GB",
+              "min": "8.19 GB",
+              "last": "8.19 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.24%",
+              "max": "0.38%",
+              "min": "0.13%",
+              "last": "0.29%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.12 GB",
+              "max": "3.12 GB",
+              "min": "3.11 GB",
+              "last": "3.12 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 23:58": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 24:01:28",
+        "utcStartDate": "08/11/2025, 23:58:03",
+        "averageRelayingTime": 14.55042857142857,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.52 GB",
+              "max": "8.54 GB",
+              "min": "8.51 GB",
+              "last": "8.51 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.79 GB",
+              "max": "2.80 GB",
+              "min": "2.77 GB",
+              "last": "2.80 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.50%",
+              "max": "0.71%",
+              "min": "0.27%",
+              "last": "0.52%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 24:01:28",
+        "utcStartDate": "08/11/2025, 23:58:03",
+        "averageRelayingTime": 14.52592857142857,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.52 GB",
+              "max": "8.54 GB",
+              "min": "8.51 GB",
+              "last": "8.51 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.79 GB",
+              "max": "2.80 GB",
+              "min": "2.77 GB",
+              "last": "2.80 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.50%",
+              "max": "0.71%",
+              "min": "0.27%",
+              "last": "0.52%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 24:01:29",
+        "utcStartDate": "08/11/2025, 23:58:03",
+        "averageRelayingTime": 14.541285714285715,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.52 GB",
+              "max": "8.54 GB",
+              "min": "8.51 GB",
+              "last": "8.51 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.79 GB",
+              "max": "2.80 GB",
+              "min": "2.77 GB",
+              "last": "2.80 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.50%",
+              "max": "0.71%",
+              "min": "0.27%",
+              "last": "0.52%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 24:01:31",
+        "utcStartDate": "08/11/2025, 23:58:03",
+        "averageRelayingTime": 14.551428571428572,
+        "concurrentGameCount": 4,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.52 GB",
+              "max": "8.54 GB",
+              "min": "8.51 GB",
+              "last": "8.51 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.79 GB",
+              "max": "2.80 GB",
+              "min": "2.77 GB",
+              "last": "2.80 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.50%",
+              "max": "0.71%",
+              "min": "0.27%",
+              "last": "0.52%"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-12 10:17": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:20",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.26885714285714285,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.53 GB",
+              "max": "8.53 GB",
+              "min": "8.53 GB",
+              "last": "8.53 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.78 GB",
+              "max": "2.78 GB",
+              "min": "2.78 GB",
+              "last": "2.78 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.45%",
+              "max": "0.45%",
+              "min": "0.45%",
+              "last": "0.45%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:20",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.25107142857142856,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.53 GB",
+              "max": "8.53 GB",
+              "min": "8.53 GB",
+              "last": "8.53 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.78 GB",
+              "max": "2.78 GB",
+              "min": "2.78 GB",
+              "last": "2.78 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.45%",
+              "max": "0.45%",
+              "min": "0.45%",
+              "last": "0.45%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:21",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.2694285714285714,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.53 GB",
+              "max": "8.53 GB",
+              "min": "8.53 GB",
+              "last": "8.53 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.78 GB",
+              "max": "2.78 GB",
+              "min": "2.78 GB",
+              "last": "2.78 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.45%",
+              "max": "0.45%",
+              "min": "0.45%",
+              "last": "0.45%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:23",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.26757142857142857,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.53 GB",
+              "max": "8.53 GB",
+              "min": "8.53 GB",
+              "last": "8.53 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.78 GB",
+              "max": "2.78 GB",
+              "min": "2.78 GB",
+              "last": "2.78 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.45%",
+              "max": "0.45%",
+              "min": "0.45%",
+              "last": "0.45%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:27",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.26085714285714284,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.50 GB",
+              "max": "8.53 GB",
+              "min": "8.46 GB",
+              "last": "8.46 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.81 GB",
+              "max": "2.85 GB",
+              "min": "2.78 GB",
+              "last": "2.85 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.55%",
+              "max": "0.74%",
+              "min": "0.45%",
+              "last": "0.74%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:35",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.2675,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.49 GB",
+              "max": "8.53 GB",
+              "min": "8.46 GB",
+              "last": "8.46 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.82 GB",
+              "max": "2.85 GB",
+              "min": "2.78 GB",
+              "last": "2.85 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.62%",
+              "max": "0.74%",
+              "min": "0.45%",
+              "last": "0.74%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:17:51",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.26085714285714284,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.48 GB",
+              "max": "8.53 GB",
+              "min": "8.46 GB",
+              "last": "8.46 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.84 GB",
+              "max": "2.85 GB",
+              "min": "2.78 GB",
+              "last": "2.85 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.67%",
+              "max": "0.74%",
+              "min": "0.45%",
+              "last": "0.73%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:18:23",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.2625,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.47 GB",
+              "max": "8.53 GB",
+              "min": "8.46 GB",
+              "last": "8.46 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.84 GB",
+              "max": "2.85 GB",
+              "min": "2.78 GB",
+              "last": "2.85 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.60%",
+              "max": "0.74%",
+              "min": "0.44%",
+              "last": "0.44%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/12/2025, 10:19:27",
+        "utcStartDate": "08/12/2025, 10:17:15",
+        "averageRelayingTime": 0.2699285714285714,
+        "concurrentGameCount": 9,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.46 GB",
+              "max": "8.53 GB",
+              "min": "8.45 GB",
+              "last": "8.45 GB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.85 GB",
+              "max": "2.86 GB",
+              "min": "2.78 GB",
+              "last": "2.86 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "0.50%",
+              "max": "0.74%",
+              "min": "0.30%",
+              "last": "0.30%"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "devnet": {
+    "2025-08-11 13:51": [
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:07:41",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 69.14628571428571,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.87 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.18%",
+              "max": "0.67%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.44 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:07:42",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 69.19521428571429,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.87 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.18%",
+              "max": "0.67%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.44 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:08:23",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 72.14128571428571,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.21%",
+              "max": "1.09%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.45 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:08:49",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 74.04485714285714,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.23%",
+              "max": "1.09%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:08:50",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 73.71585714285713,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.23%",
+              "max": "1.09%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:26",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 76.67714285714285,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.85 GB",
+              "last": "9.85 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.53%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:26",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 76.69935714285714,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.85 GB",
+              "last": "9.85 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.53%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:26",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 76.65771428571429,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.85 GB",
+              "last": "9.85 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.53%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:27",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 76.67671428571428,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.85 GB",
+              "last": "9.85 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.53%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:27",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 76.57164285714285,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.85 GB",
+              "last": "9.85 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.53%",
+              "min": "0.02%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.46 GB",
+              "min": "1.44 GB",
+              "last": "1.46 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:48",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 78.17935714285714,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.56%",
+              "min": "0.02%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.45 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:48",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 78.16392857142857,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.56%",
+              "min": "0.02%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.45 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:48",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 78.19585714285714,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.56%",
+              "min": "0.02%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.45 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 14:09:49",
+        "utcStartDate": "08/11/2025, 13:51:30",
+        "averageRelayingTime": 78.17028571428571,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.87 GB",
+              "max": "9.87 GB",
+              "min": "9.86 GB",
+              "last": "9.86 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.56%",
+              "min": "0.02%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.44 GB",
+              "max": "1.45 GB",
+              "min": "1.44 GB",
+              "last": "1.45 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 14:33": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:40:45",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.92342857142857,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.02%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:40:46",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.903357142857143,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.02%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:40:48",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.942857142857143,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.02%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:40:52",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.789214285714284,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:41:00",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.894214285714288,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.00%",
+              "last": "0.07%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:41:16",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.951071428571428,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.89 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.29%",
+              "max": "1.02%",
+              "min": "0.00%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.42 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:41:48",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.76192857142857,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.84 GB",
+              "max": "9.88 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.28%",
+              "max": "1.44%",
+              "min": "0.07%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.47 GB",
+              "max": "1.50 GB",
+              "min": "1.43 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:42:52",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.871285714285712,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.83 GB",
+              "max": "9.88 GB",
+              "min": "9.81 GB",
+              "last": "9.81 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.28%",
+              "max": "1.38%",
+              "min": "0.04%",
+              "last": "0.04%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.48 GB",
+              "max": "1.50 GB",
+              "min": "1.43 GB",
+              "last": "1.50 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:45:00",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.813285714285715,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.83 GB",
+              "max": "9.88 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.22%",
+              "max": "1.02%",
+              "min": "0.00%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.48 GB",
+              "max": "1.50 GB",
+              "min": "1.43 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:49:16",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.838428571428572,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.83 GB",
+              "max": "9.88 GB",
+              "min": "9.81 GB",
+              "last": "9.82 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.13%",
+              "max": "0.38%",
+              "min": "0.00%",
+              "last": "0.20%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.48 GB",
+              "max": "1.50 GB",
+              "min": "1.43 GB",
+              "last": "1.49 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 14:57:48",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.8245,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.69 GB",
+              "max": "9.88 GB",
+              "min": "8.47 GB",
+              "last": "8.47 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.24%",
+              "max": "1.44%",
+              "min": "0.00%",
+              "last": "0.02%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "1.62 GB",
+              "max": "2.84 GB",
+              "min": "1.43 GB",
+              "last": "2.84 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 15:14:52",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.77342857142857,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.19 GB",
+              "max": "9.88 GB",
+              "min": "8.40 GB",
+              "last": "8.40 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.17%",
+              "max": "0.42%",
+              "min": "0.00%",
+              "last": "0.16%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.12 GB",
+              "max": "2.91 GB",
+              "min": "1.43 GB",
+              "last": "2.91 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 16:09:43",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.917357142857146,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "9.13 GB",
+              "max": "9.88 GB",
+              "min": "8.40 GB",
+              "last": "8.42 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.15%",
+              "max": "0.27%",
+              "min": "0.00%",
+              "last": "0.24%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.18 GB",
+              "max": "2.91 GB",
+              "min": "1.43 GB",
+              "last": "2.90 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 17:17:59",
+        "utcStartDate": "08/11/2025, 14:33:41",
+        "averageRelayingTime": 29.765071428571428,
+        "concurrentGameCount": 14,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.96 GB",
+              "max": "9.88 GB",
+              "min": "8.35 GB",
+              "last": "8.35 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.24%",
+              "max": "0.89%",
+              "min": "0.09%",
+              "last": "0.16%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "2.35 GB",
+              "max": "2.96 GB",
+              "min": "1.43 GB",
+              "last": "2.96 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 19:06": [
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:37",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.86757142857143,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.10%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.33%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:37",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.726214285714285,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.10%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.33%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:38",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.881571428571426,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.10%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.33%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:40",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.74507142857143,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.10%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.33%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:44",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.84607142857143,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.10%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.33%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:11:52",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.756785714285716,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.01%",
+              "max": "4.20%",
+              "min": "0.16%",
+              "last": "0.22%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "http://localhost:3000",
+        "utcEndDate": "08/11/2025, 19:12:08",
+        "utcStartDate": "08/11/2025, 19:06:28",
+        "averageRelayingTime": 21.77135714285714,
+        "concurrentGameCount": 7,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "8.10 GB",
+              "max": "8.11 GB",
+              "min": "8.09 GB",
+              "last": "8.10 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "1.03%",
+              "max": "4.20%",
+              "min": "0.13%",
+              "last": "0.22%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.21 GB",
+              "max": "3.22 GB",
+              "min": "3.20 GB",
+              "last": "3.21 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-11 22:06": [
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 22:10:55",
+        "utcStartDate": "08/11/2025, 22:06:32",
+        "averageRelayingTime": 18.606428571428573,
+        "concurrentGameCount": 3,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "7.65 GB",
+              "max": "7.66 GB",
+              "min": "7.63 GB",
+              "last": "7.64 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.15%",
+              "max": "0.31%",
+              "min": "0.07%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.66 GB",
+              "max": "3.68 GB",
+              "min": "3.65 GB",
+              "last": "3.67 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 22:10:56",
+        "utcStartDate": "08/11/2025, 22:06:32",
+        "averageRelayingTime": 18.6745,
+        "concurrentGameCount": 3,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "7.65 GB",
+              "max": "7.66 GB",
+              "min": "7.63 GB",
+              "last": "7.64 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.15%",
+              "max": "0.31%",
+              "min": "0.07%",
+              "last": "0.09%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.66 GB",
+              "max": "3.68 GB",
+              "min": "3.65 GB",
+              "last": "3.67 GB"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/11/2025, 22:11:02",
+        "utcStartDate": "08/11/2025, 22:06:32",
+        "averageRelayingTime": 19.136714285714284,
+        "concurrentGameCount": 3,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "7.65 GB",
+              "max": "7.66 GB",
+              "min": "7.63 GB",
+              "last": "7.64 GB"
+            }
+          },
+          {
+            "metric": "rate(node_cpu_seconds_total{mode=\"user\"}[1m])",
+            "formatted": {
+              "average": "0.16%",
+              "max": "0.31%",
+              "min": "0.07%",
+              "last": "0.16%"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "3.66 GB",
+              "max": "3.68 GB",
+              "min": "3.65 GB",
+              "last": "3.67 GB"
+            }
+          }
+        ]
+      }
+    ],
+    "2025-08-12 09:39": [
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/12/2025, 09:44:48",
+        "utcStartDate": "08/12/2025, 09:39:19",
+        "averageRelayingTime": 23.19607142857143,
+        "concurrentGameCount": 5,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "506.57 MB",
+              "max": "636.62 MB",
+              "min": "433.37 MB",
+              "last": "433.37 MB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "5.29 GB",
+              "max": "5.36 GB",
+              "min": "5.16 GB",
+              "last": "5.36 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "59.54%",
+              "max": "70.11%",
+              "min": "1.52%",
+              "last": "70.11%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/12/2025, 09:45:10",
+        "utcStartDate": "08/12/2025, 09:39:19",
+        "averageRelayingTime": 24.723071428571426,
+        "concurrentGameCount": 5,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "501.41 MB",
+              "max": "636.62 MB",
+              "min": "431.03 MB",
+              "last": "431.03 MB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "5.29 GB",
+              "max": "5.36 GB",
+              "min": "5.16 GB",
+              "last": "5.36 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "59.52%",
+              "max": "71.33%",
+              "min": "1.52%",
+              "last": "67.92%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/12/2025, 09:45:29",
+        "utcStartDate": "08/12/2025, 09:39:19",
+        "averageRelayingTime": 26.06742857142857,
+        "concurrentGameCount": 5,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "506.98 MB",
+              "max": "636.62 MB",
+              "min": "425.77 MB",
+              "last": "425.77 MB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "5.29 GB",
+              "max": "5.37 GB",
+              "min": "5.16 GB",
+              "last": "5.37 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "58.52%",
+              "max": "70.04%",
+              "min": "1.52%",
+              "last": "65.66%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/12/2025, 09:45:42",
+        "utcStartDate": "08/12/2025, 09:39:19",
+        "averageRelayingTime": 27.0615,
+        "concurrentGameCount": 5,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "502.60 MB",
+              "max": "636.62 MB",
+              "min": "431.03 MB",
+              "last": "523.35 MB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "5.29 GB",
+              "max": "5.36 GB",
+              "min": "5.16 GB",
+              "last": "5.27 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "59.04%",
+              "max": "71.33%",
+              "min": "1.52%",
+              "last": "66.51%"
+            }
+          }
+        ]
+      },
+      {
+        "server": "https://relayer.minamastermind.com",
+        "utcEndDate": "08/12/2025, 09:45:44",
+        "utcStartDate": "08/12/2025, 09:39:19",
+        "averageRelayingTime": 27.224071428571428,
+        "concurrentGameCount": 5,
+        "prometheusMetrics": [
+          {
+            "metric": "node_memory_MemAvailable_bytes",
+            "formatted": {
+              "average": "502.60 MB",
+              "max": "636.62 MB",
+              "min": "431.03 MB",
+              "last": "523.35 MB"
+            }
+          },
+          {
+            "metric": "node_memory_MemUsed_bytes",
+            "formatted": {
+              "average": "5.29 GB",
+              "max": "5.36 GB",
+              "min": "5.16 GB",
+              "last": "5.27 GB"
+            }
+          },
+          {
+            "metric": "node_cpu_total_usage_percent",
+            "formatted": {
+              "average": "59.04%",
+              "max": "71.33%",
+              "min": "1.52%",
+              "last": "66.51%"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

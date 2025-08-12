@@ -30,20 +30,42 @@ initialize().then(async () => {
     const gameList = JSON.parse(jsonGames);
 
     const MINA_NETWORK = process.env.MINA_NETWORK;
+
+    const arg = process.argv[2];
+    let limit: number | undefined;
+
+    if (arg !== undefined) {
+      const parsed = Number(arg);
+      if (isNaN(parsed) || parsed <= 0) {
+        console.error(`Invalid argument: "${arg}". Must be a positive number.`);
+        process.exit(1);
+      }
+      limit = parsed;
+    }
+
     const games = gameList?.[MINA_NETWORK!] as Array<{
       codeMaster: string;
       codeBreaker: string;
       attempts: number;
     }>;
-    console.log(games);
 
-    for (let i = 0; i < games.length; i++) {
+    let selectedGames: typeof games;
+
+    if (limit !== undefined) {
+      selectedGames = games.slice(0, limit);
+    } else {
+      selectedGames = games;
+    }
+
+    console.log(`Selected ${selectedGames.length} games`);
+
+    for (let i = 0; i < selectedGames.length; i++) {
       const game = new MastermindGame({
-        codeMasterPrivateKeyBase58: games[i].codeMaster,
-        codeBreakerPrivateKeyBase58: games[i].codeBreaker,
+        codeMasterPrivateKeyBase58: selectedGames[i].codeMaster,
+        codeBreakerPrivateKeyBase58: selectedGames[i].codeBreaker,
         attempts: 7,
         autoPlay: false,
-        concurrentGameCount: games.length,
+        concurrentGameCount: selectedGames.length,
       });
       await game.createGame();
       createdGames.push(game);
@@ -64,7 +86,7 @@ initialize().then(async () => {
     });
     await Promise.all(sendAcceptPromises);
 
-    for (let i = 0; i < games.length; i++) {
+    for (let i = 0; i < selectedGames.length; i++) {
       createdGames[i].setAutoPlay(true);
       createdGames[i].startGame();
     }

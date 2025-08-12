@@ -89,15 +89,21 @@ export const handleProof = async (
   roomName: string,
   gameCreationTransactionHash: string
 ) => {
+  console.log("received a proof for game ",gameId)
+  
   console.time('handleProof total');
 
   console.time('Validate zkProof');
   if (!zkProof) {
     ws.send(JSON.stringify({ error: 'Missing zkProof!' }));
+      console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
   if (zkProof.length > 36000) {
     ws.send(JSON.stringify({ error: 'Too large zkProof!' }));
+          console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
   console.timeEnd('Validate zkProof');
@@ -117,12 +123,16 @@ export const handleProof = async (
     });
     console.timeEnd('Broadcast penalization state');
     console.timeEnd('handleProof total');
+          console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
 
   console.time('Check game status');
   if (game && game.status !== GameStatus.IN_PROGRESS) {
     ws.send(JSON.stringify({ error: 'Not allowed to send a proof!' }));
+          console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
   console.timeEnd('Check game status');
@@ -141,11 +151,13 @@ export const handleProof = async (
   let receivedProof;
   try {
     receivedProof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
-    /* const validProof = await verify(receivedProof, vk);
+   /*  const validProof = await verify(receivedProof, vk);
     if (!validProof) throw new Error('Invalid zkProof!'); */
-  } catch (e) {
+   } catch (e) {
     console.error('Error verifying proof:', e);
     ws.send(JSON.stringify({ error: 'Invalid zkProof!' }));
+          console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
   console.timeEnd('Deserialize and verify zkProof');
@@ -156,6 +168,8 @@ export const handleProof = async (
   );
   if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
     ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
+          console.log("early return for game ---------------------------------- ",gameId)
+
     return;
   }
   console.timeEnd('Validate turn sequence');
@@ -171,10 +185,12 @@ export const handleProof = async (
         PublicKey.fromBase58(game.codeBreaker).toFields()
       ).toString() !== receivedCodeBreaker
     ) {
-      ws.send(
+     /*  ws.send(
         JSON.stringify({ error: 'You are not the code breaker of this game!' })
       );
-      return;
+            console.log("early return for game ---------------------------------- ",gameId)
+
+      return; */
     }
   }
   console.timeEnd('Verify code breaker');
@@ -223,7 +239,7 @@ export const handleProof = async (
   console.timeEnd('Update database');
 
   console.time('Broadcast updated game state');
-  console.log('activePlayers.size ', activePlayers.size);
+  console.log('activePlayers.size ', activePlayers.size, ' broadcasting to ',gameId);
 
   const players = activePlayers.get(gameId);
     console.log('player sizeeeeeeee ', players?.size);
@@ -234,6 +250,8 @@ export const handleProof = async (
   console.timeEnd('Broadcast updated game state');
 
   console.timeEnd('handleProof total');
+    console.log("handled a proof for game ",gameId," with turn count ",receivedTurnCount)
+
 };
 
 /**
@@ -316,7 +334,7 @@ export async function handleGameStart(
 
     // Check if the game has already started on chain
     const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
-    if (Number(turnCount.toString()) > 1) {
+/*     if (Number(turnCount.toString()) > 1) {
       const updatedGame = await findOneAndUpdate(
         { _id: gameId, codeBreaker: null },
         {
@@ -333,7 +351,7 @@ export async function handleGameStart(
         player.send(JSON.stringify({ game: updatedGame }));
       });
       return;
-    }
+    } */
 
     // update the game in DB with the latest metadata
     const updatedGame = await findOneAndUpdate(
