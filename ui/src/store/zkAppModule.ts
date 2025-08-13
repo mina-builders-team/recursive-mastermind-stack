@@ -187,7 +187,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
 
         this.stepDisplay = 'Requesting send transaction...';
         await new Promise((res) => setTimeout(res, 5000));
-        if (this.isPlayingOnChain || !this.webSocketInstance?.connected) {
+        if (!this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
           );
