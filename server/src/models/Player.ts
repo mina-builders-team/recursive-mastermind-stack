@@ -15,7 +15,8 @@ export interface IPlayer extends Document {
   maxStreak: number;
   createdGames: number;
   crackedGames: number;
-  crackedInUnder5: number;
+  crackedInFirst: boolean;
+  crackedInLast: boolean;
   lastGameDate: Date;
 }
 
@@ -31,7 +32,8 @@ const PlayerSchema = new Schema<IPlayer>(
     maxStreak: { type: Number, default: 0 },
     createdGames: { type: Number, default: 0 },
     crackedGames: { type: Number, default: 0 },
-    crackedInUnder5: { type: Number, default: 0 },
+    crackedInFirst: { type: Boolean, default: false },
+    crackedInLast: { type: Boolean, default: false },
     lastGameDate: {
       type: Date,
       default: () => {

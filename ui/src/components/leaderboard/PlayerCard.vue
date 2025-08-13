@@ -43,4 +43,24 @@ defineProps({
   },
 });
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.player-id {
+  width: 145px;
+  display: flex;
+  justify-content: center;
+}
+.player {
+  background: $alpha-8-300-8;
+  border: 1px solid rgba(170, 170, 170, 0.1);
+  backdrop-filter: blur(10px);
+}
+.tags {
+  background: $alpha-20-700-20;
+  background-blend-mode: multiply;
+  border: 1px solid $alpha-20-300-20;
+  border-radius: 40px;
+}
+.stat {
+  width: 70px;
+}
+</style>
