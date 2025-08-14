@@ -176,11 +176,6 @@ onMounted(async () => {
 .stat {
   width: 70px;
 }
-.player-id {
-  width: 145px;
-  display: flex;
-  justify-content: center;
-}
 .infinite-list {
   overflow-y: scroll;
   height: calc(80vh - 200px);

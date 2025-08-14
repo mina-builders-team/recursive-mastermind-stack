@@ -4,8 +4,7 @@
     <div class="d-flex flex-column gap-2">
       <MissionCard
         v-for="badge in BADGES"
-        :name="badge.name"
-        :description="badge.description"
+        :badge="badge"
         :hasBadge="userHasBadge(badge.name)"
       />
     </div>

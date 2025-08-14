@@ -31,7 +31,7 @@
               </div>
               <Button
                 size="large"
-                class="bg-alpha-50-300-50 border-alpha-50-300-50 radius-10"
+                class="bg-alpha-50-300-50 border-alpha-50-300-50 radius-10 mx-2"
                 @click="handleCreateChallenge"
                 ><span class="color-snow-white">Create a Code</span>
               </Button>
@@ -154,6 +154,7 @@ const myGames = ref<{
     totalPlayed: number;
     winsAsCodeBreaker: number;
     winsAsCodeMaster: number;
+    badges: Array<string>;
   };
   totalPlayedCount: number;
 }>({
@@ -164,6 +165,7 @@ const myGames = ref<{
     totalPlayed: 0,
     winsAsCodeBreaker: 0,
     winsAsCodeMaster: 0,
+    badges:[]
   },
   totalPlayedCount: 0,
 });

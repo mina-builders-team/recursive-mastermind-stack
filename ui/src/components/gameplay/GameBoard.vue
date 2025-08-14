@@ -28,6 +28,7 @@
           :duration="timerDuration"
           :isPlayingOnChain="isPlayingOnChain"
           :lastTurnTransactionHash="lastTurnTransactionHash"
+          :isTurnPlayed="isTurnPlayed"
           @timeEnded="handleTurnEnded"
         />
         <div class="mt-3 d-flex flex-column">
@@ -77,6 +78,7 @@ const {
   isPlayingOnChain,
   currentSlot,
   lastTurnTransactionHash,
+  isTurnPlayed,
 } = storeToRefs(useZkAppStore());
 import { usePreloadedSound } from '@/composables/usePreloadedSound.ts';
 import GameResult from './GameResult.vue';

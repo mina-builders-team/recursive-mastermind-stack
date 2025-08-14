@@ -20,7 +20,7 @@ import {
 } from './repositories/game.js';
 import redisClient from './redisClient.js';
 import { GameStatus, IGame } from './models/Game.js';
-import Player from './models/Player.js';
+import Player, { IPlayer } from './models/Player.js';
 
 dotenv.config();
 
@@ -273,16 +273,17 @@ export async function updatePlayerStatsFromGame(game: IGame) {
         (MAX_ATTEMPTS - Math.floor(game.turnCount / 2) + 1) * 20;
       if (game.turnCount <= 3) {
         breaker.totalScore += 60;
+        breaker.crackedInFirst = true;
       }
-      if (game.turnCount <= 8) {
-        breaker.crackedInUnder5 += 1;
+      if (game.turnCount === 15) {
+        breaker.crackedInLast = true;
       }
     } else {
       breaker.currentStreak = 0;
       breaker.netRewards -= game.rewardAmount;
     }
 
-    updateBadges(breaker);
+    await updateBadges(breaker);
     await breaker.save();
   }
   // Code Master Updates
@@ -303,20 +304,44 @@ export async function updatePlayerStatsFromGame(game: IGame) {
     master.currentStreak = 0;
     master.netRewards -= game.rewardAmount;
   }
-  updateBadges(master);
+  await updateBadges(master);
   await master.save();
 }
 
-function updateBadges(player: any) {
+async function updateBadges(player: IPlayer) {
   const newBadges: string[] = [];
 
-  if (player.gamesPlayed >= 1) newBadges.push('The Initiate');
-  if (player.gamesPlayed >= 5) newBadges.push('High Roller');
-  if (player.maxStreak >= 3) newBadges.push('Hat-Trick');
-  if (player.crackedInUnder5 >= 1) newBadges.push('Speed Daemon');
-  if (player.winsAsCodeMaster >= 1) newBadges.push('The Architect');
-  if (player.netRewards >= 100 * 1e9) newBadges.push('Big Gambler');
-  if (player.gamesPlayed >= 50) newBadges.push('The Grinder');
+  // First Game Played
+  if (player.gamesPlayed >= 1) newBadges.push('First Game Played');
 
+  // First Code Solved
+  if (player.winsAsCodeBreaker >= 1) newBadges.push('First Code Solved');
+
+  // 5 Games Won
+  if (player.winsAsCodeBreaker + player.winsAsCodeMaster >= 5)
+    newBadges.push('5 Games Won');
+
+  // 3 Streak
+  if (player.maxStreak >= 3) newBadges.push('3 Streak');
+
+  // Guessed in 2
+  if (player.crackedInFirst) newBadges.push('Guessed in 1');
+
+  // Guessed in Last
+  if (player.crackedInLast) newBadges.push('Guessed in Last');
+
+  // 5 Unbroken Code
+  if (player.winsAsCodeMaster >= 5) newBadges.push('5 Unbroken Code');
+
+  // TOP 100 & TOP 1000
+  const betterPlayersCount = await Player.countDocuments({
+    totalScore: { $gt: player.totalScore },
+  });
+
+  if (betterPlayersCount < 100) {
+    newBadges.push('Top 100');
+  } else if (betterPlayersCount < 1000) {
+    newBadges.push('Top 1000');
+  }
   player.badges = newBadges;
 }

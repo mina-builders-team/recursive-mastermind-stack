@@ -1,30 +1,62 @@
 export const BADGES = [
   {
-    name: 'Speed Daemon',
-    description: 'Solve a game in under 5 guesses.',
+    icon: '/icons/flag.svg',
+    name: 'First Code Solved',
+    description:
+      'Rewards initial engagement. Hooks new players with an instant sense of accomplishment.',
   },
   {
-    name: 'High Roller',
-    description: 'Play more than 5 games.',
+    icon: '/icons/leaf.svg',
+    name: 'First Game Played',
+    description:
+      'Validates player understanding of the core game. Builds confidence to encourage continued play.',
   },
   {
-    name: 'Hat-Trick',
-    description: 'Win 3 games in a row.',
+    icon: '/icons/brain.svg',
+    name: '5 Games Won',
+    description:
+      'Creates a short-term goal after onboarding. Encourages retention and signals a player is becoming a regular.',
   },
   {
-    name: 'The Initiate',
-    description: 'Complete your first game (win or lose).',
+    icon: '/icons/wind.svg',
+    name: '3 Streak',
+    description:
+      'Rewards consistent skill. Creates a "hot streak" chase to keep players focused and engaged.',
   },
   {
-    name: 'The Architect',
-    description: 'Win a game as Code Master.',
+    icon: '/icons/magic.svg',
+    name: 'Guessed in 1',
+    description:
+      'Recognizes high skill and deduction. Creates a shareable "genius" moment for the player.',
   },
   {
-    name: 'Big Gambler',
-    description: 'Win a single game with a pot of 100 MINA or more.',
+    icon: '/icons/list.svg',
+    name: 'Guessed in Last',
+    description:
+      'Rewards perseverance. Turns a high-tension "clutch" moment into a celebrated win, reducing frustration.',
   },
   {
-    name: 'The Grinder',
-    description: 'Play a total of 50 games.',
+    icon: '/icons/puzzle.svg',
+    name: 'Puzzle Master',
+    description:
+      'Acts as a prestigious "meta-achievement." Provides a long-term goal for dedicated players, increasing retention.',
+  },
+  {
+    icon: '/icons/star.svg',
+    name: 'Top 100',
+    description:
+      'A major aspirational goal for elite players. Provides high status and significant bragging rights in the community.',
+  },
+  {
+    icon: '/icons/star4.svg',
+    name: 'Top 1000',
+    description:
+      "The first major competitive milestone. Validates a player's skill and encourages them to climb higher.",
+  },
+  {
+    icon: '/icons/armor.svg',
+    name: '5 Unbroken Code',
+    description:
+      'Validates and rewards the defensive (Codemaker) role, making it a key skill to develop.',
   },
 ];

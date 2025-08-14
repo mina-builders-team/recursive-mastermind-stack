@@ -8,11 +8,11 @@ import { onMounted, onBeforeUnmount } from 'vue';
 onMounted(() => {
   const config = {
     charColor: '#3C3B40',
-    trailOpacity: 0.1,
+    trailOpacity: 0.5,
     animationSpeed: 66,
     highlightLeadingChar: true,
     leadingCharColor: '#3C3B40',
-    fontSize: 18,
+    fontSize: 15,
     characterPersistence: false,
     waveAmplitude: 30,
     waveFrequency: 5,
@@ -66,7 +66,7 @@ onMounted(() => {
 
   function draw() {
     if (ctx) {
-      ctx.fillStyle = `rgba(0,0,0, ${config.trailOpacity})`;
+      ctx.fillStyle = `rgba(19, 20, 23, ${config.trailOpacity})`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = `${config.fontSize}px monospace`;
       wavePhase += config.waveSpeed;
@@ -140,6 +140,6 @@ canvas#matrixExportCanvas {
   display: block;
   width: 100%;
   height: 100%;
-  background-color: #000;
+  background-color: #131417;
 }
 </style>

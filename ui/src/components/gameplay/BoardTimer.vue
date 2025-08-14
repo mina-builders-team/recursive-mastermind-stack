@@ -8,7 +8,10 @@
           <span v-if="!isTurnTimeExceeded">Waiting for your next move in</span>
           <span v-else>Make Your Move ASAP. You Have May Lost Anytime.</span>
         </div>
-        <span v-else> Opponents Turn </span>
+        <div v-else>
+          <span v-if="isTurnPlayed">Verifying on server</span>
+          <span v-else>Opponents Turn</span>
+        </div>
       </div>
       <Timer
         v-if="!isTurnTimeExceeded"
@@ -127,6 +130,10 @@ defineProps({
     type: String,
     required: true,
   },
+  isTurnPlayed: {
+    type: Boolean,
+    required: true,
+  },
 });
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
@@ -140,5 +147,9 @@ const handleTurnEnded = () => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
+}
+.critical {
+  background: #ff375f4d;
+  border: 1px solid #ff375f;
 }
 </style>

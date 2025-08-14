@@ -73,7 +73,7 @@
       <inline-svg src="/icons/claim.svg"></inline-svg
     ></span>
     <div
-      class="radius-10 award bg-alpha-20-700-20 default-border radius-10 blend-multiply p-5-10 d-flex align-items-center justify-content-center gap-1"
+      class="radius-10 award bg-alpha-20-700-20 default-border radius-10 blend-multiply p-5-10 d-flex align-items-center justify-content-center gap-1 py-2"
     >
       <inline-svg src="/icons/cash.svg"></inline-svg
       >{{ game?.rewardAmount / 1e9 }} MINA
