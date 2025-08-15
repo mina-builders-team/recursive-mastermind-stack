@@ -105,10 +105,15 @@ router.get('/my-games/:pubKey', async (req, res) => {
     req.query.orderBy === 'rewardAmount' ? 'rewardAmount' : 'createdAt';
   const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
   const playedAs = req.query.playedAs;
+  const onlyCancelled = req.query.onlyCancelled;
+  const status =
+    onlyCancelled === 'true'
+      ? [GameStatus.CANCELLED]
+      : [GameStatus.ENDED, GameStatus.PENALIZED];
   try {
     const playedGamesQuery = {
       $and: [
-        { status: { $in: [GameStatus.ENDED, GameStatus.PENALIZED] } },
+        { status: { $in: status } },
         {
           $or: [
             ...(playedAs === 'codeMaster' ? [{ codeMaster: pubKey }] : []),

@@ -63,11 +63,23 @@
             <div
               :class="[
                 'px-5 py-3 cursor-pointer',
-                { 'selected-filter': playedAs === 'codeMaster' },
+                {
+                  'selected-filter':
+                    playedAs === 'codeMaster' && !onlyCancelled,
+                },
               ]"
               @click="filterByRole('codeMaster')"
             >
               MASTER
+            </div>
+            <div
+              :class="[
+                'px-5 py-3 cursor-pointer',
+                { 'selected-filter': onlyCancelled },
+              ]"
+              @click="getCancelled"
+            >
+              CANCELLED
             </div>
           </div>
           <div class="d-flex me-3 filter-icons">
@@ -114,12 +126,25 @@
           :infinite-scroll-immediate="false"
           :infinite-scroll-distance="40"
         >
-          <PlayedGameCard
+          <div
             v-for="game in myGames?.playedGames"
             :key="game._id"
-            :game="game"
-            :public-key-base58="publicKeyBase58"
-          />
+            class="d-flex align-items-center p-1 px-3 w-100"
+            v-if="onlyCancelled"
+          >
+            <ActiveGameCard
+              :game="game"
+              @cancel="handleCancelGame($event, game._id)"
+            />
+          </div>
+          <div v-else class="w-100">
+            <PlayedGameCard
+              v-for="game in myGames?.playedGames"
+              :key="game._id"
+              :game="game"
+              :public-key-base58="publicKeyBase58"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -174,6 +199,7 @@ const limit = ref(7);
 const playedAs = ref<'codeBreaker' | 'codeMaster' | undefined>(undefined);
 const orderBy = ref<'createdAt' | 'rewardAmount'>('createdAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');
+const onlyCancelled = ref(false);
 const { showMessage } = useCustomMessage();
 const isLoading = ref(false);
 const reachedEnd = ref(false);
@@ -208,6 +234,7 @@ const filterByRole = async (
   currentPage.value = 1;
   reachedEnd.value = false;
   playedAs.value = role;
+  onlyCancelled.value = false;
   await getPlayedGames(true);
 };
 const loadMorePlayedGames = async () => {
@@ -234,6 +261,7 @@ const getPlayedGames = async (onlyPlayedGames?: boolean) => {
   if (playedAs.value) query.append('playedAs', playedAs.value);
   if (orderBy.value) query.append('orderBy', orderBy.value);
   if (sortOrder.value) query.append('sortOrder', sortOrder.value);
+  if (onlyCancelled.value) query.append('onlyCancelled', 'true');
 
   const res = await axios.get(
     `${SERVER_URL}/games/my-games/${publicKeyBase58.value}?${query.toString()}`
@@ -254,6 +282,13 @@ const getPlayedGames = async (onlyPlayedGames?: boolean) => {
       };
     }
   }
+};
+const getCancelled = async () => {
+  currentPage.value = 1;
+  reachedEnd.value = false;
+  playedAs.value = 'codeMaster';
+  onlyCancelled.value = true;
+  await getPlayedGames(true);
 };
 const handleCancelGame = (cancelTx: string, gameId: string) => {
   myGames.value.activeGames = myGames?.value?.activeGames.filter(
