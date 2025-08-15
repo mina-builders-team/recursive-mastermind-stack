@@ -165,7 +165,7 @@ const myGames = ref<{
     totalPlayed: 0,
     winsAsCodeBreaker: 0,
     winsAsCodeMaster: 0,
-    badges:[]
+    badges: [],
   },
   totalPlayedCount: 0,
 });

@@ -47,7 +47,11 @@
       <inline-svg src="/icons/key.svg"></inline-svg>
       <div>Numbers 0-7, No Repeats</div>
     </div>
-
+    <div class="fw-600">
+      Note: Unlike the Web2 version, the Code Master must be present each turn
+      to give a clue using the Give Clue button. Missing a turn without giving a
+      clue will result in a penalty.
+    </div>
     <div>
       <div class="my-4 fs-12 info-container">
         On the decentralized Mina blockchain, each of your actions remains
