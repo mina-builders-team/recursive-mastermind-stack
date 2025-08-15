@@ -19,6 +19,7 @@
         </div>
       </div>
     </div>
+    <div>Note: An additional 2 MINA will be charged for referee fees.</div> 
     <div
       v-if="!compiled"
       class="d-flex justify-content-center align-items-end gap-2 blend-screen bg-alpha-20-300-20 radius-10 p-10 fs-12 fw-600"

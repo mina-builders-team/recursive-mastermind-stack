@@ -95,9 +95,9 @@
 
       <div v-if="currentStep === 1" class="d-flex flex-column gap-4">
         <div class="snow-white">
-          Follow the steps below to set up your game. You'll stake MINA, choose
-          a secret code of numbers, and then deploy your game contract to the
-          Mina blockchain.
+          <div class="fw-600">Select Game Reward</div>
+          Note: Starting a game costs 2 extra MINA — 1 for the game account and
+          1 for the referee.
         </div>
         <div class="d-flex">
           <Button
