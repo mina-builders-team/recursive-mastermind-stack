@@ -28,21 +28,6 @@
             }}</span>
             <span v-else class="me-2">Connect</span>
           </div>
-          <Button
-            class="d-flex align-items-center mt-2 px-3 btn-cta3 border-alpha-50-300-50"
-            @click="handleDisconnect"
-            v-if="publicKeyBase58"
-          >
-            <div class="color-gray">
-              <inline-svg
-                src="/icons/wallet.svg"
-                class="me-1"
-                width="14"
-                height="14"
-              />
-              <span>Click to Disconnect</span>
-            </div>
-          </Button>
         </div>
       </Button>
     </div>

@@ -3,7 +3,7 @@
     <div class="board__container">
       <GameResult
         v-if="isGameEnded"
-        :isWinner="isWinner"
+        :isWinner="isWinner || false"
         :userRole="userRole!"
         :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
         :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
@@ -13,7 +13,6 @@
           isPlayingOnChain ? zkAppStates.turnCount : zkProofStates.turnCount
         "
       />
-
       <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
         <BoardHeader
           :rewardAmount="rewardAmount"
@@ -207,9 +206,7 @@ const isGameEnded = computed(() => {
         zkAppStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
         (isLastProofSubmitted.value && remainingSlot.value < 0) ||
         (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
-    : isGameSolved.value ||
-        zkProofStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
-        game.value?.status === 'PENALIZED';
+    : game.value?.winnerPublicKeyBase58;
 });
 const isLastProofSubmitted = computed(() => {
   return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;

@@ -2,6 +2,7 @@
   <div class="mt-5 w-100">
     <div class="fs-32 fw-700 mb-3">LEADERBOARD</div>
     <div
+      v-if="leaderboardData?.user"
       class="d-flex w-100 justify-content-between p-3 radius-10 color-snow-white user-rank__container"
     >
       <div>
@@ -134,7 +135,7 @@ const tweet = computed(() => {
   return {
     message: `📊 Just checked my Mastermind leaderboard stats on @MinaProtocol:
 🏅 Rank: ${leaderboardData.value?.user?.rank}
-🎖️ Title: ${getTitleByRank(leaderboardData.value?.user.rank)?.title}
+🎖️ Title: ${getTitleByRank(leaderboardData.value?.user?.rank)?.title}
 🧠 Solved Codes: ${leaderboardData.value?.user?.winsAsCodeBreaker}
 🛡️ Unbreaked Codes: ${leaderboardData.value?.user?.winsAsCodeMaster}
 💯 Score: ${leaderboardData.value?.user?.totalScore} pts

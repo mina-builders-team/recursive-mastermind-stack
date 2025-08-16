@@ -63,12 +63,14 @@ export class WebSocketService {
             await setGame(data.game);
           }
           if (data.error) {
-            showMessage({
-              type: 'error',
-              title: 'Error',
-              description: data.error,
-              duration: 6000,
-            });
+            if (data.error !== 'Game has already started!') {
+              showMessage({
+                type: 'error',
+                title: 'Error',
+                description: data.error,
+                duration: 6000,
+              });
+            }
           }
         } catch (e) {
           console.log('Error handling message:', e);

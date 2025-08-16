@@ -3,13 +3,17 @@
     class="d-flex w-100 color-snow-white align-items-center justify-content-between gap-2"
   >
     <div>
-      <div class="fw-700 fs-16">Open Game</div>
+      <div class="fw-700 fs-16">
+        <span v-if="game.status === 'CANCELLED'">Cancelled</span
+        ><span v-else>Open</span> Game
+      </div>
       <div class="fs-12">
         {{ dayjs(game.createdAt).fromNow() }}
       </div>
     </div>
     <div class="d-flex justify-content-center align-items-center gap-4">
       <ShareButton
+        v-if="game.status !== 'CANCELLED'"
         :message="`🧠 I just created a new Mastermind game on Web3, powered by zero-knowledge proofs & @MinaProtocol!
 Think you can crack my code? 🕵️‍♂️
 Join now as the Code Breaker 👇
@@ -40,14 +44,43 @@ Join now as the Code Breaker 👇
       <inline-svg src="/icons/cash.svg"></inline-svg
       >{{ game?.rewardAmount / 1e9 }} MINA
     </div>
-
-    <Button
-      :loading="loading"
-      class="bg-red radius-10 cancel-btn px-4"
-      size="large"
-      @click="cancelGameById(game._id)"
-      ><span class="color-snow-white"> Cancel </span></Button
+    <div
+      class="d-flex gap-2 align-items-center"
+      v-if="game?.cancelTransactionHash"
     >
+      <div class="mt-1">
+        <CopyToClipBoard color="#27282a" :text="game?._id || ''" />
+      </div>
+      <div class="fs-12 color-snow-white game-id">
+        <a
+          class="link d-flex gap-1 align-items-center"
+          :href="`https://minascan.io/devnet/tx/${game?.cancelTransactionHash}?type=zk-tx`"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Tx Hash: {{ formatAddress(game?.cancelTransactionHash) }}.</a
+        >
+      </div>
+    </div>
+    <el-tooltip
+      :disabled="game?.status !== 'CANCELLED'"
+      content="Make sure that previous Tx has failed before making a new cancel request "
+      placement="top"
+      trigger="hover"
+      effect="customized"
+      popper-class="cancel-btn-tooltip"
+    >
+      <Button
+        :loading="loading"
+        class="bg-red radius-10 cancel-btn px-4"
+        size="large"
+        @click="cancelGameById(game._id)"
+        ><span class="color-snow-white" v-if="game.status === 'CANCELLED'">
+          Cancel Again
+        </span>
+        <span class="color-snow-white" v-else> Cancel </span>
+      </Button>
+    </el-tooltip>
   </div>
 </template>
 <script lang="ts" setup>
@@ -96,5 +129,10 @@ const cancelGameById = async (gameId: string) => {
 }
 .share-btn:hover {
   color: $snow-white !important;
+}
+</style>
+<style lang="scss">
+.cancel-btn-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  bottom: 5px;
 }
 </style>
