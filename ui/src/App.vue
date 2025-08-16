@@ -4,18 +4,28 @@
     <div class="h-100 w-100">
       <Menu v-if="showMenu"></Menu>
       <div class="w-100 h-100">
-        <router-view />
+        <ConnectModal
+          v-if="
+            !publicKeyBase58 &&
+            routeName &&
+            !['home', 'onboarding'].includes(routeName as string)
+          "
+        />
+        <router-view v-else />
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import MatrixBackground from './components/MatrixBackground.vue';
 import Menu from '@/components/shared/Menu.vue';
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import ConnectModal from '@/components/modals/ConnectModal.vue';
 const { setupZkApp } = useZkAppStore();
+const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 onMounted(async () => {
   await setupZkApp();
   removePastGames();
@@ -37,6 +47,7 @@ const removePastGames = () => {
 };
 const route = useRoute();
 const showMenu = ref(true);
+const routeName = computed(() => route.name);
 watch(
   () => route.name,
   () => {
