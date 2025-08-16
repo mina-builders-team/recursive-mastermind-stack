@@ -704,7 +704,9 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             const newAccounts = await window.mina?.requestAccounts();
             this.publicKeyBase58 = newAccounts?.[0];
           }
-          await this.getRole();
+          if (this.zkAppAddress) {
+            await this.getRole();
+          }
         });
       } else {
         this.hasWallet = false;
