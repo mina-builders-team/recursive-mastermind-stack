@@ -75,11 +75,9 @@
           @click="handleClaimReward"
           :loading="loading"
           v-if="
-            !isLastProofSubmitted ||
-            (zkAppStates &&
-              zkAppStates?.rewardAmount !== 0 &&
-              remainingSlot &&
-              remainingSlot <= 0)
+            zkAppStates &&
+            zkAppStates?.rewardAmount !== 0 &&
+            (!isLastProofSubmitted || (remainingSlot && remainingSlot <= 0))
           "
           ><span class="color-black">Start Claiming</span>
         </Button>
