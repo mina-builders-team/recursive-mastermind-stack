@@ -253,6 +253,9 @@ const loadMorePlayedGames = async () => {
   isLoading.value = false;
 };
 const getPlayedGames = async (onlyPlayedGames?: boolean) => {
+  if (currentPage.value === 1) {
+    myGames.value.playedGames = []
+  }
   const query = new URLSearchParams({
     onlyPlayedGames: onlyPlayedGames ? 'true' : 'false',
     page: currentPage.value.toString(),
