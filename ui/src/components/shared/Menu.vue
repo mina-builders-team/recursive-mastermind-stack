@@ -40,7 +40,7 @@ import { formatAddress } from '@/utils';
 import { useRouter } from 'vue-router';
 import Button from './Button.vue';
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
-const { disconnect, connect } = useZkAppStore();
+const { connect } = useZkAppStore();
 
 const router = useRouter();
 const links = [
