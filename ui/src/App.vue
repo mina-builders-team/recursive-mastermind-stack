@@ -6,7 +6,7 @@
       <div class="w-100 h-100">
         <ConnectModal
           v-if="
-            !publicKeyBase58 &&
+            (!isOnValidChain || !publicKeyBase58) &&
             routeName &&
             !['home', 'onboarding'].includes(routeName as string)
           "
@@ -25,7 +25,7 @@ import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import ConnectModal from '@/components/modals/ConnectModal.vue';
 const { setupZkApp } = useZkAppStore();
-const { publicKeyBase58 } = storeToRefs(useZkAppStore());
+const { publicKeyBase58, isOnValidChain } = storeToRefs(useZkAppStore());
 onMounted(async () => {
   await setupZkApp();
   removePastGames();

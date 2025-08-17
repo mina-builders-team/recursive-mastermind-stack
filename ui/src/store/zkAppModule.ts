@@ -83,8 +83,13 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         let accounts = await window.mina?.getAccounts();
         if (accounts?.[0]) {
           this.publicKeyBase58 = accounts?.[0];
+          await this.syncMinaChain();
         }
-        this.setMinaAccountChangeListener();
+        await this.setMinaAccountChangeListener();
+        window.mina?.on('chainChanged', async () => {
+          await this.syncMinaChain();
+        });
+
         this.stepDisplay = 'Setting Mina instance...';
         await this.zkappWorkerClient.setMinaActiveInstance();
         await this.zkappWorkerClient.loadContract();
@@ -698,7 +703,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.publicKeyBase58
         );
         this.accountExists = res?.error === null;
-        this.setMinaAccountChangeListener();
+        await this.setMinaAccountChangeListener();
       } else {
         this.hasWallet = false;
         this.error = {
@@ -710,7 +715,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     destroyWebsocket() {
       this.webSocketInstance = null;
     },
-    setMinaAccountChangeListener() {
+    async setMinaAccountChangeListener() {
       window.mina?.on('accountsChanged', async (accounts: string[]) => {
         if (accounts.length) {
           this.publicKeyBase58 = accounts[0];
