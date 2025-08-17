@@ -18,11 +18,13 @@
         please install it first.
       </div>
       <div v-else class="text-center">
-        This page requires a connected wallet,<br> please connect your wallet first.
+        This page requires a connected wallet on {{ MINA_NETWORK }},<br />
+        please connect your wallet and make sure you're on the correct network
+        first.
       </div>
       <div class="d-flex">
         <Button
-          class="btn-cta3  border-alpha-50-300-50 color-snow-white flex-1"
+          class="btn-cta3 border-alpha-50-300-50 color-snow-white flex-1"
           @click="backToHome"
         >
           Back To Home
@@ -32,7 +34,7 @@
           @click="handleButtonClick"
         >
           <div class="color-black">
-            <div class="d-flex align-items-center ps-2 ">
+            <div class="d-flex align-items-center ps-2">
               <inline-svg
                 src="/icons/wallet.svg"
                 class="me-1"
@@ -55,9 +57,10 @@ import { useZkAppStore } from '@/store/zkAppModule';
 import Button from '../shared/Button.vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-const { hasWallet } = storeToRefs(useZkAppStore());
+const { hasWallet, isOnValidChain } = storeToRefs(useZkAppStore());
 const { connect } = useZkAppStore();
 const router = useRouter();
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 const handleButtonClick = async () => {
   if (hasWallet.value === false) {
     window.open('https://www.aurowallet.com/', '_blank');
