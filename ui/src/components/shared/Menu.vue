@@ -54,9 +54,6 @@ const handleLinkClick = (item: { title: string; name: string }) => {
     name: item.name,
   });
 };
-const handleDisconnect = () => {
-  disconnect();
-};
 const handleConnect = async () => {
   if (!publicKeyBase58.value) {
     await connect();
