@@ -6,7 +6,7 @@
       <div>
         <div v-if="isCurrentUserTurn">
           <span v-if="!isTurnTimeExceeded">Waiting for your next move in</span>
-          <span v-else>Make Your Move ASAP. You Have May Lost Anytime.</span>
+          <span v-else>Make Your Move ASAP. You May Lose Anytime.</span>
         </div>
         <div v-else>
           <span v-if="isTurnPlayed">Verifying on server</span>
