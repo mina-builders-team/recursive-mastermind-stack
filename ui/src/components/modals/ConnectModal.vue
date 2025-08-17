@@ -57,7 +57,7 @@ import { useZkAppStore } from '@/store/zkAppModule';
 import Button from '../shared/Button.vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
-const { hasWallet, isOnValidChain } = storeToRefs(useZkAppStore());
+const { hasWallet } = storeToRefs(useZkAppStore());
 const { connect } = useZkAppStore();
 const router = useRouter();
 const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
