@@ -34,7 +34,7 @@
         class="d-flex w-100 justify-content-between align-items-center"
       >
         <div class="fs-12">
-          TX sent. Avoid resend again unless
+          TX sent. Avoid resending unless
           <span class="text-underline">
             <a
               class="link"
@@ -42,7 +42,7 @@
               target="_blank"
               rel="noopener noreferrer"
             >
-              its fails
+              it fails
             </a>
           </span>
         </div>
@@ -59,9 +59,9 @@
         class="d-flex w-100 justify-content-between align-items-center"
       >
         <div v-if="isCurrentUserTurn">
-          <div class="fs-12">Make Your Move ASAP. You May Lost Anytime.</div>
+          <div class="fs-12">Make Your Move ASAP. You May Lose Anytime.</div>
           <div class="color-red fs-12">
-            May takes 3min to get approval by validator.
+            May take 3min to get approval by validator.
           </div>
         </div>
         <div v-else>

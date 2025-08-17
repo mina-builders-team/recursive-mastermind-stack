@@ -3,8 +3,8 @@
     <div class="color-snow-white d-flex flex-column gap-3">
       <div class="fw-700 fs-24">Playing On Mainnet</div>
       <div class="fs-12 mt-4">
-        Since server has down, instead of playing game on your browser with ZKP
-        security & privacy you will play the game on Mainnet!
+        Since the server is down, instead of playing the game on your browser
+        with ZKP security & privacy you will play the game on Mainnet!
       </div>
       <div class="d-flex w-100 justify-content-between">
         <div
@@ -13,7 +13,7 @@
           <div class="bg-green rounded"></div>
           <div>
             <div class="fs-16">Safe Area</div>
-            <div class="fs-16">You Have 3 min for play.</div>
+            <div class="fs-16">You Have 3 min to play.</div>
           </div>
         </div>
         <div
@@ -32,7 +32,7 @@
       </div>
       <div class="d-flex gap-2 align-items-center">
         <inline-svg src="/icons/key.svg"></inline-svg>
-        <div>All the actions are on-chain!</div>
+        <div>All actions are on-chain!</div>
       </div>
       <Button
         v-if="!submitGameTransactionHash"
@@ -42,14 +42,14 @@
         :loading="loading"
       >
         <span class="color-black fw-600 fs-16"
-          >Click to Submit Your Last Proof</span
+          >Click to submit your last proof</span
         >
       </Button>
       <div v-else class="w-100">
         <div
           class="d-flex align-items-center justify-content-center w-100 mt-3 mb-4"
         >
-          Game Should Have Starts on
+          Game will start in
           <Timer
             transparent
             :duration="MINA_APPROX_SLOT_DURATION"
@@ -77,7 +77,7 @@
           @click="submitLastProof"
           :loading="loading"
         >
-          <span class="color-snow-white fw-600 fs-16">Resend Again</span>
+          <span class="color-snow-white fw-600 fs-16">Resend</span>
         </Button>
       </div>
     </div>

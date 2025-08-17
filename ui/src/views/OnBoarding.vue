@@ -37,7 +37,7 @@
             </li>
             <li>
               Now, compare the last two rows. The only change was swapping 4 and
-              3, and this made the single Green clue disappear. That tells you
+              3, and this made the single green clue disappear. That tells you
               everything you need to know about where the number 4 truly
               belongs.
             </li>

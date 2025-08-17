@@ -3,7 +3,7 @@
     class="color-snow-white d-flex justify-content-between mt-5 pt-2 align-items-center"
   >
     <div>
-      <div class="fw-600 fs-20">Double or lose game for master minds</div>
+      <div class="fw-600 fs-20">Double or Lose game for Masterminds</div>
       <div class="fs-30 fw-700">Proof-Powered Puzzles</div>
       <div class="my-3 fs-16">Put MINA on the table. Beat the code.</div>
       <div class="my-3 fs-16">Keep the whole pot.</div>

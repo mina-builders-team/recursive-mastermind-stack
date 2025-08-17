@@ -26,7 +26,7 @@
         >
           <div>
             <div class="color-gray fs-12 fw-600">Game Mode 2</div>
-            <div class="fs-16">Codemaker</div>
+            <div class="fs-16">Codemaster</div>
           </div>
           <inline-svg src="/icons/dice.svg"></inline-svg>
         </div>
