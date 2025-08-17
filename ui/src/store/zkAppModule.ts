@@ -84,6 +84,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         if (accounts?.[0]) {
           this.publicKeyBase58 = accounts?.[0];
         }
+        this.setMinaAccountChangeListener();
         this.stepDisplay = 'Setting Mina instance...';
         await this.zkappWorkerClient.setMinaActiveInstance();
         await this.zkappWorkerClient.loadContract();
@@ -697,17 +698,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           this.publicKeyBase58
         );
         this.accountExists = res?.error === null;
-        window.mina?.on('accountsChanged', async (accounts: string[]) => {
-          if (accounts.length) {
-            this.publicKeyBase58 = accounts[0];
-          } else {
-            const newAccounts = await window.mina?.requestAccounts();
-            this.publicKeyBase58 = newAccounts?.[0];
-          }
-          if (this.zkAppAddress) {
-            await this.getRole();
-          }
-        });
+        this.setMinaAccountChangeListener();
       } else {
         this.hasWallet = false;
         this.error = {
@@ -718,6 +709,19 @@ export const useZkAppStore = defineStore('useZkAppModule', {
     },
     destroyWebsocket() {
       this.webSocketInstance = null;
+    },
+    setMinaAccountChangeListener() {
+      window.mina?.on('accountsChanged', async (accounts: string[]) => {
+        if (accounts.length) {
+          this.publicKeyBase58 = accounts[0];
+        } else {
+          const newAccounts = await window.mina?.requestAccounts();
+          this.publicKeyBase58 = newAccounts?.[0];
+        }
+        if (this.zkAppAddress) {
+          await this.getRole();
+        }
+      });
     },
   },
 });

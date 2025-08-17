@@ -57,6 +57,6 @@ export const BADGES = [
     icon: '/icons/armor.svg',
     name: '5 Unbroken Code',
     description:
-      'Validates and rewards the defensive (Codemaker) role, making it a key skill to develop.',
+      'Validates and rewards the defensive (Code Master) role, making it a key skill to develop.',
   },
 ];

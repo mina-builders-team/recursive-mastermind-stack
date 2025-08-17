@@ -120,7 +120,7 @@
       </div>
       <div v-if="currentStep === 2" class="d-flex flex-column gap-4">
         <div>
-          <div class="white fw-400 fs-16 mb-2">Enter the Game Name</div>
+          <div class="white fw-400 fs-16 mb-2">Generate The Game Name</div>
           <div class="w-100 default-border radius-10 d-flex">
             <div
               class="flex-1 d-flex align-items-center ps-3 fs-16 color-snow-white bg-alpha-8-300-8"
@@ -232,6 +232,7 @@ import { updateLocalStorageGames, validateColorCombination } from '@/utils';
 import { useRouter } from 'vue-router';
 import CodePicker from '@/components/shared/CodePicker.vue';
 import { useCustomMessage } from '@/composables/useCustomMessage';
+import { roomNames } from '@/constants/config';
 
 const router = useRouter();
 const { createInitGameTransaction } = useZkAppStore();
@@ -258,7 +259,6 @@ const steps = [
   { title: 'Ready to Launch', index: 2 },
 ];
 const currentStep = ref(0);
-const roomNames = ['Mina is Awesome', 'Mina is Amazing'];
 const rewardAmounts = [10, 50, 100];
 const game = ref({
   secret: Array.from({ length: 4 }, () => initialColor),

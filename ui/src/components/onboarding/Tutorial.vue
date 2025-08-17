@@ -124,7 +124,7 @@
     </div>
 
     <div v-else class="mt-3">
-      <div class="text-center fw-600 fs-16 mb-2">Enter Your Answer here:</div>
+      <div class="text-center fw-600 fs-16 mb-2">Enter Your Answer Here:</div>
       <Round
         :clue="clue"
         :guess="guess"

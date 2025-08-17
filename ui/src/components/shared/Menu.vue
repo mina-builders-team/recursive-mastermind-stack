@@ -40,7 +40,7 @@ import { formatAddress } from '@/utils';
 import { useRouter } from 'vue-router';
 import Button from './Button.vue';
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
-const { disconnect, connect } = useZkAppStore();
+const { connect } = useZkAppStore();
 
 const router = useRouter();
 const links = [
@@ -53,9 +53,6 @@ const handleLinkClick = (item: { title: string; name: string }) => {
   router.push({
     name: item.name,
   });
-};
-const handleDisconnect = () => {
-  disconnect();
 };
 const handleConnect = async () => {
   if (!publicKeyBase58.value) {
