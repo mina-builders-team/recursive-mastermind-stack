@@ -27,7 +27,7 @@ dotenv.config();
 const NETWORK_NAME = process.env.MINA_NETWORK || 'unknown';
 const PROOFS_FILE_PATH = path.join(process.cwd(), 'proofs.json');
 const PERF_FILE_PATH = path.join(process.cwd(), 'performance.json');
-const PROMETHEUS_URL = 'http://localhost:9090/';
+const PROMETHEUS_URL = 'http://65.108.68.236:9090/';
 
 const SALT = Field(1);
 const SOLUTION = Combination.from([1, 2, 3, 4]);
@@ -488,7 +488,7 @@ export class MastermindGame {
         const startTimestamp = this.startTime! / 1000;
         const endTimestamp = Date.now() / 1000;
 
-        const metricsData: any[] = [];
+/*         const metricsData: any[] = [];
 
         // Get memory available
         const memAvailable = await fetchPrometheusMetric(
@@ -505,7 +505,7 @@ export class MastermindGame {
         // Get total CPU usage %
         const cpuUsage = await fetchCpuUsageMetrics(startTimestamp, endTimestamp);
         if (cpuUsage) metricsData.push(cpuUsage);
-
+ */
         const startKey = new Date(this.startTime!)
           .toISOString()
           .slice(0, 16)
@@ -535,7 +535,6 @@ export class MastermindGame {
           }),
           averageRelayingTime: avgTime,
           concurrentGameCount: this.concurrentGameCount,
-          prometheusMetrics: metricsData,
         };
 
         if (!currentData[NETWORK_NAME]) {

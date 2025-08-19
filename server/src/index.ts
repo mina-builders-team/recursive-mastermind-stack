@@ -210,9 +210,7 @@ wss.on('connection', async (ws, req) => {
         await handleGameStart(
           gameId,
           activePlayers,
-          ws,
-          gameLifecycleQueue,
-          verificationKeys.contractVerificationKey.hash
+          ws
         );
       } else if (action === 'penalize') {
         await handlePenalize(gameId, activePlayers, ws, gameLifecycleQueue);

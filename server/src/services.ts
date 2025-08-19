@@ -89,55 +89,67 @@ export const handleProof = async (
   roomName: string,
   gameCreationTransactionHash: string
 ) => {
-  console.log("received a proof for game ",gameId)
-  
-  console.time('handleProof total');
+  console.log('received a proof for game ', gameId);
 
-  console.time('Validate zkProof');
+  console.time(`${gameId} handleProof total`);
+
+  console.time(`${gameId} Validate zkProof`);
   if (!zkProof) {
     ws.send(JSON.stringify({ error: 'Missing zkProof!' }));
-      console.log("early return for game ---------------------------------- ",gameId)
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
   if (zkProof.length > 36000) {
     ws.send(JSON.stringify({ error: 'Too large zkProof!' }));
-          console.log("early return for game ---------------------------------- ",gameId)
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
-  console.timeEnd('Validate zkProof');
+  console.timeEnd(`${gameId} Validate zkProof`);
 
-  console.time('Check penalization');
+  console.time(`${gameId} Check penalization`);
   let { game, isPenalized } = await checkForPenalization(
     gameId,
     gameLifecycleQueue
   );
-  console.timeEnd('Check penalization');
+  console.timeEnd(`${gameId} Check penalization`);
 
   if (isPenalized) {
-    console.time('Broadcast penalization state');
+    console.time(`${gameId} Broadcast penalization state`);
     const players = activePlayers.get(gameId) || new Set();
     players.forEach((player: WebSocket) => {
       player.send(JSON.stringify({ game }));
     });
-    console.timeEnd('Broadcast penalization state');
-    console.timeEnd('handleProof total');
-          console.log("early return for game ---------------------------------- ",gameId)
+    console.timeEnd(`${gameId} Broadcast penalization state`);
+    console.timeEnd(`${gameId} handleProof total`);
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
 
-  console.time('Check game status');
+  console.time(`${gameId} Check game status`);
   if (game && game.status !== GameStatus.IN_PROGRESS) {
     ws.send(JSON.stringify({ error: 'Not allowed to send a proof!' }));
-          console.log("early return for game ---------------------------------- ",gameId)
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
-  console.timeEnd('Check game status');
+  console.timeEnd(`${gameId} Check game status`);
 
-  console.time('Extract last proof and turn count');
+  console.time(`${gameId} Extract last proof and turn count`);
   let lastProof = game?.lastProof || null;
   let lastTurnCount = null;
   const gameRewardAmount = game?.rewardAmount || receivedRewardAmount;
@@ -145,36 +157,42 @@ export const handleProof = async (
     const proof = await StepProgramProof.fromJSON(JSON.parse(lastProof));
     lastTurnCount = Number(proof.publicOutput.turnCount.toString());
   }
-  console.timeEnd('Extract last proof and turn count');
+  console.timeEnd(`${gameId} Extract last proof and turn count`);
 
-  console.time('Deserialize and verify zkProof');
+  console.time(`${gameId} Deserialize and verify zkProof`);
   let receivedProof;
   try {
     receivedProof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
-   /*  const validProof = await verify(receivedProof, vk);
-    if (!validProof) throw new Error('Invalid zkProof!'); */
-   } catch (e) {
+    const validProof = await verify(receivedProof, vk);
+    if (!validProof) throw new Error('Invalid zkProof!');
+  } catch (e) {
     console.error('Error verifying proof:', e);
     ws.send(JSON.stringify({ error: 'Invalid zkProof!' }));
-          console.log("early return for game ---------------------------------- ",gameId)
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
-  console.timeEnd('Deserialize and verify zkProof');
+  console.timeEnd(`${gameId} Deserialize and verify zkProof`);
 
-  console.time('Validate turn sequence');
+  console.time(`${gameId} Validate turn sequence`);
   const receivedTurnCount = Number(
     receivedProof.publicOutput.turnCount.toString()
   );
   if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
     ws.send(JSON.stringify({ error: 'Proof is outdated!' }));
-          console.log("early return for game ---------------------------------- ",gameId)
+    console.log(
+      'early return for game ---------------------------------- ',
+      gameId
+    );
 
     return;
   }
-  console.timeEnd('Validate turn sequence');
+  console.timeEnd(`${gameId} Validate turn sequence`);
 
-  console.time('Verify code breaker');
+  console.time(`${gameId} Verify code breaker`);
   if (receivedTurnCount === 2) {
     const receivedCodeBreaker =
       receivedProof.publicOutput.codeBreakerId.toString();
@@ -185,7 +203,7 @@ export const handleProof = async (
         PublicKey.fromBase58(game.codeBreaker).toFields()
       ).toString() !== receivedCodeBreaker
     ) {
-     /*  ws.send(
+      /*  ws.send(
         JSON.stringify({ error: 'You are not the code breaker of this game!' })
       );
             console.log("early return for game ---------------------------------- ",gameId)
@@ -193,9 +211,9 @@ export const handleProof = async (
       return; */
     }
   }
-  console.timeEnd('Verify code breaker');
+  console.timeEnd(`${gameId} Verify code breaker`);
 
-  console.time('Check if solved');
+  console.time(`${gameId} Check if solved`);
   let turnCount, isSolved;
   if (receivedTurnCount % 2 !== 0 && receivedTurnCount > 1) {
     turnCount = Number(receivedProof.publicOutput.turnCount.toString());
@@ -204,9 +222,9 @@ export const handleProof = async (
     );
     isSolved = deserializedClue.isSolved().toBoolean();
   }
-  console.timeEnd('Check if solved');
+  console.timeEnd(`${gameId} Check if solved`);
 
-  console.time('Determine winner & schedule job');
+  console.time(`${gameId} Determine winner & schedule job`);
   let winnerPublicKeyBase58 = null;
   if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
     winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
@@ -216,9 +234,9 @@ export const handleProof = async (
       { priority: 1 }
     );
   }
-  console.timeEnd('Determine winner & schedule job');
+  console.timeEnd(`${gameId} Determine winner & schedule job`);
 
-  console.time('Update database');
+  console.time(`${gameId} Update database`);
   const timestamp = Date.now();
   const updatedGame = await createOrUpdateGame({
     _id: gameId,
@@ -236,22 +254,31 @@ export const handleProof = async (
       lastTurnCount === null ? gameCreationTransactionHash : undefined,
     roomName: lastTurnCount === null ? roomName : undefined,
   });
-  console.timeEnd('Update database');
+  console.timeEnd(`${gameId} Update database`);
 
-  console.time('Broadcast updated game state');
-  console.log('activePlayers.size ', activePlayers.size, ' broadcasting to ',gameId);
+  console.time(`${gameId} Broadcast updated game state`);
+  console.log(
+    'activePlayers.size ',
+    activePlayers.size,
+    ' broadcasting to ',
+    gameId
+  );
 
   const players = activePlayers.get(gameId);
-    console.log('player sizeeeeeeee ', players?.size);
+  console.log('player sizeeeeeeee ', players?.size);
 
   players?.forEach((player: WebSocket) => {
     player.send(JSON.stringify({ zkProof, timestamp, game: updatedGame }));
   });
-  console.timeEnd('Broadcast updated game state');
+  console.timeEnd(`${gameId} Broadcast updated game state`);
 
-  console.timeEnd('handleProof total');
-    console.log("handled a proof for game ",gameId," with turn count ",receivedTurnCount)
-
+  console.timeEnd(`${gameId} handleProof total`);
+  console.log(
+    'handled a proof for game ',
+    gameId,
+    ' with turn count ',
+    receivedTurnCount
+  );
 };
 
 /**
@@ -268,20 +295,18 @@ export const handleProof = async (
 export async function handleGameStart(
   gameId: string,
   activePlayers: Map<string, Set<WebSocket>>,
-  ws: WebSocket,
-  gameLifecycleQueue: Queue,
-  verificationKeyHash: Field
+  ws: WebSocket
 ) {
   // Fetch the current game from the database
   const game = await getGameById(gameId);
 
   // Only proceed if the game has not started yet (no codeBreaker)
   if (!game?.codeBreaker) {
-    const zkAppPublicKey = PublicKey.fromBase58(gameId);
-    const zkApp = new MastermindZkApp(zkAppPublicKey);
+    //const zkAppPublicKey = PublicKey.fromBase58(gameId);
+    //const zkApp = new MastermindZkApp(zkAppPublicKey);
 
     // Ensure the zkApp account exists on chain
-    let res = await fetchAccount({ publicKey: zkAppPublicKey });
+/*     let res = await fetchAccount({ publicKey: zkAppPublicKey });
     if (!res.account) {
       ws.send(JSON.stringify({ error: 'Game has not been accepted!' }));
       return;
@@ -311,15 +336,16 @@ export async function handleGameStart(
     // Check whether the game started on-chain in time, otherwise penalize
     const latestBlock = await fetchLastBlock(
       process.env.MINA_NETWORK_URL as string
-    );
-    const currentSlot = Number(latestBlock.globalSlotSinceGenesis.toString());
+    ); */
+/*     const currentSlot = Number(latestBlock.globalSlotSinceGenesis.toString());
     const finalizeSlot = Number(acceptedGame.finalizeSlot);
     const startGameSlot = finalizeSlot - 2 * (MAX_ATTEMPTS || 0);
+ */
     let status = GameStatus.IN_PROGRESS;
     let winnerPublicKeyBase58 = null;
 
     // If more than 4 slots have passed since the expected start, penalize the code breaker
-    if (currentSlot - startGameSlot > 4) {
+    /* if (currentSlot - startGameSlot > 4) {
       await gameLifecycleQueue.add(
         'forfeitWin',
         {
@@ -330,11 +356,11 @@ export async function handleGameStart(
       );
       status = GameStatus.PENALIZED;
       winnerPublicKeyBase58 = game?.codeMaster;
-    }
+    } */
 
     // Check if the game has already started on chain
-    const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
-/*     if (Number(turnCount.toString()) > 1) {
+    // const { turnCount } = GameState.unpack(await zkApp.compressedState.get());
+    /*     if (Number(turnCount.toString()) > 1) {
       const updatedGame = await findOneAndUpdate(
         { _id: gameId, codeBreaker: null },
         {
@@ -357,7 +383,7 @@ export async function handleGameStart(
     const updatedGame = await findOneAndUpdate(
       { _id: gameId, codeBreaker: null },
       {
-        codeBreaker: acceptedGame.codeBreakerPubKey,
+        codeBreaker: 'B62qqAkWspnLkPSjgd6687NFt1AR8rDCu2Q1rPMF9sRk6YnrqWpwHpi',
         status,
         timestamp: Date.now(),
         winnerPublicKeyBase58: winnerPublicKeyBase58
