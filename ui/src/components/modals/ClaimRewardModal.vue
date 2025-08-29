@@ -70,16 +70,25 @@
           ><span class="color-snow-white">Back</span>
         </Button>
         <Button
-          class="cta-1 default-border radius-10 flex-1"
+          class="cta-1 default-border radius-10 flex-1 bg-snow-white"
           size="large"
           @click="handleClaimReward"
           :loading="loading"
+          :disabled="isClaimRewardDisabled"
           v-if="
             zkAppStates &&
             zkAppStates?.rewardAmount !== 0 &&
             (!isLastProofSubmitted || (remainingSlot && remainingSlot <= 0))
           "
-          ><span class="color-black">Start Claiming</span>
+          ><Timer
+            class="px-0 pe-1"
+            v-if="isClaimRewardDisabled"
+            transparent
+            :duration="MINA_APPROX_SLOT_DURATION"
+            :startTimestamp="timerStartTime"
+            @timeEnded="handleClaimTimeElapsed"
+          />
+          <span class="color-black">Claim Reward</span>
         </Button>
       </div>
     </div>
@@ -95,6 +104,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { useCustomMessage } from '@/composables/useCustomMessage';
+import Timer from '../shared/Timer.vue';
 
 dayjs.extend(utc);
 
@@ -128,15 +138,20 @@ const props = defineProps({
 const { showMessage } = useCustomMessage();
 const emit = defineEmits(['close']);
 const intervalId = ref<number | null>(null);
+const MINA_APPROX_SLOT_DURATION = Number(
+  import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
+);
+const timerStartTime = ref(Date.now());
+const isClaimRewardDisabled = ref(false);
 const handleModalClose = () => {
   emit('close');
 };
 const handleClaimReward = async () => {
-  if (!isLastProofSubmitted.value && lastProof.value) {
+   if (!isLastProofSubmitted.value && lastProof.value) {
     await submitGameProof(lastProof.value, publicKeyBase58.value);
   } else {
     await claimRewardTransaction();
-  }
+  } 
   if (error.value) {
     showMessage({
       title: 'Error',
@@ -144,7 +159,13 @@ const handleClaimReward = async () => {
       duration: 6000,
       type: 'error',
     });
+  } else {
+    timerStartTime.value = Date.now();
+    isClaimRewardDisabled.value = true;
   }
+};
+const handleClaimTimeElapsed = () => {
+  isClaimRewardDisabled.value = false;
 };
 const finalTransaction = computed(() => {
   return (
@@ -210,4 +231,8 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.el-button.is-disabled) {
+  background: unset;
+}
+</style>

@@ -92,7 +92,7 @@ onMounted(async () => {
 const isNotAvailableGame = computed(() => {
   return (
     (!isPlayingOnChain.value &&
-      (!game.value ||
+      ((!game.value && compiled.value && userRole.value !== 'CODE_MASTER') ||
         (game.value?.status === 'PENDING' &&
           game.value?.codeMaster !== publicKeyBase58.value))) ||
     (isPlayingOnChain.value &&

@@ -45,7 +45,10 @@
       class="radius-10 default-border bg-alpha-8-300-8 p-2 pb-3 d-flex flex-column align-items-center gap-3 color-snow-white w-100"
     >
       <div class="fw-600">
-        <span v-if="isWinner"> Your reward is on the way! </span>
+        <div v-if="isWinner">
+          <span v-if="isRewardClaimed"> Your reward is Claimed! </span>
+          <span v-else>Your reward is on the way!</span>
+        </div>
         <span v-else> Your opponent will receive </span>
       </div>
       <div class="d-flex align-items-center justify-content-center w-100 gap-3">
@@ -60,16 +63,22 @@
           <inline-svg src="/icons/person.svg"></inline-svg>
           <span v-if="isWinner">You</span>
           <span v-else-if="userRole === 'CODE_MASTER'">{{
-            formatAddress(codeBreakerPubKeyBase58)
+            codeBreakerPubKeyBase58
+              ? formatAddress(codeBreakerPubKeyBase58)
+              : 'Opponent'
           }}</span>
-          <span v-else="">{{ formatAddress(codeMasterPubKeyBase58) }}</span>
+          <span v-else="">{{
+            codeMasterPubKeyBase58
+              ? formatAddress(codeMasterPubKeyBase58)
+              : 'Opponent'
+          }}</span>
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <div v-if="isPlayingOnChain && isWinner">
+        <div v-if="isPlayingOnChain && isWinner && !isRewardClaimed">
           You can claim your reward in
           <div
-            v-if="remainingSlot !== null && remainingSlot > 0"
+            v-if="remainingSlot !== null && remainingSlot > 0 && isPenalized"
             class="d-flex justify-content-center"
           >
             <Timer
@@ -138,7 +147,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Button from '@/components/shared/Button.vue';
 import { formatAddress } from '@/utils';
 import ShareButton from '../shared/ShareButton.vue';
@@ -162,11 +171,11 @@ const props = defineProps({
   },
   codeBreakerPubKeyBase58: {
     type: String,
-    required: true,
+    required: false,
   },
   codeMasterPubKeyBase58: {
     type: String,
-    required: true,
+    required: false,
   },
   turnCount: {
     type: Number,
@@ -178,7 +187,8 @@ const props = defineProps({
   },
 });
 const { showMessage } = useCustomMessage();
-const { fetchCurrentSlot, claimRewardTransaction } = useZkAppStore();
+const { fetchCurrentSlot, claimRewardTransaction, getZkAppStates } =
+  useZkAppStore();
 const {
   currentSlot,
   zkAppStates,
@@ -192,13 +202,14 @@ const roundCount = Math.floor(props.turnCount / 2);
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
 );
+const intervalId = ref<number | null>(null);
+
 const lastTransactionLink = computed(() => {
   return isPlayingOnChain.value
     ? claimRewardTransactionHash.value
     : game.value?.penalizationTransactionHash ||
         game.value?.settlementTransactionHash;
 });
-
 const remainingSlot = computed(() => {
   return zkAppStates.value?.finalizeSlot && currentSlot.value
     ? zkAppStates.value?.finalizeSlot - currentSlot.value
@@ -231,6 +242,9 @@ const isMasterWinner = computed(
 const isMasterLoser = computed(
   () => props.userRole === 'CODE_MASTER' && !props.isWinner
 );
+const isRewardClaimed = computed(() => {
+  return zkAppStates.value?.rewardAmount === 0;
+});
 const redirectToGames = () => {
   router.push({ name: 'my-games' });
 };
@@ -250,10 +264,22 @@ const handleClaimReward = async () => {
   }
 };
 onMounted(async () => {
+  intervalId.value = setInterval(async () => {
+    await getZkAppStates();
+    if (zkAppStates.value?.rewardAmount === 0) {
+      if (intervalId.value) {
+        clearInterval(intervalId.value);
+      }
+    }
+  }, 30000);
   if (isPlayingOnChain.value) {
     await fetchCurrentSlot();
   }
 });
+onUnmounted(() => {
+  if (intervalId.value) {
+    clearInterval(intervalId.value);
+  }
+});
 </script>
-
 <style lang="scss" scoped></style>

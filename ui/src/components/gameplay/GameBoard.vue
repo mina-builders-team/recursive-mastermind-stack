@@ -5,12 +5,12 @@
         v-if="isGameEnded"
         :isWinner="isWinner || false"
         :userRole="userRole!"
-        :codeBreakerPubKeyBase58="game?.codeBreaker || 'UNKNOWN'"
-        :codeMasterPubKeyBase58="game?.codeMaster || 'UNKNOWN'"
+        :codeBreakerPubKeyBase58="game?.codeBreaker"
+        :codeMasterPubKeyBase58="game?.codeMaster"
         :gameReward="rewardAmount!"
         :isPenalized="isPenalized"
         :turnCount="
-          isPlayingOnChain ? zkAppStates.turnCount : zkProofStates.turnCount
+          isPlayingOnChain ? zkAppStates?.turnCount : zkProofStates?.turnCount
         "
       />
       <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
@@ -108,9 +108,13 @@ const initialSecret = () => {
   };
 };
 const gameSecret = ref(initialSecret());
-
+const isLastProofSubmitted = computed(() => {
+  return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
+});
 const guesses = ref<Array<AvailableColor[]>>(
-  zkProofStates.value?.guessesHistory || zkAppStates.value?.guessesHistory
+  isPlayingOnChain.value && isLastProofSubmitted.value
+    ? zkAppStates.value?.guessesHistory
+    : zkProofStates.value?.guessesHistory
 );
 const clues = computed<Array<AvailableColor[]>>(() =>
   !isLastProofSubmitted.value
@@ -208,16 +212,16 @@ const isGameEnded = computed(() => {
         (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
     : game.value?.winnerPublicKeyBase58;
 });
-const isLastProofSubmitted = computed(() => {
-  return zkAppStates.value?.turnCount >= zkProofStates?.value?.turnCount;
-});
+
 const rewardAmount = computed(() => {
-  return game.value?.rewardAmount || zkAppStates.value?.rewardAmount;
+  return game.value?.rewardAmount || zkAppStates.value?.rewardAmount / 2;
 });
 const isPenalized = computed(() => {
   return isPlayingOnChain.value
-    ? (isLastProofSubmitted.value && remainingSlot.value < 0) ||
-        (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
+    ? !isGameSolved.value &&
+        zkAppStates?.value?.turnCount <= MAX_ATTEMPTS * 2 &&
+        ((isLastProofSubmitted.value && remainingSlot.value < 0) ||
+          (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot)
     : game.value?.status === 'PENALIZED';
 });
 watch(
