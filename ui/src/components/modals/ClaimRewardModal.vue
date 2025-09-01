@@ -147,11 +147,11 @@ const handleModalClose = () => {
   emit('close');
 };
 const handleClaimReward = async () => {
-   if (!isLastProofSubmitted.value && lastProof.value) {
+  if (!isLastProofSubmitted.value && lastProof.value) {
     await submitGameProof(lastProof.value, publicKeyBase58.value);
   } else {
     await claimRewardTransaction();
-  } 
+  }
   if (error.value) {
     showMessage({
       title: 'Error',

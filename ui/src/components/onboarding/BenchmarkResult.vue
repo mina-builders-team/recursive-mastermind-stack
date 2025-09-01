@@ -62,7 +62,7 @@
         class="bg-alpha-8-300-8 border-alpha-50-300-50 color-snow-white radius-10 me-4 p-4 btn-cta3 default-border color-snow-white"
         @click="backToHome"
       >
-        Back to Home
+        Back To Home
       </Button>
       <Button
         size="large"

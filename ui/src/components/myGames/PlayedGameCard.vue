@@ -7,7 +7,7 @@
   >
     <div class="fs-16 fw-700 card-header">
       You
-      <span v-if="!isWinner">Lost</span><span v-else>Win</span>
+      <span v-if="!isWinner">Lost</span><span v-else>Won</span>
       <div class="fs-12">GameID: {{ formatAddress(game._id) }}</div>
     </div>
     <div>

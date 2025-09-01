@@ -52,7 +52,7 @@
               definitive proof that the code begins with 4 3 _ _.
             </div>
           </div>
-          You now know the first two 2tmbers for certain.
+          You now know the first two numbers for certain.
         </template>
       </Tutorial>
       <Tutorial
@@ -148,7 +148,7 @@ const greenClue = {
     availableColors[4],
   ],
   tooltips: [
-    'two greens. This confirms that 2 numbers are in the correct spot',
+    'Two greens. This confirms that 2 numbers are in the correct spot',
     'Three greens. This confirms that 3 numbers are in the correct spot.',
     'Zero greens: The digits 5, 6, 7, and 0 do not appear anywhere in the code.',
   ],

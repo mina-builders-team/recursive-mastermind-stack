@@ -1,8 +1,8 @@
 <template>
   <Modal @close="handleJoinCodeModalClose">
     <div class="color-snow-white d-flex flex-column gap-3">
-      <div class="fw-600 fs-16">Join with the Code</div>
-      <div class="fs-16">Enter the GameID</div>
+      <div class="fw-600 fs-16">Join With Code</div>
+      <div class="fs-16">Enter The GameID</div>
       <PasteFromClipBoard
         placeholder=""
         @change="handleZkAppAddress"
@@ -11,7 +11,7 @@
       <div class="d-flex justify-content-between join-modal-footer">
         <Button
           size="large"
-          class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn btn-cta3  default-border color-snow-white"
+          class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn btn-cta3 default-border color-snow-white"
           @click="handleJoinCodeModalClose"
           >Back</Button
         >

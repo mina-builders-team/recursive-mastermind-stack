@@ -16,7 +16,7 @@
           >
             <div class="color-black d-flex align-items-center gap-2">
               <inline-svg class="me-2" src="/icons/binary.svg"></inline-svg>
-              <span class="fw-700">Join with Code</span>
+              <span class="fw-700">Join with code</span>
             </div>
           </Button>
           <Button
@@ -26,7 +26,7 @@
           >
             <div class="color-snow-white d-flex align-items-center gap-2">
               <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
-              <span class="fw-400 fs-14">Create a Challenge</span>
+              <span class="fw-400 fs-14">Create a challenge</span>
             </div>
           </Button>
         </div>
@@ -121,7 +121,7 @@
           >
             <div class="color-snow-white d-flex align-items-center gap-2">
               <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
-              <span class="fw-400 fs-14">Create a Challenge</span>
+              <span class="fw-400 fs-14">Create a challenge</span>
             </div>
           </Button>
         </div>

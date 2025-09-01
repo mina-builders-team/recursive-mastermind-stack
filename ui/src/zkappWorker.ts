@@ -369,11 +369,7 @@ const functions = {
       const transaction = await Mina.transaction(feePayerPubKey, async () => {
         AccountUpdate.fundNewAccount(feePayerPubKey);
         zkApp.deploy();
-        await zkApp.initGame(
-          secret,
-          salt,
-          UInt64.from(10 * 1e9)
-        );
+        await zkApp.initGame(secret, salt, UInt64.from(10 * 1e9));
       });
       transaction.sign([zkAppPrivateKey]);
       await transaction.prove();

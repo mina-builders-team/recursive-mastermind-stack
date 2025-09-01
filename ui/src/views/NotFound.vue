@@ -22,7 +22,7 @@
       <Button
         class="btn-cta3 default-border color-snow-white px-4"
         @click="redirectToLobby"
-        >Back to Home</Button
+        >Back To Home</Button
       >
     </div>
   </div>
