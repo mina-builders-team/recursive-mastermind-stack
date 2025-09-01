@@ -84,7 +84,7 @@
             <Button
               :loading="loading"
               :class="[
-                'bg-red radius-10 cancel-btn default-border me-2 w-100 px-0',
+                'bg-red radius-10 default-border me-2 w-100 px-0 cancel-btn',
               ]"
               size="large"
               @click="cancelGameById(gameId)"
@@ -208,4 +208,12 @@ watch(
   }
 );
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.cancel-btn {
+  backdrop-filter: blur(10px);
+}
+
+.cancel-btn:hover {
+  box-shadow: 0px 2px 30px 0px rgba(255, 255, 255, 0.4) inset;
+}
+</style>

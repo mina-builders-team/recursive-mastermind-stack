@@ -120,6 +120,10 @@ const cancelGameById = async (gameId: string) => {
   );
   backdrop-filter: blur(15px);
 }
+.cancel-btn:hover {
+  box-shadow: 0px 2px 30px 0px rgba(255, 255, 255, 0.4) inset;
+}
+
 .reward-container {
   width: 101px;
 }
