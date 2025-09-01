@@ -20,7 +20,7 @@ try {
         setTimeout(() => {
           console.error('Shutting down app due to Redis failure');
           process.exit(1);
-        }, 1000); 
+        }, 1000);
 
         return null;
       }

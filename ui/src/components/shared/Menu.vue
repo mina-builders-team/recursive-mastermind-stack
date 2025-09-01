@@ -12,7 +12,7 @@
         {{ link.title }}</span
       >
       <Button
-        class="w-100 h-100 btn-cta3 wallet-btn border-alpha-50-300-50"
+        class="w-100 h-100 btn-cta3 border-alpha-50-300-50"
         @click="handleConnect"
       >
         <div class="color-gray">
@@ -63,17 +63,3 @@ const redirectToLanding = () => {
   router.push({ name: 'home' });
 };
 </script>
-<style scoped lang="scss">
-.wallet-btn:hover {
-  background: linear-gradient(
-    180deg,
-    $alpha-50-300-50 0%,
-    $alpha-50-700-50 100%
-  );
-  background-blend-mode: color-dodge;
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(59, 61, 63, 0.5);
-  color: $gray;
-}
-</style>

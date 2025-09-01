@@ -1,7 +1,7 @@
 <template>
   <div class="w-205">
     <div
-      class="d-flex flex-column gap-2 bg-alpha-8-300-8 border-alpha-50-300-50 fit-content h-fit-content py-2 ps-2 pe-4 radius-4 w-100"
+      class="d-flex flex-column gap-2 bg-alpha-20-700-20 border-alpha-50-300-50 fit-content h-fit-content py-2 ps-2 pe-4 radius-4 w-100 stat-container"
     >
       <div class="d-flex gap-2">
         <div
@@ -52,7 +52,7 @@
       <ShareButton
         :message="tweet.message"
         :hashtag="tweet.hashtag"
-        customClass="fw-400 fs-14"
+        btnClass="fw-400 fs-14 btn-cta3  default-border color-snow-white "
       />
     </div>
     <div class="d-flex gap-2 flex-wrap w-100 mt-4 cursor-pointer">
@@ -122,6 +122,10 @@ const userHasBadge = (badgeName: string) => {
   padding: 10px;
   border-radius: 10px;
   color: $gray;
+}
+.stat-container {
+  backdrop-filter: blur(15px);
+  box-shadow: 0px 3px 41px 56px $alpha-20-300-20 inset;
 }
 </style>
 

@@ -108,7 +108,10 @@
     </div>
     <div v-if="isWrongAnswer === false">
       <div class="p-3 w-100 bg-alpha-8-300-8 border-alpha-8-300-8 mt-3">
-        <div class="text-center fw-600 fs-20">Congrats!</div>
+        <div class="text-center fw-600 fs-20">
+          <span v-if="isAnswerShown">Here’s The Answer</span>
+          <span v-else>Congrats!</span>
+        </div>
         <div class="d-flex gap-2 w-100 my-3 justify-content-center">
           <Clue :clue="[hitClue, hitClue, hitClue, hitClue]" />
           <CodePicker :secret="secret" />
@@ -142,7 +145,7 @@
         class="btn-cta3 bg-alpha-8-300-8 border-alpha-50-300-50 w-100 mt-3 p-4"
         @click="submitGuess(true)"
       >
-        <span class="color-snow-white">Show me Me Answer</span>
+        <span class="color-snow-white">Show Me Answer</span>
       </Button>
     </div>
   </div>
@@ -193,6 +196,7 @@ const hitClue = cluesColors.find((c) => c.value === 2)!;
 const blowClue = cluesColors.find((c) => c.value === 1)!;
 const missClue = cluesColors.find((c) => c.value === 0)!;
 const isWrongAnswer = ref<Boolean | null>(null);
+const isAnswerShown = ref<Boolean | undefined>(undefined);
 const guess = ref(props.initialGuess);
 const clue = ref<Array<AvailableColor>>(
   Array.from({ length: 4 }, () => missClue)
@@ -205,6 +209,7 @@ const handleSetColor = (selectedCode: AvailableColor[]) => {
 const submitGuess = (solved?: boolean) => {
   if (solved) {
     isWrongAnswer.value = false;
+    isAnswerShown.value = solved;
     return;
   }
   const { isSolved, clue: receivedClue } = generateClue(
@@ -216,6 +221,7 @@ const submitGuess = (solved?: boolean) => {
 };
 
 const handleNextStep = () => {
+  isAnswerShown.value = false;
   emit('next');
 };
 </script>

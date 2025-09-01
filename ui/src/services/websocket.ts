@@ -19,8 +19,9 @@ export class WebSocketService {
         retries: 5,
         delay: 1000,
         onFailed: async () => {
-          const { setPlayingOnChain } = useZkAppStore();
+          const { setPlayingOnChain, getRole } = useZkAppStore();
           console.error('Max reconnection attempts reached!');
+          await getRole();
           await setPlayingOnChain(true);
           this.connected = false;
         },
@@ -33,7 +34,6 @@ export class WebSocketService {
           const { showMessage } = useCustomMessage();
           const {
             setTurnPlayed,
-            verifyProof,
             setGame,
             setPlayingOnChain,
             isPlayingOnChain,
@@ -44,10 +44,6 @@ export class WebSocketService {
             return;
           }
           if (data.zkProof) {
-            const isValidProof = await verifyProof(data.zkProof);
-            if (!isValidProof) {
-              throw new Error('Invalid zkProof!');
-            }
             setTurnPlayed(false);
             updateLocalStorageGames(zkAppAddress as string, {
               lastProof: data.zkProof,

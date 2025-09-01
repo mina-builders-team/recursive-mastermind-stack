@@ -2,7 +2,7 @@
   <div
     class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 w-400"
   >
-    <div class="fw-700 fs-24 text-center">Welcome to Mastermind on Mina!</div>
+    <div class="fw-700 fs-24 text-center">Welcome To Mastermind On Mina!</div>
     <div class="fs-14 color-snow-white">
       <div class="mt-3">This isn't standard Mastermind.</div>
       <div class="mt-4">
@@ -18,7 +18,7 @@
         @click="handleNextStep"
       >
         <inline-svg src="/icons/rocket.svg" class="me-2"></inline-svg>
-        <span class="fs-14 fw-400">Enter the Journey!</span>
+        <span class="fs-14 fw-400">Enter The Journey!</span>
       </Button>
     </div>
   </div>

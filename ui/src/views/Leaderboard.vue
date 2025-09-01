@@ -41,7 +41,11 @@
         </div>
       </div>
       <div class="align-self-center">
-        <ShareButton :message="tweet.message" :hashtag="tweet.hashtag" />
+        <ShareButton
+          :message="tweet.message"
+          :hashtag="tweet.hashtag"
+          btnClass=" btn-cta3  default-border color-snow-white"
+        />
       </div>
     </div>
     <div class="mt-3">

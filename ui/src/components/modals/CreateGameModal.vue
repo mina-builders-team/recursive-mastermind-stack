@@ -51,7 +51,7 @@
             :class="[
               'stake d-flex align-items-center justify-content-center default-border radius-10',
               {
-                'bg-alpha-20-300-20': index === currentStep,
+                'bg-alpha-50-300-50': index === currentStep,
                 'bg-alpha-8-300-8': index !== currentStep,
               },
             ]"
@@ -107,7 +107,7 @@
             :class="[
               'radius-10 default-border d-flex align-items-center fw-400 fs-14',
               {
-                black: amount === game.reward,
+                'color-black': amount === game.reward,
                 'bg-alpha-20-300-20 color-snow-white': amount !== game.reward,
               },
             ]"
@@ -209,7 +209,7 @@
                   Estimated 15-20 sec. Please don’t refresh or close the page.
                 </div>
               </template>
-              Waiting for compilation
+              <span class="text-underline-dotted">Waiting for compilation</span>
             </el-tooltip>
           </div>
         </Button>
@@ -354,5 +354,13 @@ const handleSecretChange = (newSecret: Array<AvailableColor>) => {
 <style lang="scss">
 .el-carousel__indicators--horizontal {
   display: none !important;
+}
+.compilation-tooltip.el-popper.is-customized {
+  width: 190px;
+  padding-left: 20px;
+}
+.compilation-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  background: $color-300;
+  bottom: 5px;
 }
 </style>
