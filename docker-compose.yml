@@ -17,12 +17,8 @@ services:
       - db    
     restart: unless-stopped
   server-prod:
+    image: ghcr.io/<your-github-username>/mastermind-server:latest
     profiles: ['prod']
-    build:
-      context: .
-      dockerfile: server/docker/dockerfile.prod
-    volumes:
-      - ./server/src:/app/src
     ports:
       - '3000:3000'
     env_file:
@@ -81,12 +77,8 @@ services:
       - db
     restart: always  
   worker-prod-1:
+    image: ghcr.io/<your-github-username>/mastermind-worker:latest
     profiles: ['prod']
-    build:
-      context: .
-      dockerfile: worker/docker/dockerfile.prod
-    volumes:
-      - ./worker/src:/app/src
     env_file:
       - worker/.env
     environment:
