@@ -210,7 +210,7 @@ const isGameEnded = computed(() => {
         zkAppStates?.value?.turnCount > MAX_ATTEMPTS * 2 ||
         (isLastProofSubmitted.value && remainingSlot.value < 0) ||
         (currentSlot.value || 0) > zkAppStates.value?.finalizeSlot
-    : game.value?.winnerPublicKeyBase58;
+    : ['PENALIZED', 'ENDED'].includes(game.value?.status || '');
 });
 
 const rewardAmount = computed(() => {

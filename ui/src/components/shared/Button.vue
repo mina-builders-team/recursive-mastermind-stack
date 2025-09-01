@@ -24,16 +24,16 @@ const handleClick = () => {
 // cta3
 .btn-cta3 {
   background: $color-600;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  /*   border-image: linear-gradient(
+  border: 1px solid rgba(59, 61, 63, 0.5);
+  background: linear-gradient(
     180deg,
-    rgba(59, 61, 63, 0.5) 1,
-    rgba(255, 255, 255, 0.5) 100%
+    $alpha-50-300-50 0%,
+    $alpha-50-700-50 100%
   );
- */
+  background-blend-mode: color-dodge;
+  backdrop-filter: blur(5px);
   border-image-slice: 1;
   box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
   border-radius: 10px;
 }
 .btn-cta3:hover {
@@ -44,24 +44,12 @@ const handleClick = () => {
   background-blend-mode: screen;
   box-shadow: 0px 2px 35px 0px $color-200 inset;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  /*   border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 1,
-    rgba(255, 255, 255, 0.5) 100%
-  );
- */
 }
 .btn-cta3:active {
   color: rgba(255, 255, 255, 0.5);
   background: $color-400;
   box-shadow: 0px 4px 14px 0px #00000033 inset;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  /*   border-image-source: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 1,
-    rgba(255, 255, 255, 0.5) 100%
-  );
- */
 }
 // cta2
 .btn-cta2 {
@@ -84,30 +72,18 @@ const handleClick = () => {
 // cta1
 .btn-cta1 {
   background: $color-100;
-  border: 1px solid $alpha-50-000-50;
   border-radius: 60px;
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
+  border: 0 solid $alpha-8-300-8;
+  backdrop-filter: blur(5px);
 }
 .btn-cta1:hover {
   background: $color-100;
   border: 1px solid rgba(68, 68, 68, 0.1);
-  /*   border-image-source: linear-gradient(
-    180deg,
-    rgba(68, 68, 68, 0.3) 0%,
-    rgba(68, 68, 68, 0.1) 100%
-  );
- */
   box-shadow: 0px 2px 35px 0px $color-200 inset;
 }
 .btn-cta1:active {
   background: $snow-white;
   border: 1px solid rgba(68, 68, 68, 0.1);
-  /* border-image-source: linear-gradient(
-    180deg,
-    rgba(68, 68, 68, 0.3) 0%,
-    rgba(68, 68, 68, 0.1) 100%
-  ); */
   box-shadow: 0px 4px 14px 0px #00000033 inset;
 }
 </style>

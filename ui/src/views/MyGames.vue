@@ -4,16 +4,18 @@
     <div class="d-flex gap-3">
       <MyStats :stats="myGames.stats" />
       <div class="flex-1 h-100">
-        <div>
-          <div class="border-alpha-20-300-20 radius-4 p-2 fs-14 fw-600">
+        <div class="bg-alpha-20-700-20 available-games-container">
+          <div
+            class="border-alpha-20-300-20 radius-4 p-3 fs-14 fw-600 available-games"
+          >
             Available Games You've Created
           </div>
-          <div class="bg-alpha-8-300-8 active-game-card">
+          <div class="active-game-card">
             <div v-if="myGames?.activeGames?.length">
               <div
                 v-for="game in myGames?.activeGames"
                 :key="game._id"
-                class="d-flex align-items-center p-1 px-3 w-100"
+                class="d-flex align-items-center w-100"
               >
                 <ActiveGameCard
                   :game="game"
@@ -31,7 +33,7 @@
               </div>
               <Button
                 size="large"
-                class="bg-alpha-50-300-50 border-alpha-50-300-50 radius-10 mx-2"
+                class="btn-cta3 border-alpha-50-300-50 radius-10 mx-2"
                 @click="handleCreateChallenge"
                 ><span class="color-snow-white">Create a Code</span>
               </Button>
@@ -82,7 +84,7 @@
               CANCELLED
             </div>
           </div>
-          <div class="d-flex me-3 filter-icons">
+          <div class="d-flex mx-3 filter-icons">
             <el-tooltip
               placement="bottom"
               effect="customized"
@@ -129,7 +131,7 @@
           <div
             v-for="game in myGames?.playedGames"
             :key="game._id"
-            class="d-flex align-items-center p-1 px-3 w-100"
+            class="d-flex align-items-center w-100"
             v-if="onlyCancelled"
           >
             <ActiveGameCard
@@ -254,7 +256,7 @@ const loadMorePlayedGames = async () => {
 };
 const getPlayedGames = async (onlyPlayedGames?: boolean) => {
   if (currentPage.value === 1) {
-    myGames.value.playedGames = []
+    myGames.value.playedGames = [];
   }
   const query = new URLSearchParams({
     onlyPlayedGames: onlyPlayedGames ? 'true' : 'false',
@@ -311,7 +313,7 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .active-game-card {
-  border-left: 3px solid $snow-white;
+  border-left: 4.5px solid $snow-white;
 }
 
 .my-games {
@@ -336,6 +338,28 @@ onMounted(async () => {
 .infinite-list {
   overflow-y: scroll;
   height: calc(80vh - 200px);
+}
+.available-games {
+  background: $alpha-20-700-20;
+  background-blend-mode: multiply;
+  box-shadow:
+    0 3px 41px 56px $alpha-20-300-20,
+    rgba(59, 61, 63, 0.2) inset;
+  filter: drop-shadow(0 20px 40px rgba(12, 14, 17, 0.4));
+  backdrop-filter: blur(7.5px);
+}
+.available-games-container {
+  backdrop-filter: blur(15px);
+  box-shadow: 0px 20px 40px -10px #0c0e1166;
+}
+.lobby-tab {
+  background: $alpha-20-700-20;
+  background-blend-mode: multiply;
+  box-shadow:
+    0 3px 41px 56px $alpha-20-300-20,
+    rgba(59, 61, 63, 0.2) inset;
+  filter: drop-shadow(0 20px 40px rgba(12, 14, 17, 0.4));
+  backdrop-filter: blur(7.5px);
 }
 </style>
 

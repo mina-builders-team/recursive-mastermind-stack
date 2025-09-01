@@ -11,7 +11,7 @@
       <div class="d-flex justify-content-between join-modal-footer">
         <Button
           size="large"
-          class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
+          class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn btn-cta3  default-border color-snow-white"
           @click="handleJoinCodeModalClose"
           >Back</Button
         >

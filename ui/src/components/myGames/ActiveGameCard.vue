@@ -1,6 +1,6 @@
 <template>
   <div
-    class="d-flex w-100 color-snow-white align-items-center justify-content-between gap-2"
+    class="d-flex w-100 color-snow-white align-items-center justify-content-between gap-2 py-2 px-3 active-card-container"
   >
     <div>
       <div class="fw-700 fs-16">
@@ -36,10 +36,9 @@ Join now as the Code Breaker 👇
           ID: {{ formatAddress(game?._id) }}
         </div>
       </div>
-      <inline-svg src="/icons/zk.svg"></inline-svg>
     </div>
     <div
-      class="bg-alpha-20-700-20 border-20-300-20 p-10 radius-10 d-flex align-items-center justify-content-center gap-1 reward-container"
+      class="bg-alpha-20-700-20 blend-multiply border-alpha-20-300-20 p-10 radius-10 d-flex align-items-center justify-content-center gap-1 reward-container"
     >
       <inline-svg src="/icons/cash.svg"></inline-svg
       >{{ game?.rewardAmount / 1e9 }} MINA
@@ -112,14 +111,14 @@ const cancelGameById = async (gameId: string) => {
 </script>
 <style lang="scss" scoped>
 .cancel-btn {
-  box-shadow: 0px 2px 15px 0px $color-600 inset;
-  backdrop-filter: blur(10px);
+  background-blend-mode: plus-lighter;
   border: 1px solid;
   border-image-source: linear-gradient(
     180deg,
     rgba(59, 61, 63, 0.5) 100%,
     rgba(255, 255, 255, 0.5) 100%
   );
+  backdrop-filter: blur(15px);
 }
 .reward-container {
   width: 101px;
@@ -129,6 +128,14 @@ const cancelGameById = async (gameId: string) => {
 }
 .share-btn:hover {
   color: $snow-white !important;
+}
+.active-card-container {
+  background: $alpha-8-300-8;
+  background-blend-mode: plus-lighter;
+  backdrop-filter: blur(5px);
+  border: 0.5px solid $alpha-50-300-50;
+  backdrop-filter: blur(15px);
+  box-shadow: 0px 3px 41px 56px $alpha-20-300-20 inset;
 }
 </style>
 <style lang="scss">

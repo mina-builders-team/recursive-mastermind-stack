@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'd-flex align-items-center justify-content-between c-idle color-snow-white p-2',
+      'd-flex align-items-center justify-content-between color-snow-white p-2 played-game-card__container ',
       { looser: !isWinner, winner: isWinner },
     ]"
   >
@@ -53,10 +53,15 @@
 
     <div class="fs-12">{{ creationDate }}</div>
     <el-tooltip
-      :disabled="game?.status !== 'PENALIZED'"
-      :content="`Server penalized ${isWinner ? 'Opponent' : 'You'}`"
+      :content="
+        game?.status === 'PENALIZED'
+          ? `Server penalized ${isWinner ? 'opponent' : 'you'}`
+          : 'No server penalization occurred'
+      "
       placement="top"
       trigger="hover"
+      effect="customized"
+      popper-class="server-tooltip"
     >
       <span
         :class="[
@@ -69,9 +74,23 @@
         <inline-svg src="/icons/zk.svg"></inline-svg
       ></span>
     </el-tooltip>
-    <span class="icon cursor-pointer" @click="showClaimModal">
-      <inline-svg src="/icons/claim.svg"></inline-svg
-    ></span>
+    <el-tooltip
+      :content="isWinner ? 'Check Reward' : 'You Lost'"
+      placement="top"
+      trigger="hover"
+      effect="customized"
+      popper-class="reward-tooltip"
+    >
+      <span
+        :class="[
+          'cursor-pointer',
+          isWinner ? 'color-snow-white' : 'color-gray-passive',
+        ]"
+        @click="showClaimModal"
+      >
+        <inline-svg src="/icons/claim.svg"></inline-svg
+      ></span>
+    </el-tooltip>
     <div
       class="radius-10 award bg-alpha-20-700-20 default-border radius-10 blend-multiply p-5-10 d-flex align-items-center justify-content-center gap-1 py-2"
     >
@@ -117,15 +136,15 @@ const handleCloseClaimModal = () => {
 </script>
 <style lang="scss" scoped>
 .winner {
-  border-left: 4px solid $green;
+  border-left: 4px solid $green !important;
 }
 .looser {
-  border-left: 4px solid $red;
+  border-left: 4px solid $red !important;
 }
-.played-card__container {
+.played-game-card__container {
   border: 1px solid $alpha-20-300-20;
-  background: $alpha-20-700-20;
-  background-blend-mode: multiply;
+  background: $alpha-20-300-20;
+  background-blend-mode: plus-lighter !important;
 }
 .attempts {
   width: 8px;
@@ -152,5 +171,19 @@ const handleCloseClaimModal = () => {
 }
 .icon:hover {
   color: $snow-white;
+}
+</style>
+<style lang="scss">
+.server-tooltip.el-popper.is-customized {
+  width: 200px;
+}
+.server-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  bottom: 5px;
+}
+.reward-tooltip.el-popper.is-customized {
+  width: 100px;
+}
+.reward-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  bottom: 5px;
 }
 </style>

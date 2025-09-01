@@ -4,8 +4,12 @@
       class="w-100 d-flex flex-column align-items-center gap-3 default-border radius-20 bg-alpha-50-900-50 p-20"
       v-if="isGameCancelled"
     >
-      <div class="color-snow-white">Game has been cancelled</div>
-      <Button class="cta-3" size="large" @click="returnToLobby">
+      <div class="color-snow-white fs-16 fw-600">Game has been cancelled</div>
+      <Button
+        class="btn-cta3 color-snow-white"
+        size="large"
+        @click="returnToLobby"
+      >
         Return to Lobby
       </Button>
     </div>

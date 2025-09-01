@@ -4,7 +4,7 @@
       <div class="flex-1">
         <div>Game:</div>
         <div
-          class="p-10 default-border radius-12 d-flex align-items-center justify-content-center mt-2"
+          class="p-10 bg-alpha-8-300-8 blend-plus-lighter default-border radius-12 d-flex align-items-center justify-content-center mt-2"
         >
           {{ game?.roomName }}
         </div>
@@ -19,7 +19,7 @@
         </div>
       </div>
     </div>
-    <div>Note: An additional 2 MINA will be charged for referee fees.</div> 
+    <div>Note: An additional 2 MINA will be charged for referee fees.</div>
     <div
       v-if="!compiled"
       class="d-flex justify-content-center align-items-end gap-2 blend-screen bg-alpha-20-300-20 radius-10 p-10 fs-12 fw-600"
@@ -84,7 +84,7 @@
               rel="noopener noreferrer"
             >
               <Button class="default-border radius-10 bg-alpha-8-300-8">
-                <span class="gray me-2">{{
+                <span class="color-gray me-2">{{
                   formatAddress(acceptedGame?.lastAcceptTransactionHash)
                 }}</span>
                 <span class="color-snow-white">Check</span>
@@ -114,7 +114,7 @@
     <div class="d-flex justify-content-between join-modal-footer">
       <Button
         size="large"
-        class="color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
+        class="btn-cta3 default-border color-snow-white fw-400 bg-alpha-50-900-50 blend-darken back-btn"
         @click="handleClose"
         >Back</Button
       >
@@ -122,7 +122,7 @@
         :loading="loading"
         v-if="isGameReady"
         size="large"
-        class="fw-400 black bg-snow-white search-btn"
+        class="fw-400 color-black bg-snow-white search-btn"
         @click="handleAcceptGame"
         >Play Game</Button
       >

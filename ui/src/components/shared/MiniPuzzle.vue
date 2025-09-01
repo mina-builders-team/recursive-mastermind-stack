@@ -1,15 +1,13 @@
 <template>
-  <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white"
-  >
+  <div class="default-border radius-10 p-20 color-snow-white puzzle-container">
     <div class="d-flex justify-content-between align-items-center">
       <div>
-        <div class="fs-5 fw-600">Mini Puzzle</div>
-        <div>(Numbers are between 0-7)</div>
+        <div class="fs-5 fw-600 fs-16">Mini Puzzle</div>
+        <div class="fs-12">(Numbers are between 0-7)</div>
       </div>
     </div>
     <div
-      class="d-flex flex-column align-items-center default-border radius-10 mt-2 py-2"
+      class="d-flex flex-column align-items-center mt-2 py-2 puzzle-board__container"
     >
       <div
         v-for="(guess, row) in guesses"
@@ -25,10 +23,16 @@
         />
       </div>
       <div class="d-flex mt-3">
-        <Button @click="resetSecret" size="large" class="cta-3 fw-400"
+        <Button
+          @click="resetSecret"
+          size="large"
+          class="btn-cta3 color-snow-white fw-400 px-5 default-border"
           >Reset</Button
         >
-        <Button @click="submitGuess" size="large" class="cta-3 fw-400"
+        <Button
+          @click="submitGuess"
+          size="large"
+          class="btn-cta3 color-snow-white fw-400 px-5 default-border"
           >Submit</Button
         >
       </div>
@@ -93,4 +97,17 @@ const resetSecret = () => {
   lastGuessIndex.value = 0;
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.puzzle-container {
+  background:
+    linear-gradient(0deg, $alpha-20-900-20 0%, $alpha-20-900-20 100%),
+    $alpha-50-900-50;
+  background-blend-mode: darken;
+}
+.puzzle-board__container {
+  border-radius: 4px;
+  border: 1px solid $alpha-20-300-20;
+  background: $alpha-20-700-20;
+  background-blend-mode: multiply;
+}
+</style>

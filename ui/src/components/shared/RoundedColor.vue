@@ -70,12 +70,19 @@ const props = defineProps({
     required: false,
   },
 });
+const setCaretToEnd = () => {
+  const el = (inputRef.value as any)?.input as HTMLInputElement | undefined;
+  if (el) {
+    const len = el.value.length;
+    el.setSelectionRange(len, len);
+  }
+};
 
 const isFocused = ref(false);
-
 const focusInput = () => {
   inputRef.value?.focus();
   isFocused.value = true;
+  setCaretToEnd();
 };
 
 const emit = defineEmits(['input', 'focusNext', 'focusPrev']);
@@ -88,6 +95,7 @@ const focus = () => {
     if (inputRef.value) {
       (inputRef.value as any).focus();
       isFocused.value = true;
+      setCaretToEnd();
     }
   });
 };

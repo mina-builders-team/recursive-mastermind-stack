@@ -27,7 +27,6 @@
     </div>
     <div class="d-flex align-items-center justify-content-between">
       <div class="fs-12 game-adr">ID: {{ formatAddress(game?._id) }}</div>
-      <inline-svg src="/icons/zk.svg"></inline-svg>
     </div>
     <div class="d-flex gap-1 align-items-center game-date">
       <inline-svg src="/icons/clock.svg"></inline-svg>
@@ -35,13 +34,13 @@
     </div>
     <div class="d-flex align-items-center gap-2">
       <div
-        class="game-reward d-flex align-items-center gap-2 fw-400 color-snow-white"
+        class="game-reward bg-alpha-20-700-20 border-alpha-20-300-20 d-flex align-items-center gap-2 fw-400 color-snow-white blend-multiply"
       >
         <inline-svg src="/icons/cash.svg"></inline-svg>
         {{ game.rewardAmount / 1e9 }} MINA
       </div>
       <Button
-        class="btn-cta3 flex-1 border-alpha-50-300-50"
+        class="btn-cta3 flex-1 border-alpha-50-300-50 join-btn"
         @click="handleJoinGame"
         size="large"
       >
@@ -98,16 +97,12 @@ const handleJoinGame = () => {
 }
 .game-card__container {
   padding: 20px 18px;
-  background: linear-gradient(
-    180deg,
-    rgba(59, 61, 63, 0.5) 0%,
-    rgba(25, 27, 29, 0.5) 100%
-  );
-  background-blend-mode: color-dodge;
-  border: 1px solid #2b2d30;
-  backdrop-filter: blur(15px);
-  box-shadow: 0px 20px 40px -10px #0c0e1166;
   border-radius: 10px;
+  border: 1px solid rgba(59, 61, 63, 0.5);
+  background-blend-mode: color-dodge;
+  box-shadow: 0 3px 41px 20px $alpha-20-300-20 inset;
+  filter: drop-shadow(0 20px 40px rgba(12, 14, 17, 0.4));
+  backdrop-filter: blur(7.5px);
 }
 .game-adr {
   color: rgba(255, 255, 255, 0.2);
@@ -117,7 +112,21 @@ const handleJoinGame = () => {
 }
 .game-reward {
   border-radius: 10px;
-  padding: 5px 10px;
+  padding: 9px;
+}
+.join-btn {
+  border-radius: 10px;
+  border: 1px solid rgba(59, 61, 63, 0.5);
+  background: linear-gradient(
+    180deg,
+    $alpha-50-300-50 0%,
+    $alpha-50-700-50 100%
+  );
+  background-blend-mode: color-dodge;
+
+  /* Button/Normal */
+  box-shadow: 0 2px 15px 0 $color-600 inset;
+  backdrop-filter: blur(5px);
 }
 </style>
 <style lang="scss">

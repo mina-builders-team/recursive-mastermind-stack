@@ -34,7 +34,6 @@ export class WebSocketService {
           const { showMessage } = useCustomMessage();
           const {
             setTurnPlayed,
-            verifyProof,
             setGame,
             setPlayingOnChain,
             isPlayingOnChain,
@@ -45,10 +44,6 @@ export class WebSocketService {
             return;
           }
           if (data.zkProof) {
-            const isValidProof = await verifyProof(data.zkProof);
-            if (!isValidProof) {
-              throw new Error('Invalid zkProof!');
-            }
             setTurnPlayed(false);
             updateLocalStorageGames(zkAppAddress as string, {
               lastProof: data.zkProof,

@@ -102,7 +102,26 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <span v-if="!isPlayingOnChain">⚡Auto-Claim is active.</span>
+        <span v-if="!isPlayingOnChain">
+          <el-tooltip
+            placement="bottom"
+            effect="customized"
+            popper-class="auto-claim-tooltip"
+          >
+            <template #content>
+              <div class="fw-600">Auto-Claim</div>
+              <div class="fs-12">
+                You will receive your reward automatically. It may takes
+                minutes. You can track it by your ‘My Games’ page.
+              </div>
+            </template>
+
+            <span class="cursor-pointer"
+              >⚡<span class="text-underline-dotted">Auto-Claim</span> is
+              active.</span
+            >
+          </el-tooltip>
+        </span>
         <a
           class="link d-flex gap-1 align-items-center"
           v-if="lastTransactionLink"
@@ -282,4 +301,12 @@ onUnmounted(() => {
   }
 });
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss">
+.auto-claim-tooltip.el-popper.is-customized {
+  width: 180px;
+}
+.auto-claim-tooltip.el-popper.is-customized .el-popper__arrow::before {
+  background: $color-300;
+  top: 5px;
+}
+</style>

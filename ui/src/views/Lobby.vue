@@ -20,7 +20,7 @@
             </div>
           </Button>
           <Button
-            class="btn-cta2 d-flex align-items-center px-4"
+            class="btn-cta3 border-alpha-50-300-50 radius-60 d-flex align-items-center px-4"
             @click="handleCreateChallenge"
             size="large"
           >
@@ -51,7 +51,7 @@
             </div>
             <div
               :class="[
-                'option cursor-pointer fw-600 d-flex align-items-center justify-content-center',
+                'option cursor-pointer fw-600 d-flex align-items-center justify-content-center text-center',
                 { 'lobby-all': gamesType === 'own' },
               ]"
               @click="filterByType('own')"
@@ -107,6 +107,26 @@
           />
         </div>
         <div
+          v-if="!isLoading && !lobbyData?.filteredActiveGames?.length"
+          class="bg-alpha-8-300-8 border-alpha-50-300-50 backdrop-blur-10 w-100 d-flex flex-column align-items-center justify-content-center gap-3 p-5 mt-3 radius-10 text-center"
+        >
+          <span class="fs-16">The Arena is Empty</span>
+          <div class="fw-600 fs-16">
+            Be the one to start the next great match!
+          </div>
+          <Button
+            class="btn-cta3 border-alpha-50-300-50 radius-60 d-flex align-items-center px-4 mt-4"
+            @click="handleCreateChallenge"
+            size="large"
+          >
+            <div class="color-snow-white d-flex align-items-center gap-2">
+              <inline-svg class="me-2" src="/icons/dice.svg"></inline-svg>
+              <span class="fw-400 fs-14">Create a Challenge</span>
+            </div>
+          </Button>
+        </div>
+        <div
+          v-else
           class="infinite-list mt-4 flex-1"
           v-infinite-scroll="loadMoreActiveGames"
           :infinite-scroll-disabled="isLoading || reachedEnd"

@@ -98,7 +98,10 @@ body {
   background-blend-mode: darken !important;
 }
 .blend-screen {
-  background-blend-mode: screen;
+  background-blend-mode: screen !important;
+}
+.blend-plus-lighter {
+  background-blend-mode: plus-lighter !important;
 }
 
 // blur filter
@@ -209,6 +212,10 @@ body {
 }
 .text-underline {
   text-decoration: underline;
+}
+.text-underline-dotted {
+  text-decoration: underline;
+  text-decoration-style: dotted;
 }
 .link {
   color: inherit !important;
