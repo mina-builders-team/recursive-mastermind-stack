@@ -13,7 +13,7 @@
         >Code Master</span
       >
     </div>
-    <div class="d-flex align-items-center gap-2 me-5 cursor-pointer">
+    <div class="d-flex align-items-center gap-2 cursor-pointer">
       <el-tooltip
         placement="bottom"
         effect="customized"
@@ -38,7 +38,7 @@
       </el-tooltip>
     </div>
   </div>
-  <div class="d-flex gap-5 align-items-center">
+  <div class="d-flex justify-content-between align-items-center">
     <div
       class="black-game-reward border-alpha-20-300-20 d-flex align-items-center gap-2 fw-400 f-14 color-snow-white p-2 fit-content"
     >
