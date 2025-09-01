@@ -12,7 +12,7 @@
         <span>Server</span>
       </div>
     </div>
-    <div class="d-flex gap-5 align-items-center">
+    <div class="d-flex justify-content-between align-items-center">
       <div class="black-game-reward h-fit-content p-10">
         <inline-svg src="/icons/cash.svg"></inline-svg>
         0 MINA

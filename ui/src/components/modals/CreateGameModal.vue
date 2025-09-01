@@ -263,7 +263,7 @@ const rewardAmounts = [10, 50, 100];
 const game = ref({
   secret: Array.from({ length: 4 }, () => initialColor),
   reward: 10,
-  roomName: roomNames[0],
+  roomName: roomNames[Math.floor(Math.random() * roomNames.length)],
   randomSalt: Field.random().toString(),
 });
 const generateRoomName = () => {

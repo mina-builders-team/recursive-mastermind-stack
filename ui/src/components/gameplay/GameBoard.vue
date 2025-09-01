@@ -13,7 +13,7 @@
           isPlayingOnChain ? zkAppStates?.turnCount : zkProofStates?.turnCount
         "
       />
-      <div class="bg-800 default-border pt-3 py-5 pe-2 ps-3 radius-20" v-else>
+      <div class="bg-800 default-border pt-3 py-5 px-3 radius-20" v-else>
         <BoardHeader
           :rewardAmount="rewardAmount"
           :userRole="userRole!"
