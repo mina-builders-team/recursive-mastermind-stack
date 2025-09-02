@@ -17,7 +17,7 @@ services:
       - db    
     restart: unless-stopped
   server-prod:
-    image: ghcr.io/<your-github-username>/mastermind-server:latest
+    image: ghcr.io/mina-builders-team/mastermind-server:latest
     profiles: ['prod']
     ports:
       - '3000:3000'
@@ -77,7 +77,7 @@ services:
       - db
     restart: always  
   worker-prod-1:
-    image: ghcr.io/<your-github-username>/mastermind-worker:latest
+    image: ghcr.io/mina-builders-team/mastermind-worker:latest
     profiles: ['prod']
     env_file:
       - worker/.env
