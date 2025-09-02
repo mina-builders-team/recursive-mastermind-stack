@@ -15,7 +15,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}
 
       - name: Build and push server image
         uses: docker/build-push-action@v6
@@ -41,6 +41,8 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
             cd ~/recursive-mastermind-stack
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            export GHCR_PAT=${{ secrets.GHCR_PAT }}
+            docker login ghcr.io -u stanlou --password-stdin <<< "$GHCR_PAT"
+            unset GHCR_PAT
             docker-compose --profile prod pull
             docker-compose --profile prod up -d
