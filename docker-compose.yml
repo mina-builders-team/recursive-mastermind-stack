@@ -55,7 +55,7 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
   redis-insight:
-    profiles: ['dev']
+    profiles: ['dev','prod']
     image: redis/redisinsight:latest
     ports:
       - '5540:5540'
@@ -126,7 +126,7 @@ services:
     volumes:
       - mongodb_data:/data/db
   mongo-express:
-    profiles: ["dev"]
+    profiles: ["dev",'prod']
     image: mongo-express:latest
     container_name: mongo-express
     restart: always
