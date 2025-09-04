@@ -127,6 +127,7 @@ const route = useRoute();
 const router = useRouter();
 const gameId = route?.params?.id as string;
 const timerKey = ref(0);
+const attemptToCancel = ref(false);
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
 );
@@ -160,7 +161,7 @@ const rewardAmount = computed(() => {
 });
 const cancelGameTxHash = computed(() => {
   return (
-    cancelGameTransactionHash.value ||
+    (attemptToCancel.value && cancelGameTransactionHash.value) ||
     game.value?.cancelTransactionHash ||
     getStoredGame(gameId)?.cancelGameTransactionHash
   );
@@ -181,6 +182,7 @@ const cancelGameById = async (gameId: string) => {
   if (!error.value) {
     timerStartTime.value = Date.now();
     timeEnded.value = false;
+    attemptToCancel.value = true;
     showMessage({
       title: 'Transaction Sent',
       description: 'Transaction Hash : ' + cancelGameTxHash.value,
@@ -215,5 +217,8 @@ watch(
 
 .cancel-btn:hover {
   box-shadow: 0px 2px 30px 0px rgba(255, 255, 255, 0.4) inset;
+}
+:deep(.is-loading) {
+  color:$snow-white;
 }
 </style>
