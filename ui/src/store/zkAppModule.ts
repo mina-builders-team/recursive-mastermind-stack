@@ -593,7 +593,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
             },
           });
           this.cancelGameTransactionHash = hash;
-          updateLocalStorageGames(this.zkAppAddress as string, {
+          updateLocalStorageGames(gameId as string, {
             cancelGameTransactionHash: hash,
           });
           const res = await axios.post(SERVER_URL + `/games/cancel/${gameId}`, {

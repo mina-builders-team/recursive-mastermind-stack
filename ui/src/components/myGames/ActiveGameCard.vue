@@ -141,6 +141,9 @@ const cancelGameById = async (gameId: string) => {
   backdrop-filter: blur(15px);
   box-shadow: 0px 3px 41px 56px $alpha-20-300-20 inset;
 }
+:deep(.is-loading) {
+  color:$snow-white;
+}
 </style>
 <style lang="scss">
 .cancel-btn-tooltip.el-popper.is-customized .el-popper__arrow::before {
