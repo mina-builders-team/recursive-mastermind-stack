@@ -57,7 +57,7 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const verificationKeys = await setupContract();
 
 // Connect to MongoDB
-connectDatabase();
+await connectDatabase();
 
 // Resume all in-progress games on startup by marking them as "on_chain" to continue execution on the blockchain
 await resumeOnChain();
@@ -125,6 +125,45 @@ queueEvents.on('failed', async ({ failedReason, jobId }) => {
     console.log('unknown error : ', err);
   }
 });
+
+
+// Queue to handle received proof
+const proofVerificationQueue = new Queue('proofVerificationQueue', {
+  connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
+  defaultJobOptions: {
+    attempts: 1,
+    removeOnComplete: true,
+    removeOnFail: {
+      age: 3600 * 24 * 30,
+    },
+  },
+});
+
+// Listens to events from the 'proofVerificationQueue' for monitoring.
+const proofVerificationQueueEvents = new QueueEvents('proofVerificationQueue', {
+  connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
+});
+
+// Broadcasts updated game state on job completed
+proofVerificationQueueEvents.on('completed', ({ returnvalue }: any) => {
+  if (returnvalue) {
+    const players = activePlayers.get(returnvalue.gameId) || new Set();
+    players.forEach((player: WebSocket) => {
+      player.send(JSON.stringify({ ...returnvalue, gameId: undefined }));
+    });
+  }
+});
+
+// Logs errors from job failures
+proofVerificationQueueEvents.on('failed', async ({ failedReason, jobId }) => {
+  try {
+    const error = JSON.parse(failedReason.substring(failedReason.indexOf('{')));
+    console.log(`Job ${jobId} failed with error : ${error?.statusText}`);
+  } catch (err) {
+    console.log('unknown error : ', err);
+  }
+});
+
 
 // Schedule recurring jobs:
 // - 'lobby-games': runs every minute to verify that all games created on the server
@@ -209,6 +248,7 @@ wss.on('connection', async (ws, req) => {
           activePlayers,
           ws,
           gameLifecycleQueue,
+          proofVerificationQueue,
           verificationKeys.stepProgramVerificationKey,
           roomName,
           gameCreationTransactionHash

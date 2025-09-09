@@ -4,9 +4,18 @@
  * with the blockchain and database for game lifecycle tasks.
  */
 
-import { Job } from 'bullmq';
-import { fetchAccount, Field, Mina, PrivateKey, PublicKey } from 'o1js';
+import { Job, Queue } from 'bullmq';
 import {
+  fetchAccount,
+  Field,
+  Mina,
+  Poseidon,
+  PrivateKey,
+  PublicKey,
+  verify,
+} from 'o1js';
+import {
+  Clue,
   MastermindZkApp,
   MAX_ATTEMPTS,
   StepProgramProof,
@@ -15,6 +24,7 @@ import dotenv from 'dotenv';
 import {
   createOrUpdateGame,
   deleteManyGames,
+  getGameById,
   getPendingGames,
   updateManyGames,
 } from './repositories/game.js';
@@ -345,3 +355,111 @@ async function updateBadges(player: IPlayer) {
   }
   player.badges = newBadges;
 }
+
+export const processReceivedProof = async (
+  job: Job,
+  gameLifecycleQueue: Queue
+) => {
+  try {
+    const {
+      gameId,
+      zkProof,
+      receivedRewardAmount,
+      playerPubKeyBase58,
+      vk,
+      roomName,
+      gameCreationTransactionHash,
+    } = job.data;
+    const game = await getGameById(gameId);
+
+    // Extract the last proof from game state, if it exists
+    let lastProof = game?.lastProof || null;
+    let lastTurnCount = null;
+    const gameRewardAmount = game?.rewardAmount || receivedRewardAmount;
+
+    // Extract turn count from last proof if available
+    if (lastProof) {
+      const proof = await StepProgramProof.fromJSON(JSON.parse(lastProof));
+      lastTurnCount = Number(proof.publicOutput.turnCount.toString());
+    }
+
+    // Variables for parsed proof and its properties
+    let turnCount, isSolved, receivedProof;
+
+    // Deserialize and verify the submitted zkProof
+    try {
+      receivedProof = await StepProgramProof.fromJSON(JSON.parse(zkProof));
+      const validProof = await verify(receivedProof, vk);
+      if (!validProof) throw new Error('Invalid zkProof!');
+    } catch (e) {
+      console.error('Error verifying proof:', e);
+      return { error: 'Invalid zkProof rejected!', gameId };
+    }
+    // Extract the turn count from the verified proof
+    const receivedTurnCount = Number(
+      receivedProof.publicOutput.turnCount.toString()
+    );
+    // Reject if the submitted proof does not represent the next turn
+    if (receivedTurnCount - (lastTurnCount || 0) !== 1) {
+      return { error: 'Outdated proof rejected!', gameId };
+    }
+    // Verify that the Code Breaker's public key matches the one stored on-chain
+    if (receivedTurnCount === 2) {
+      const receivedCodeBreaker =
+        receivedProof.publicOutput.codeBreakerId.toString();
+      if (
+        !game ||
+        !game.codeBreaker ||
+        Poseidon.hash(
+          PublicKey.fromBase58(game.codeBreaker).toFields()
+        ).toString() !== receivedCodeBreaker
+      ) {
+        return {
+          error:
+            'A player attempted to join as code breaker, but they were not authorized!',
+          gameId,
+        };
+      }
+    }
+    // If it's the code master's turn (odd turn), check if game is solved
+    if (receivedTurnCount % 2 !== 0 && receivedTurnCount > 1) {
+      turnCount = Number(receivedProof.publicOutput.turnCount.toString());
+      const deserializedClue = Clue.decompress(
+        receivedProof.publicOutput.lastcompressedClue
+      );
+      isSolved = deserializedClue.isSolved().toBoolean();
+    }
+
+    let winnerPublicKeyBase58 = null;
+    if (isSolved || (turnCount && turnCount > MAX_ATTEMPTS * 2)) {
+      winnerPublicKeyBase58 = isSolved ? game?.codeBreaker : game?.codeMaster;
+      await gameLifecycleQueue.add(
+        'sendFinalProof',
+        { gameId, zkProof, winnerPublicKeyBase58 },
+        { priority: 1 }
+      );
+    }
+
+    const timestamp = Date.now();
+    const updatedGame = await createOrUpdateGame({
+      _id: gameId,
+      lastProof: zkProof,
+      timestamp,
+      rewardAmount: gameRewardAmount,
+      codeMaster:
+        lastTurnCount === null && playerPubKeyBase58
+          ? playerPubKeyBase58
+          : undefined,
+      turnCount: receivedTurnCount,
+      winnerPublicKeyBase58: winnerPublicKeyBase58 || undefined,
+      status: winnerPublicKeyBase58 ? GameStatus.ENDED : undefined,
+      gameCreationTransactionHash:
+        lastTurnCount === null ? gameCreationTransactionHash : undefined,
+      roomName: lastTurnCount === null ? roomName : undefined,
+    });
+    return { zkProof, timestamp, game: updatedGame, gameId };
+  } catch (err) {
+    console.error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
+    throw new Error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
+  }
+};
