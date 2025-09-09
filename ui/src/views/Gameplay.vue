@@ -62,6 +62,20 @@ const {
 const gameId = route?.params?.id as string;
 const isGameAcceptedOnChain = ref(false);
 const isLoading = ref(true);
+const requestGameStart = async () => {
+  isGameAcceptedOnChain.value =
+    zkAppStates.value?.codeBreakerId &&
+    zkAppStates.value?.codeBreakerId !== '0';
+  console.log(isGameAcceptedOnChain.value);
+  if (
+    game.value?.status &&
+    ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
+    isGameAcceptedOnChain.value
+  ) {
+    await establishConnection();
+    startGame();
+  }
+};
 const initializeGame = async () => {
   if (compiled.value) {
     await initZkappInstance(gameId);
@@ -88,6 +102,7 @@ onMounted(async () => {
     }
   }
   isLoading.value = false;
+  await requestGameStart();
 });
 const isNotAvailableGame = computed(() => {
   return (
@@ -110,17 +125,7 @@ watch(
 watch(
   () => zkAppStates.value?.codeBreakerId,
   async () => {
-    isGameAcceptedOnChain.value =
-      zkAppStates.value?.codeBreakerId &&
-      zkAppStates.value?.codeBreakerId !== '0';
-    if (
-      game.value?.status &&
-      ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
-      isGameAcceptedOnChain.value
-    ) {
-      await establishConnection();
-      startGame();
-    }
+    await requestGameStart();
   }
 );
 
