@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Poseidon, PublicKey } from 'o1js';
 import { Game } from '@/types';
 import { getStoredGame, updateLocalStorageGames } from '@/utils';
+import { MAX_ALLOWED_GAMES } from '@/constants/config';
 
 export interface SignedData {
   publicKey: string;
@@ -167,6 +168,12 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         );
         if (!hasEnoughFunds) {
           throw new Error("You don't have enough funds!");
+        }
+        const countRes = await axios.get(SERVER_URL + `/games/count/ACTIVE`);
+        if (countRes?.data?.count > MAX_ALLOWED_GAMES) {
+          throw new Error(
+            `Lobby capacity exceeded: ${countRes.data.count} active games listed, maximum allowed is ${MAX_ALLOWED_GAMES}. Please try again later.`
+          );
         }
         this.stepDisplay = 'Creating a transaction...';
         this.zkAppAddress =
@@ -462,6 +469,14 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         );
         if (!hasEnoughFunds) {
           throw new Error("You don't have enough funds!");
+        }
+        const countRes = await axios.get(
+          SERVER_URL + `/games/count/IN_PROGRESS`
+        );
+        if (countRes?.data?.count > MAX_ALLOWED_GAMES) {
+          throw new Error(
+            `Cannot accept game: there are already ${countRes.data.count} games in progress (maximum allowed is ${MAX_ALLOWED_GAMES}). Please try again later.`
+          );
         }
         this.stepDisplay = 'Creating a transaction...';
         await this.zkappWorkerClient!.createAcceptGameTransaction(

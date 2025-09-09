@@ -223,3 +223,17 @@ export const getUserCreatedGames = async (playerId: string) => {
     .sort({ timestamp: -1 })
     .lean();
 };
+
+export const countGamesByStatus = async (
+  status: GameStatus
+): Promise<number> => {
+  try {
+    const twoHourAgo = Date.now() - 2 * 1000 * 60 * 60;
+    return await Game.countDocuments({
+      status,
+      timestamp: { $gte: twoHourAgo },
+    });
+  } catch (err) {
+    throw new Error('Error while counting games by status: ' + err);
+  }
+};

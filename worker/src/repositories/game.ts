@@ -54,18 +54,26 @@ export const getGameById = async (_id: string): Promise<IGame | null> => {
  * Retrieves all games that match the given status.
  *
  *
- * @returns {Promise<{_id:string;lastProof:string}[]>} An array of game documents with the specified status.
+ * @returns {Promise<{_id:string;lastProof:string;timestamp: number}[]>} An array of game documents with the specified status.
  * @throws If MongoDB query fails.
  */
-export const getPendingGames = async (): Promise<
-  { _id: string; lastProof: string }[]
-> => {
+export const getPendingGames = async (pagination: {
+  page: number;
+  pageSize: number;
+}): Promise<{ _id: string; lastProof: string; timestamp: number }[]> => {
+  const { page, pageSize } = pagination;
+  const skip = (page - 1) * pageSize;
   try {
-    const activeGames = await Game.find(
+    const pendingGames = await Game.find(
       { status: GameStatus.PENDING },
-      '_id lastProof'
-    ).lean();
-    return activeGames;
+      '_id lastProof timestamp'
+    )
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(pageSize)
+      .lean();
+
+    return pendingGames;
   } catch (err) {
     throw new Error('Error retrieving pending games: ' + err);
   }
@@ -104,5 +112,19 @@ export const deleteManyGames = async (
     return await Game.deleteMany({ _id: { $in: gamesIds } });
   } catch (err) {
     throw new Error('Error deleting game: ' + err);
+  }
+};
+
+export const countGamesByStatus = async (
+  status: GameStatus
+): Promise<number> => {
+  try {
+    const twoHourAgo = Date.now() - 2 * 1000 * 60 * 60;
+    return await Game.countDocuments({
+      status,
+      timestamp: { $gte: twoHourAgo },
+    });
+  } catch (err) {
+    throw new Error('Error while counting games by status: ' + err);
   }
 };

@@ -8,6 +8,7 @@
 
 import { Router, Request, Response } from 'express';
 import {
+  countGamesByStatus,
   createOrUpdateGame,
   getGameById,
   getInProgressGamesByPlayer,
@@ -318,6 +319,33 @@ router.get('/:id', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching game:', error);
     res.status(500).json({ message: 'Failed to fetch game' });
+  }
+});
+
+/**
+ * GET /games/count/:status
+ *
+ * Counts games by a given status.
+ *
+ * @route GET /games/count/:status
+ * @param {string} req.params.status - The game status
+ * @returns {number} 200 - The count of games with the given status
+ * @returns {Error} 400 - Invalid status
+ * @returns {Error} 500 - Failed to fetch count
+ */
+router.get('/count/:status', async (req: Request, res: Response) => {
+  try {
+    const status = req.params.status as GameStatus;
+    if (!Object.values(GameStatus).includes(status)) {
+      res.status(400).json({ message: 'Invalid game status' });
+      return;
+    }
+    const count = await countGamesByStatus(status);
+    res.status(200).json({ status, count });
+    return;
+  } catch (error) {
+    console.error('Error fetching games count by status:', error);
+    res.status(500).json({ message: 'Failed to fetch game count' });
   }
 });
 
