@@ -20,6 +20,7 @@ import {
   checkGameCreation,
   forfeitWin,
   initializeServerNonce,
+  processReceivedProof,
   sendFinalProof,
 } from './services.js';
 import { connectDatabase } from './databaseConnection.js';
@@ -32,6 +33,7 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const NETWORK_URL =
   process.env.MINA_NETWORK_URL || 'http://host.docker.internal:8080/graphql';
 const SERVER_PUBLIC_KEY = process.env.SERVER_PUBLIC_KEY as string;
+const WORKER_QUEUE = process.env.WORKER_QUEUE || 'gameLifecycleQueue';
 
 const network = Mina.Network({ mina: NETWORK_URL });
 Mina.setActiveInstance(network);
@@ -51,24 +53,29 @@ const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
 });
 let verificationKeyHash: Field;
 
+const MAX_JOBS = 50;
+let completedJobs = 0;
+
 /**
  * Initializes the worker by compiling zkApps, connecting to DB,
  * and initializing the nonce value used by the server account.
  */
 async function initialize() {
-  console.time('compiling');
-  await StepProgram.compile();
-  const { verificationKey } = await MastermindZkApp.compile();
-  verificationKeyHash = verificationKey.hash;
-  console.timeEnd('compiling');
-  connectDatabase();
-  await initializeServerNonce();
+  if (WORKER_QUEUE === 'gameLifecycleQueue') {
+    console.time('compiling');
+    await StepProgram.compile();
+    const { verificationKey } = await MastermindZkApp.compile();
+    verificationKeyHash = verificationKey.hash;
+    console.timeEnd('compiling');
+    await initializeServerNonce();
+  }
+  await connectDatabase();
 }
 
 initialize()
   .then(() => {
     const proofWorker = new Worker(
-      'gameLifecycleQueue',
+      WORKER_QUEUE,
       async (job: Job) => {
         try {
           if (job.name === 'checkGameCreation') {
@@ -79,6 +86,8 @@ initialize()
             return await forfeitWin(job);
           } else if (job.name === 'checkServerBalance') {
             await checkServerBalance();
+          } else if (job.name === 'processReceivedProof') {
+            return await processReceivedProof(job, gameLifecycleQueue);
           }
         } catch (err) {
           const error = err ?? new Error(`Unknown error in job ${job?.id}`);
@@ -92,12 +101,30 @@ initialize()
           port: REDIS_PORT,
           password: REDIS_PASSWORD,
         },
-        lockDuration: 300000,
+        lockDuration: 600000,
+        concurrency: WORKER_QUEUE === 'proofVerificationQueue' ? 6 : 1,
       }
     );
 
     proofWorker.on('completed', (job) => {
       console.log(`Job ${job.id} completed successfully.`);
+      if (WORKER_QUEUE === 'proofVerificationQueue') {
+        completedJobs++;
+        if (completedJobs >= MAX_JOBS) {
+          setImmediate(async () => {
+            try {
+              console.info(
+                'Worker reached max jobs limit, initiating graceful restart'
+              );
+              await proofWorker.close();
+              process.exit(0);
+            } catch (error) {
+              console.error(`Error during worker shutdown ${error}`);
+              process.exit(1);
+            }
+          });
+        }
+      }
     });
 
     proofWorker.on('failed', async (job, err) => {
@@ -108,32 +135,33 @@ initialize()
         `Job ${job?.id} failed: -------------------- `,
         process.env.name
       );
+      if (WORKER_QUEUE === 'gameLifecycleQueue') {
+        await checkServerBalance();
 
-      await checkServerBalance();
+        const isPaused = await gameLifecycleQueue.isPaused();
+        if (!isPaused) {
+          await redisClient.set('gameLifecycleQueue:paused', Date.now());
+          await gameLifecycleQueue.pause();
 
-      const isPaused = await gameLifecycleQueue.isPaused();
-      if (!isPaused) {
-        await redisClient.set('gameLifecycleQueue:paused', Date.now());
-        await gameLifecycleQueue.pause();
+          while ((await gameLifecycleQueue.getActiveCount()) > 0) {
+            await new Promise((res) => setTimeout(res, 1000 * 10));
+          }
+          const res = await fetchAccount({
+            publicKey: PublicKey.fromBase58(SERVER_PUBLIC_KEY),
+          });
+          const accountNonce = Number(res?.account?.nonce?.toString());
+          let lastNonce = Number(
+            await redisClient.get(`${SERVER_PUBLIC_KEY}:lastNonce`)
+          );
+          if (accountNonce - 1 > Number(lastNonce) || accountNonce === 0) {
+            lastNonce = accountNonce - 1;
+          }
+          await redisClient.set(`${SERVER_PUBLIC_KEY}:nonce`, lastNonce || 0);
 
-        while ((await gameLifecycleQueue.getActiveCount()) > 0) {
-          await new Promise((res) => setTimeout(res, 1000 * 10));
+          await gameLifecycleQueue.resume();
+          await redisClient.del('gameLifecycleQueue:paused');
+          console.log('Recover with nonce : ', lastNonce);
         }
-        const res = await fetchAccount({
-          publicKey: PublicKey.fromBase58(SERVER_PUBLIC_KEY),
-        });
-        const accountNonce = Number(res?.account?.nonce?.toString());
-        let lastNonce = Number(
-          await redisClient.get(`${SERVER_PUBLIC_KEY}:lastNonce`)
-        );
-        if (accountNonce - 1 > Number(lastNonce) || accountNonce === 0) {
-          lastNonce = accountNonce - 1;
-        }
-        await redisClient.set(`${SERVER_PUBLIC_KEY}:nonce`, lastNonce || 0);
-
-        await gameLifecycleQueue.resume();
-        await redisClient.del('gameLifecycleQueue:paused');
-        console.log('Recover with nonce : ', lastNonce);
       }
     });
     proofWorker.on('error', (err) => {

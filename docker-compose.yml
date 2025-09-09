@@ -60,8 +60,56 @@ services:
     ports:
       - '5540:5540'
     restart: unless-stopped
-
-  worker-dev-1:
+  worker-prod-lifecycle:
+    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    profiles: ['prod']
+    env_file:
+      - worker/.env
+    environment:
+      - name=lifecycle_worker_1
+      - WORKER_QUEUE=gameLifecycleQueue
+    depends_on:
+      - redis
+      - db
+    restart: always
+  worker-prod-verifier-1:
+    profiles: ['prod']
+    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    env_file:
+      - worker/.env
+    environment:
+      - name=verifier_worker_1
+      - WORKER_QUEUE=proofVerificationQueue
+    depends_on:
+      - redis
+      - db
+    restart: always  
+  
+  worker-prod-verifier-2:
+    profiles: ['prod']
+    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    env_file:
+      - worker/.env
+    environment:
+      - name=verifier_worker_2
+      - WORKER_QUEUE=proofVerificationQueue
+    depends_on:
+      - redis
+      - db
+    restart: always  
+  worker-prod-verifier-3:
+    profiles: ['prod']
+    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    env_file:
+      - worker/.env
+    environment:
+      - name=verifier_worker_3
+      - WORKER_QUEUE=proofVerificationQueue
+    depends_on:
+      - redis
+      - db
+    restart: always  
+  worker-dev-lifecycle:
     profiles: ['dev','test','simulate']
     build:
       context: .
@@ -71,18 +119,24 @@ services:
     env_file:
       - worker/.env
     environment:
-      - name=worker_1
+      - name=lifecycle_worker_1
+      - WORKER_QUEUE=gameLifecycleQueue
     depends_on:
       - redis
       - db
-    restart: always  
-  worker-prod-1:
-    image: ghcr.io/mina-builders-team/mastermind-worker:latest
-    profiles: ['prod']
+    restart: always
+  worker-dev-verifier-1:
+    profiles: ['dev','test','simulate']
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.dev
+    volumes:
+      - ./worker/src:/app/src
     env_file:
       - worker/.env
     environment:
-      - name=worker_1
+      - name=verifier_worker_1
+      - WORKER_QUEUE=proofVerificationQueue
     depends_on:
       - redis
       - db
