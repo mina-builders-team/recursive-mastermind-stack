@@ -108,3 +108,4 @@ export const roomNames = [
   'The Enigma Empire',
   'Code Craze Club',
 ];
+export const MAX_ALLOWED_GAMES = 30

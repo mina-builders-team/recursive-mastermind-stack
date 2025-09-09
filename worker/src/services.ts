@@ -22,6 +22,7 @@ import {
 } from '@navigators-exploration-team/mina-mastermind';
 import dotenv from 'dotenv';
 import {
+  countGamesByStatus,
   createOrUpdateGame,
   deleteManyGames,
   getGameById,
@@ -47,57 +48,75 @@ const TRANSACTION_FEE = 1e8;
 export const checkGameCreation = async (
   verificationKeyHash: Field
 ): Promise<void> => {
-  let pendingGames: { _id: string; lastProof: string }[] = [] as {
-    _id: string;
-    lastProof: string;
-  }[];
+  let pendingGames: { _id: string; lastProof: string; timestamp: number }[] =
+    [] as {
+      _id: string;
+      lastProof: string;
+      timestamp: number;
+    }[];
   let activeGames: string[] = [];
   let fakeGames: string[] = [];
+  let page = 0;
+  let reachedEnd = false;
+  const activeGamesCount = await countGamesByStatus(GameStatus.ACTIVE);
+  const MAX_ALLOWED_ACTIVE_GAMES = 60;
 
-  try {
-    // Get all games marked as PENDING in DB
-    pendingGames = await getPendingGames();
-  } catch (error) {
-    console.error('Error fetching games: ', error);
-    throw new Error(`Error fetching pending games: ${error}`);
-  }
-
-  // For each pending game, validate on-chain existence and integrity
-  const promises = pendingGames.map(async (game) => {
+  while (
+    activeGamesCount + activeGames.length < MAX_ALLOWED_ACTIVE_GAMES &&
+    !reachedEnd
+  ) {
     try {
-      const zkAppPublicKey = PublicKey.fromBase58(game._id);
-      let response = await fetchAccount({ publicKey: zkAppPublicKey });
+      page++;
+      const take =
+        MAX_ALLOWED_ACTIVE_GAMES - (activeGamesCount + activeGames.length);
+      pendingGames = await getPendingGames({ page, pageSize: take });
+    } catch (error) {
+      console.error('Error fetching games: ', error);
+      throw new Error(`Error fetching pending games: ${error}`);
+    }
+    // For each pending game, validate on-chain existence and integrity
+    const promises = pendingGames.map(async (game) => {
+      try {
+        const zkAppPublicKey = PublicKey.fromBase58(game._id);
+        let response = await fetchAccount({ publicKey: zkAppPublicKey });
+        // Detect stale games
+        const now = Date.now();
+        const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000;
 
-      // Proceed if the zkApp account is deployed
-      if (response.account !== undefined) {
-        const zkApp = new MastermindZkApp(zkAppPublicKey);
-        // Get on-chain solution hash
-        const solutionHash = await zkApp.solutionHash.get();
-        // Get solution hash from base proof stored in DB
-        const baseProof = await StepProgramProof.fromJSON(
-          JSON.parse(game.lastProof)
-        );
-        const baseProofSolutionHash =
-          baseProof.publicOutput.solutionHash.toString();
+        // Proceed if the zkApp account is deployed
+        if (response.account !== undefined) {
+          const zkApp = new MastermindZkApp(zkAppPublicKey);
+          // Get on-chain solution hash
+          const solutionHash = await zkApp.solutionHash.get();
+          // Get solution hash from base proof stored in DB
+          const baseProof = await StepProgramProof.fromJSON(
+            JSON.parse(game.lastProof)
+          );
+          const baseProofSolutionHash =
+            baseProof.publicOutput.solutionHash.toString();
 
-        // Get verification key from the on-chain contract
-        const vk = response.account?.zkapp?.verificationKey?.hash;
-        // Validate both solution hash and verification key hash
-        if (
-          vk?.toString() === verificationKeyHash.toString() &&
-          solutionHash?.toString() === baseProofSolutionHash
-        ) {
-          activeGames.push(game._id);
-        } else {
+          // Get verification key from the on-chain contract
+          const vk = response.account?.zkapp?.verificationKey?.hash;
+          // Validate both solution hash and verification key hash
+          if (
+            vk?.toString() === verificationKeyHash.toString() &&
+            solutionHash?.toString() === baseProofSolutionHash
+          ) {
+            activeGames.push(game._id);
+          } else {
+            fakeGames.push(game._id);
+          }
+        } else if (game?.timestamp < threeDaysAgo) {
           fakeGames.push(game._id);
         }
+      } catch (err) {
+        console.error(`Error on game ${game._id}: `, err);
+        throw new Error(`Error checking game ${game._id} creation: ${err}`);
       }
-    } catch (err) {
-      console.error(`Error on game ${game._id}: `, err);
-      throw new Error(`Error checking game ${game._id} creation: ${err}`);
-    }
-  });
-  await Promise.all(promises);
+    });
+    await Promise.all(promises);
+    reachedEnd = pendingGames.length === 0;
+  }
   if (activeGames.length) {
     // Mark validated games as ACTIVE in the DB
     await updateManyGames(activeGames, GameStatus.ACTIVE);

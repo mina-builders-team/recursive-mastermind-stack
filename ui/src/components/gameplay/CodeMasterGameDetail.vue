@@ -73,9 +73,9 @@
             </CopyToClipBoard>
             <ShareButton
               :message="`🧠 I just created a new Mastermind game on Web3, powered by zero-knowledge proofs & @MinaProtocol!
-                          Think you can crack my code? 🕵️‍♂️
-                          Join now as the Code Breaker 👇
-                          🎯 https://www.minamastermind.com/${game?._id}`"
+Think you can crack my code? 🕵️‍♂️
+Join now as the Code Breaker 👇
+🎯 https://www.minamastermind.com/${game?._id}`"
               hashtag="MinaProtocol ,zkApps ,Web3Gaming ,ZeroKnowledge ,MastermindGame"
               btnClass="radius-10 bg-snow-white color-900 flex-1"
             />
@@ -219,6 +219,6 @@ watch(
   box-shadow: 0px 2px 30px 0px rgba(255, 255, 255, 0.4) inset;
 }
 :deep(.is-loading) {
-  color:$snow-white;
+  color: $snow-white;
 }
 </style>
