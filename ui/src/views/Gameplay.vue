@@ -66,7 +66,6 @@ const requestGameStart = async () => {
   isGameAcceptedOnChain.value =
     zkAppStates.value?.codeBreakerId &&
     zkAppStates.value?.codeBreakerId !== '0';
-  console.log(isGameAcceptedOnChain.value);
   if (
     game.value?.status &&
     ['ACTIVE', 'PENDING', 'CANCELLED'].includes(game.value?.status) &&
