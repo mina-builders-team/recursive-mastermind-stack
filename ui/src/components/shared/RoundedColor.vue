@@ -38,7 +38,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { nextTick, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { availableColors, initialColor } from '@/constants/colors';
 import { ElMessage } from 'element-plus';
 
@@ -68,6 +68,10 @@ const props = defineProps({
   index: {
     type: Number,
     required: false,
+  },
+  isFocusedOnMount: {
+    type: Boolean,
+    default: false,
   },
 });
 const setCaretToEnd = () => {
@@ -125,6 +129,12 @@ const handleDelete = () => {
     nextTick(() => emit('focusPrev'));
   }
 };
+
+onMounted(() => {
+  if (props.isFocusedOnMount) {
+    focusInput();
+  }
+});
 </script>
 <style lang="scss" scoped>
 @import '@/style';

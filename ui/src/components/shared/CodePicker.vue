@@ -12,6 +12,7 @@
               :value="secret.value"
               :bgColor="secret.color"
               :index="index"
+              :isFocusedOnMount="index === focusIndex"
               @input="handleSetSecretCode($event, index)"
               @focusNext="focusNextInput(index)"
               @focusPrev="focusPrevInput(index)"
@@ -63,6 +64,10 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+  focusIndex: {
+    type: Number,
+    default: -1,
   },
 });
 const emit = defineEmits(['change']);

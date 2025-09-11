@@ -1,6 +1,7 @@
 <template>
   <div class="w-100 h-100 d-flex flex-column align-items-center">
     <WelcomePage v-if="step === 0" @next="handleNextStep" />
+    <Rules v-if="step === 1" @next="handleNextStep" />
     <div class="h-100 w-100 d-flex justify-content-center mt-5">
       <Tutorial
         :title="greenClue.title"
@@ -10,8 +11,9 @@
         :clues="greenClue.clues"
         :initialGuess="greenClue.initialGuess"
         :tooltips="greenClue.tooltips"
+        :focusIndex="3"
         @next="handleNextStep"
-        v-if="step === 1"
+        v-if="step === 2"
       >
         <template #tryAgainText>
           You're so close! Remember: 5, 6, 7, and 0 are not in the code at all.
@@ -26,8 +28,9 @@
         :guesses="whiteClue.guesses"
         :clues="whiteClue.clues"
         :tooltips="whiteClue.tooltips"
+        :focusIndex="0"
         @next="handleNextStep"
-        v-else-if="step === 2"
+        v-else-if="step === 3"
       >
         <template #tooltip>
           <ol>
@@ -62,8 +65,9 @@
         :guesses="finalClue.guesses"
         :clues="finalClue.clues"
         :tooltips="finalClue.tooltips"
+        :focusIndex="0"
         @next="handleNextStep"
-        v-if="step === 3"
+        v-if="step === 4"
       >
         <template #tooltip>
           <ol>
@@ -112,8 +116,8 @@
           </div>
         </template>
       </Tutorial>
-      <BenchmarkResult @next="handleNextStep" v-if="step === 4" />
-      <FinalOnBoarding @next="goToPlay" v-if="step === 5" />
+      <BenchmarkResult @next="handleNextStep" v-if="step === 5" />
+      <FinalOnBoarding @next="goToPlay" v-if="step === 6" />
     </div>
   </div>
 </template>
@@ -132,6 +136,7 @@ import FinalOnBoarding from '@/components/onboarding/FinalOnBoarding.vue';
 import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 import WelcomePage from '@/components/onboarding/welcomePage.vue';
+import Rules from '@/components/onboarding/Rules.vue';
 
 const route = useRoute();
 const router = useRouter();

@@ -369,6 +369,7 @@ async function updateBadges(player: IPlayer) {
 
   if (betterPlayersCount < 100) {
     newBadges.push('Top 100');
+    newBadges.push('Top 1000');
   } else if (betterPlayersCount < 1000) {
     newBadges.push('Top 1000');
   }

@@ -22,7 +22,7 @@ export interface IPlayer extends Document {
 
 const PlayerSchema = new Schema<IPlayer>(
   {
-    _id: { type: String, unique: true, required: true },
+    _id: { type: String, required: true },
     gamesPlayed: { type: Number, default: 0 },
     winsAsCodeBreaker: { type: Number, default: 0 },
     winsAsCodeMaster: { type: Number, default: 0 },
