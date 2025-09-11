@@ -137,6 +137,7 @@
             v-for="game in lobbyData?.filteredActiveGames"
             :key="game._id"
             :game="game"
+            :currentUser="publicKeyBase58"
           />
         </div>
       </div>

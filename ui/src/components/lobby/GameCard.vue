@@ -10,8 +10,13 @@
             popper-class="game-status-tooltip"
           >
             <template #content>
-              <div class="fw-600">Game May Starts Soon</div>
-              <div class="fs-12">Please look another game</div>
+              <div class="fw-600">Game May Start Soon</div>
+              <div class="fs-12">
+                <span v-if="game?.codeMaster === currentUser"
+                  >The game has been accepted</span
+                >
+                <span v-else>Please try another game</span>
+              </div>
             </template>
             <div class="d-flex align-items-center gap-1 cursor-pointer">
               <div class="status waiting"></div>
@@ -60,6 +65,10 @@ dayjs.extend(relativeTime);
 const props = defineProps({
   game: {
     type: Object,
+    required: true,
+  },
+  currentUser: {
+    type: String,
     required: true,
   },
 });
