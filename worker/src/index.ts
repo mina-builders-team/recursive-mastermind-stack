@@ -102,7 +102,7 @@ initialize()
           password: REDIS_PASSWORD,
         },
         lockDuration: 600000,
-        concurrency: WORKER_QUEUE === 'proofVerificationQueue' ? 6 : 1,
+        concurrency: WORKER_QUEUE === 'proofVerificationQueue' ? 8 : 1,
       }
     );
 

@@ -11,6 +11,7 @@
       :editable="editable"
       @change="handleSetColor"
       :editOnly="editOnly"
+      :focusIndex="focusIndex"
     />
     <div class="btn-container w-100 h-100" v-if="showBtn">
       <el-tooltip
@@ -147,6 +148,10 @@ const props = defineProps({
     type: String,
     required: false,
     default: '',
+  },
+    focusIndex: {
+    type: Number,
+    default: -1,
   },
 });
 const emit = defineEmits(['change', 'turnPlayed']);

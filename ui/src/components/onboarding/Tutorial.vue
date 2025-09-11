@@ -138,6 +138,7 @@
         isCurrentRound
         currentUserRole="CODE_BREAKER"
         @turnPlayed="submitGuess"
+        :focusIndex="focusIndex"
       />
 
       <Button
@@ -188,6 +189,10 @@ const props = defineProps({
     type: Array<AvailableColor>,
     required: false,
     default: [initialColor, initialColor, initialColor, initialColor],
+  },
+  focusIndex: {
+    type: Number,
+    default: -1,
   },
 });
 const emit = defineEmits(['next']);

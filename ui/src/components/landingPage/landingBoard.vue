@@ -38,6 +38,7 @@
           currentUserRole="CODE_BREAKER"
           :isCodeMasterTurn="false"
           :isOldRound="row < lastGuessIndex"
+          :focusIndex="row === 0 ? 0 : -1"
         />
       </div>
     </div>
