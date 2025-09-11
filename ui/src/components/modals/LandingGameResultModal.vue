@@ -16,13 +16,22 @@
           Let's begin the tutorial and learn the winning strategies.
         </div>
       </div>
-      <Button
-        class="radius-10 w-100 color-black"
-        size="large"
-        @click="startOnboarding"
-      >
-        Go to Tutorial!</Button
-      >
+      <div class="d-flex gap-3">
+        <Button
+          class="btn-cta3 border-alpha-50-300-50 color-snow-white"
+          size="large"
+          @click="returnToLobby"
+        >
+          Go to Lobby
+        </Button>
+        <Button
+          class="radius-10 w-100 color-black"
+          size="large"
+          @click="startOnboarding"
+        >
+          Go to Tutorial!</Button
+        >
+      </div>
     </div>
   </Modal>
 </template>
@@ -39,6 +48,9 @@ defineProps({
 const router = useRouter();
 const startOnboarding = () => {
   router.push({ name: 'onboarding' });
+};
+const returnToLobby = () => {
+  router.push({ name: 'lobby' });
 };
 </script>
 <style lang="scss" scoped></style>
