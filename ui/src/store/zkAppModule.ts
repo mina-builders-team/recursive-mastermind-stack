@@ -199,7 +199,11 @@ export const useZkAppStore = defineStore('useZkAppModule', {
           await this.zkappWorkerClient!.getTransactionJSON();
 
         this.stepDisplay = 'Requesting send transaction...';
-        await new Promise((res) => setTimeout(res, 5000));
+        let attempts = 0;
+        while (!this.webSocketInstance?.connected && attempts < 3) {
+          attempts++;
+          await new Promise((res) => setTimeout(res, 5000));
+        }
         if (!this.webSocketInstance?.connected) {
           throw new Error(
             'we are currently experiencing some problems! please come back later!'
