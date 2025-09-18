@@ -1,10 +1,11 @@
 <template>
   <Modal class="w-450">
     <div class="color-snow-white d-flex flex-column gap-3">
-      <div class="fw-700 fs-24">Playing On Mainnet</div>
+      <div class="fw-700 fs-24">Playing On {{ MINA_NETWORK }}</div>
       <div class="fs-12 mt-4">
         Since the server is down, instead of playing the game on your browser
-        with ZKP security & privacy you will play the game on Mainnet!
+        with ZKP security & privacy you will play the game on
+        {{ MINA_NETWORK }}!
       </div>
       <div class="d-flex w-100 justify-content-between">
         <div
@@ -99,6 +100,8 @@ const { showMessage } = useCustomMessage();
 const MINA_APPROX_SLOT_DURATION = Number(
   import.meta.env.VITE_MINA_APPROX_SLOT_DURATION
 );
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
+
 const timerStartTime = ref(Date.now());
 
 const submitLastProof = async () => {

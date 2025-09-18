@@ -19,7 +19,7 @@
             <inline-svg src="/icons/binary.svg"></inline-svg>
           </div>
           <div class="color-snow-white fs-12 mt-2">
-            Sets a secret combination.
+            Sets a secret code
           </div>
         </div>
         <div
@@ -33,7 +33,7 @@
             </div>
             <inline-svg src="/icons/dice.svg"></inline-svg>
           </div>
-          <div class="snow-white fs-12 mt-2">Tries to guess it</div>
+          <div class="snow-white fs-12 mt-2">Tries to guess the secret code</div>
         </div>
       </div>
     </div>
@@ -41,32 +41,31 @@
     <ol class="mt-2">
       <li>The Code Breaker makes a guess.</li>
       <li>
-        The Code Master immediately provides a <em>clue</em> to give feedback on
-        that guess.
+        The Code Master provides a <em>clue</em> in response to the guess.
       </li>
       <li>
-        Based on the clue, the Code Breaker adjusts their next guess and tries
-        again.
-      </li>
-      <li>
-        This continues until the Code Breaker finds the exact secret code or
-        runs out of attempts.
+        Based on the clue, the Code Breaker adjusts their strategy and attempts
+        another guess.
       </li>
     </ol>
     <div class="d-flex flex-column align-items-start w-100">
       <strong class="mb-2 fs-16">Example:</strong>
-      <div class="w-100 d-flex flex-column align-items-center justify-content-start gap-3">
+      <div
+        class="w-100 d-flex flex-column align-items-center justify-content-start gap-3"
+      >
         <div class="d-flex gap-2 align-items-center w-100">
           <div class="my-2 label">Secret Code:</div>
           <CodePicker :editable="false" :secret="secret" />
         </div>
         <div class="d-flex gap-2 align-items-center w-100">
-          <div class="my-2 label">Guess And Clue:</div>
+          <div class="my-2 label">Guess and Clue:</div>
           <CodePicker :editable="false" :secret="guess" />
           <Clue :clue="[hitClue, hitClue, blowClue, missClue]" />
         </div>
       </div>
-      <div class="mt-2">Result: 2 hits (green), 1 blow (white) and 1 miss (black).</div>
+      <div class="mt-2">
+        Result: 2 hits (green), 1 blow (white) and 1 miss (black).
+      </div>
       <div class="mt-3">
         The game continues with alternating guesses and clues until the Code
         Breaker achieves 4 hits and uncovers the secret combination or fails to
@@ -74,7 +73,11 @@
       </div>
     </div>
 
-    <Button size="large" class="color-black radius-10 w-100 mt-3" @click="goToPlay">
+    <Button
+      size="large"
+      class="color-black radius-10 w-100 mt-3"
+      @click="goToPlay"
+    >
       <inline-svg src="/icons/rocket.svg" class="me-2" /> Next
     </Button>
   </div>

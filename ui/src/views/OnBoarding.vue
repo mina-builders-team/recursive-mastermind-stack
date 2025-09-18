@@ -39,10 +39,9 @@
               numbers 1, 2, 3, and 4.
             </li>
             <li>
-              Now, compare the last two rows. The only change was swapping 4 and
-              3, and this made the single green clue disappear. That tells you
-              everything you need to know about where the number 4 truly
-              belongs.
+              Now look at the last two rows: the only change was swapping 4 and
+              3, which made the single green clue disappear. This reveals
+              exactly where the number 4 belongs.
             </li>
           </ol>
         </template>
@@ -70,7 +69,7 @@
         v-if="step === 4"
       >
         <template #tooltip>
-          <ol>
+          <ul>
             <li>
               Tip 1: Your score is always the same. This proves every guess has
               exactly two correct numbers.
@@ -87,7 +86,7 @@
               Tip 4: Your goal is to find the four correct numbers first. Then,
               use any row's clues to arrange them.
             </li>
-          </ol>
+          </ul>
         </template>
 
         <template #tryAgainText>
@@ -110,7 +109,7 @@
               </ul>
             </div>
             <div>
-              3. Conclusion: The secret code includes 1, 2, 3, 7. Others like 5
+              3. Conclusion: The secret code includes 1, 2, 3, 7. Accordingly, 5
               and 6 are incorrect.
             </div>
           </div>
@@ -118,6 +117,13 @@
       </Tutorial>
       <BenchmarkResult @next="handleNextStep" v-if="step === 5" />
       <FinalOnBoarding @next="goToPlay" v-if="step === 6" />
+    </div>
+    <div class="skip-tutorial">
+      <Button
+        class="btn-cta3 color-snow-white border-alpha-50-300-50 radius-60 d-flex align-items-center px-4"
+        @click="goToPlay"
+        >Skip Tutorial</Button
+      >
     </div>
   </div>
 </template>
@@ -127,7 +133,7 @@ import Tutorial from '@/components/onboarding/Tutorial.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 
 const { startBenchmark } = useZkAppStore();
-const { compiled } = storeToRefs(useZkAppStore());
+const { compiled, benchmark, benchmarkStarted } = storeToRefs(useZkAppStore());
 const emit = defineEmits(['end']);
 const hitClue = cluesColors.find((c) => c.value === 2)!;
 import { onMounted, ref, watch } from 'vue';
@@ -137,6 +143,7 @@ import { storeToRefs } from 'pinia';
 import { useRoute, useRouter } from 'vue-router';
 import WelcomePage from '@/components/onboarding/welcomePage.vue';
 import Rules from '@/components/onboarding/Rules.vue';
+import Button from '@/components/shared/Button.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -144,7 +151,7 @@ const blowClue = cluesColors.find((c) => c.value === 1)!;
 const missClue = cluesColors.find((c) => c.value === 0)!;
 
 const greenClue = {
-  title: 'Tutorial 1: The Green Clue',
+  title: 'Tutorial 1: Interpreting The Green Clue',
   type: 'GREEN',
   secret: [
     availableColors[1],
@@ -190,7 +197,7 @@ const greenClue = {
   ],
 };
 const whiteClue = {
-  title: 'Tutorial 2: The White Clue',
+  title: 'Tutorial 2: Interpreting The White Clue',
   type: 'WHITE',
   secret: [
     availableColors[4],
@@ -267,6 +274,7 @@ const handleNextStep = () => {
   step.value += 1;
 };
 const goToPlay = () => {
+  localStorage.setItem('completedOnboarding', 'true');
   const redirectPath = route.query.redirect as string;
   if (redirectPath) {
     router.push(redirectPath);
@@ -277,17 +285,24 @@ const goToPlay = () => {
   emit('end');
 };
 onMounted(async () => {
-  if (compiled.value) {
+  if (compiled.value && !benchmark.value && !benchmarkStarted.value) {
     await startBenchmark();
   }
 });
 watch(
   () => compiled.value,
   async () => {
-    if (compiled.value) {
+    if (compiled.value && !benchmark.value && !benchmarkStarted.value) {
       await startBenchmark();
     }
   }
 );
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.skip-tutorial {
+  position: absolute;
+  right: 50px;
+  top: 50px;
+  padding: 30px;
+}
+</style>

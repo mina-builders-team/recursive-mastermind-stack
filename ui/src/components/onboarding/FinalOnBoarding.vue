@@ -33,11 +33,13 @@
         <div class="snow-white fs-12 mt-2">Create codes. Earn Mina.</div>
       </div>
     </div>
-    <div class="d-flex">Now it's time to play for real rewards on Mainnet!</div>
-    <div class="my-4">Here is mainnet rules:</div>
+    <div class="d-flex">
+      Now it's time to play for real rewards on {{ MINA_NETWORK }}!
+    </div>
+    <div class="my-4">Here are the {{ MINA_NETWORK }} rules:</div>
     <div class="d-flex gap-2 align-items-center my-3">
       <inline-svg src="/icons/alarm.svg"></inline-svg>
-      <div>3 Minute Turn Timer</div>
+      <div>3-Minute Turn Timer</div>
     </div>
     <div class="d-flex gap-2 align-items-center my-3">
       <inline-svg src="/icons/ordered-list.svg"></inline-svg>
@@ -48,9 +50,9 @@
       <div>Numbers 0-7, No Repeats</div>
     </div>
     <div class="fw-600">
-      Note: Unlike the Web2 version, the Code Master must be present each turn
-      to give a clue using the Give Clue button. Missing a turn without giving a
-      clue will result in a penalty.
+      Note: unlike a typical Mastermind game played on the web, the Code Master
+      must be present each turn to give a clue using the Give Clue button.
+      Missing a turn without giving a clue will result in a penalty.
     </div>
     <div>
       <div class="my-4 fs-12 info-container">
@@ -70,9 +72,9 @@ import Button from '@/components/shared/Button.vue';
 import confetti from 'canvas-confetti';
 import { onMounted } from 'vue';
 
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 const emit = defineEmits(['next']);
 const goToPlay = () => {
-  localStorage.setItem('completedOnboarding', 'true');
   emit('next');
 };
 const startConfettiCelebration = () => {

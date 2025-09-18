@@ -26,14 +26,14 @@
                 You are playing this game on a server without compromising
                 decentralization or privacy!
               </span>
-              <span v-else> You are playing on mainnet! </span>
+              <span v-else> You are playing on {{ MINA_NETWORK }}! </span>
             </div>
           </div>
         </template>
         <div class="d-flex align-items-center gap-2">
           <div class="online bg-green"></div>
           <span v-if="!isPlayingOnChain">Server</span>
-          <span v-else>Mainnet</span>
+          <span v-else>{{ MINA_NETWORK }}</span>
         </div>
       </el-tooltip>
     </div>
@@ -56,6 +56,7 @@
 </template>
 <script setup lang="ts">
 import RoundedColor from './RoundedColor.vue';
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 
 defineProps({
   rewardAmount: {

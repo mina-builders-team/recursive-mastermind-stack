@@ -198,7 +198,7 @@ await gameLifecycleQueue.upsertJobScheduler(
 
 // WebSocket Handler
 wss.on('connection', async (ws, req) => {
-  const ip = req.socket.remoteAddress || 'unknown';
+  const ip = req.headers["cf-connecting-ip"] as string || req.socket.remoteAddress || 'unknown';
   try {
     await wsConnectionLimiter.consume(ip);
   } catch {
