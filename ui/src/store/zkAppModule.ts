@@ -73,6 +73,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       guessProofDuration: number;
       clueProofDuration: number;
     },
+    benchmarkStarted: false as Boolean,
   }),
   getters: {},
   actions: {
@@ -688,6 +689,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
       this.lastTurnTransactionHash = hash;
     },
     async startBenchmark() {
+      this.benchmarkStarted = true;
       this.benchmark = await this.zkappWorkerClient!.benchmark(
         import.meta.env.VITE_SERVER_PUBLIC_KEY
       );
@@ -698,6 +700,7 @@ export const useZkAppStore = defineStore('useZkAppModule', {
         this.benchmark?.createGameProofDuration
       ) {
         localStorage.setItem('benchmark', JSON.stringify(this.benchmark));
+        this.benchmarkStarted = false;
       }
     },
     async establishConnection() {

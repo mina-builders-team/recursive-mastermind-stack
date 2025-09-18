@@ -86,7 +86,7 @@
             <span v-if="isCurrentUserTurn">Your Turn</span
             ><span v-else>Opponents Turn</span> .
           </div>
-          <div class="color-gray">Playing on Mainnet.</div>
+          <div class="color-gray">Playing on {{ MINA_NETWORK }}.</div>
         </div>
         <div class="d-flex align-items-center gap-2">
           <div class="timer-status bg-green"></div>
@@ -103,6 +103,7 @@
 </template>
 <script setup lang="ts">
 import Timer from '../shared/Timer.vue';
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 
 const emit = defineEmits(['timeEnded']);
 defineProps({

@@ -37,7 +37,7 @@
       class="default-border radius-10 bg-alpha-50-900-50 d-flex gap-3 w-100 justify-content-center align-items-center my-2 py-2"
     >
       <inline-svg src="/icons/key.svg" />
-      <div>Numbers are 0-7. No repeats.</div>
+      <div>Numbers range from 0–7. No duplicates allowed.</div>
     </div>
     <div class="default-border radius-10 bg-alpha-50-900-50 d-flex w-100 mt-3">
       <div class="w-100 p-2">
@@ -71,7 +71,7 @@
                 class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-4 py-3 w-100 color-gray"
               >
                 <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
-                Hover For Tip
+                Hover For Hint
               </div>
             </el-tooltip>
           </div>
@@ -91,7 +91,7 @@
             class="d-flex align-items-center justify-content-center p-1 p-2 p-5-10 gray fs-10 px-3 py-3 w-100 color-gray"
           >
             <inline-svg src="/icons/hover.svg" class="me-1"></inline-svg>
-            Hover For Tip
+            Hover For Hint
           </div>
         </el-tooltip>
       </div>

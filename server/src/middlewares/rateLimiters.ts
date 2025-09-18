@@ -29,7 +29,7 @@ export const wsActionLimiter = new RateLimiterRedis({
 
 // Protect HTTP routes
 export async function rateLimitMiddleware(req: any, res: any, next: any) {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+  const ip = req.headers["cf-connecting-ip"] as string || req.ip || req.connection.remoteAddress || 'unknown';
   try {
     await httpRateLimiter.consume(ip);
     next();

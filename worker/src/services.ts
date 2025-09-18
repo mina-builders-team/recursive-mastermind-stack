@@ -289,6 +289,7 @@ export async function updatePlayerStatsFromGame(game: IGame) {
     breaker.gamesPlayed += 1;
     if (isFirstGame(breaker.lastGameDate)) {
       breaker.totalScore += 25;
+      breaker.lastGameDate = new Date();
     }
     if (isWin(game.codeBreaker)) {
       breaker.winsAsCodeBreaker += 1;
@@ -321,6 +322,7 @@ export async function updatePlayerStatsFromGame(game: IGame) {
   master.createdGames += 1;
   if (isFirstGame(master.lastGameDate)) {
     master.totalScore += 25;
+    master.lastGameDate = new Date();
   }
   if (isWin(game.codeMaster)) {
     master.winsAsCodeMaster += 1;
