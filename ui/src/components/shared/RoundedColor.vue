@@ -26,7 +26,6 @@
       <el-input
         :model-value="value === 9 ? null : value"
         :class="['radius-10 code-input michroma', { isFocused: isFocused }]"
-        maxlength="1"
         @input="handleInput"
         @keydown.delete="handleDelete"
         ref="inputRef"
@@ -105,7 +104,8 @@ const focus = () => {
 };
 defineExpose({ focus });
 
-const handleInput = (value: string) => {
+const handleInput = (lastValue: string) => {
+  const value = lastValue.slice(-1);
   const selectedColor = availableColors.find(
     (c) => c.value === parseInt(value, 10)
   );
