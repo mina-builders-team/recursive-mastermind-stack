@@ -32,7 +32,13 @@
         @focus="isFocused = true"
         @blur="isFocused = false"
       />
-      <div v-if="isFocused && value === 9" class="horizontal-caret"></div>
+      <div
+        v-if="isFocused"
+        :class="[
+          'horizontal-caret',
+          { 'empty-input': value === 9, 'full-input': value !== 9 },
+        ]"
+      ></div>
     </div>
   </div>
 </template>
@@ -219,13 +225,18 @@ onMounted(() => {
 
 .horizontal-caret {
   position: absolute;
-  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
   background-color: #aeb4a3;
   animation: blink 1s step-start infinite;
+}
+.empty-input {
+  bottom: 18px;
+}
+.full-input {
+  bottom: 11px;
 }
 
 @keyframes blink {
