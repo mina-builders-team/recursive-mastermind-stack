@@ -120,6 +120,7 @@
       >
       <Button
         :loading="loading"
+        :disabled="acceptedGame?.lastAcceptTransactionHash && !isAcceptGameTimeElapsed"
         v-if="isGameReady"
         size="large"
         class="fw-400 color-black bg-snow-white search-btn"
