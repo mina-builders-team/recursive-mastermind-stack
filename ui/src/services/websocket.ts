@@ -47,6 +47,7 @@ export class WebSocketService {
             setTurnPlayed(false);
             updateLocalStorageGames(zkAppAddress as string, {
               lastProof: data.zkProof,
+              status: data?.game?.status ?? data?.game?.status,
             });
             if (this.onMessageCallback && !isPlayingOnChain)
               this.onMessageCallback(data);
