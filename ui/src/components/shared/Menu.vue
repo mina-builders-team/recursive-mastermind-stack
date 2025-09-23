@@ -48,11 +48,16 @@ const links = [
   { title: 'MyGames', name: 'my-games' },
   { title: 'Learn', name: 'onboarding' },
   { title: 'Rank', name: 'leaderboard' },
+  { title: 'Tutorial', name: 'tutorial' },
 ];
 const handleLinkClick = (item: { title: string; name: string }) => {
-  router.push({
-    name: item.name,
-  });
+  if (item.name === 'tutorial') {
+    window.open('https://mastermind-demo.pages.dev/', '_blank');
+  } else {
+    router.push({
+      name: item.name,
+    });
+  }
 };
 const handleConnect = async () => {
   if (!publicKeyBase58.value) {
