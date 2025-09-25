@@ -23,14 +23,14 @@ Join now as the Code Breaker 👇
         hashtag="MinaProtocol ,zkApps ,Web3Gaming ,ZeroKnowledge ,MastermindGame"
       >
         <inline-svg
-          class="color-gray-passive cursor-pointer share-btn"
+          class="color-gray cursor-pointer share-btn"
           src="/icons/share.svg"
         ></inline-svg>
       </ShareButton>
 
       <div class="d-flex gap-2 align-items-center">
         <div class="mt-1">
-          <CopyToClipBoard color="#27282a" :text="game?._id || ''" />
+          <CopyToClipBoard color="#98989d" :text="game?._id || ''" />
         </div>
         <div class="fs-12 color-snow-white game-id">
           ID: {{ formatAddress(game?._id) }}
@@ -48,7 +48,7 @@ Join now as the Code Breaker 👇
       v-if="game?.cancelTransactionHash"
     >
       <div class="mt-1">
-        <CopyToClipBoard color="#27282a" :text="game?._id || ''" />
+        <CopyToClipBoard color="#98989d" :text="game?._id || ''" />
       </div>
       <div class="fs-12 color-snow-white game-id">
         <a

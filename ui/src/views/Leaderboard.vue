@@ -55,7 +55,7 @@
         <div class="d-flex gap-5">
           <div>RANK</div>
           <div class="me-4">CODE MASTER</div>
-          <div>TITLE</div>
+          <div class="title">TITLE</div>
         </div>
         <div class="d-flex gap-5">
           <div>UNBREAKEN</div>
@@ -184,5 +184,8 @@ onMounted(async () => {
 .infinite-list {
   overflow-y: scroll;
   height: calc(80vh - 200px);
+}
+.title {
+  min-width: 125px;
 }
 </style>

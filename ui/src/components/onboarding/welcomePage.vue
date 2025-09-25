@@ -4,7 +4,7 @@
   >
     <div class="fw-700 fs-24 text-center">Welcome To Mastermind On Mina!</div>
     <div class="fs-14 color-snow-white">
-      <div class="mt-3">This isn't standard Mastermind.</div>
+      <div class="mt-3 fw-600">This isn't standard Mastermind.</div>
       <div class="mt-4">
         This is where strategy meets privacy, powered by ZK. We'll make you an
         expert codebreaker in just 3 simple steps.

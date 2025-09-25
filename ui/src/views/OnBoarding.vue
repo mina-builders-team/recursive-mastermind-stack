@@ -301,8 +301,8 @@ watch(
 <style lang="scss" scoped>
 .skip-tutorial {
   position: absolute;
-  right: 50px;
-  top: 50px;
-  padding: 30px;
+  right: 30px;
+  top: 30px;
+  padding: 10px;
 }
 </style>
