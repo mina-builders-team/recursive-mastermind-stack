@@ -122,6 +122,7 @@
           </div>
         </div>
         <div
+          v-if="myGames?.playedGames?.length"
           class="infinite-list"
           v-infinite-scroll="loadMorePlayedGames"
           :infinite-scroll-disabled="isLoading || reachedEnd"
@@ -148,6 +149,19 @@
             />
           </div>
         </div>
+        <div
+          v-if="isLoading"
+          class="w-100 d-flex align-items-center justify-content-center mt-4"
+        >
+          <DotsLoader />
+        </div>
+        <div
+          v-if="!isLoading && !myGames?.playedGames?.length"
+          class="bg-alpha-8-300-8 color-snow-white ps-3 py-3 d-flex justify-content-center"
+        >
+          <div class="fw-600">No games available at the moment.</div>
+        </div>
+        <div v-if="!myGames?.playedGames?.length" class="infinite-list"></div>
       </div>
     </div>
     <CreateGameModal
@@ -169,6 +183,7 @@ import CreateGameModal from '@/components/modals/CreateGameModal.vue';
 import ActiveGameCard from '@/components/myGames/ActiveGameCard.vue';
 import { Game } from '@/types';
 import { useCustomMessage } from '@/composables/useCustomMessage';
+import DotsLoader from '@/components/shared/DotsLoader.vue';
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
@@ -242,19 +257,15 @@ const filterByRole = async (
 const loadMorePlayedGames = async () => {
   if (isLoading.value || reachedEnd.value) return;
 
-  isLoading.value = true;
-
   await getPlayedGames(true);
 
   const totalLoaded = myGames.value.playedGames.length;
   if (totalLoaded >= myGames.value.totalPlayedCount) {
     reachedEnd.value = true;
   }
-
-  currentPage.value++;
-  isLoading.value = false;
 };
 const getPlayedGames = async (onlyPlayedGames?: boolean) => {
+  isLoading.value = true;
   if (currentPage.value === 1) {
     myGames.value.playedGames = [];
   }
@@ -287,6 +298,8 @@ const getPlayedGames = async (onlyPlayedGames?: boolean) => {
       };
     }
   }
+  currentPage.value++;
+  isLoading.value = false;
 };
 const getCancelled = async () => {
   currentPage.value = 1;

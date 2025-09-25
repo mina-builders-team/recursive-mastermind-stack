@@ -3,7 +3,7 @@
     class="d-flex justify-content-between align-items-center color-snow-white py-2 px-3 player"
   >
     <div class="d-flex gap-4 align-items-center">
-      <div class="tags d-flex align-items-center h-fit-content py-2 px-4">
+      <div class="tags rank d-flex align-items-center justify-content-center h-fit-content py-2 px-4">
         {{ index + 1 }}
       </div>
       <div
@@ -12,7 +12,7 @@
         <inline-svg src="/icons/person.svg"></inline-svg>
         {{ formatAddress(player._id) }}
       </div>
-      <div>
+      <div class="player-title">
         {{ getTitleByRank(index + 1)?.title }}
       </div>
     </div>
@@ -63,4 +63,8 @@ defineProps({
 .stat {
   width: 70px;
 }
+.rank {
+  width: 50px;
+}
+.player-title {min-width: 125px;}
 </style>

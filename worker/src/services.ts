@@ -77,7 +77,13 @@ export const checkGameCreation = async (
     // For each pending game, validate on-chain existence and integrity
     const promises = pendingGames.map(async (game) => {
       try {
-        const zkAppPublicKey = PublicKey.fromBase58(game._id);
+        let zkAppPublicKey;
+        try {
+          zkAppPublicKey = PublicKey.fromBase58(game._id);
+        } catch (e) {
+          fakeGames.push(game._id);
+          throw e;
+        }
         let response = await fetchAccount({ publicKey: zkAppPublicKey });
         // Detect stale games
         const now = Date.now();
@@ -111,7 +117,6 @@ export const checkGameCreation = async (
         }
       } catch (err) {
         console.error(`Error on game ${game._id}: `, err);
-        throw new Error(`Error checking game ${game._id} creation: ${err}`);
       }
     });
     await Promise.all(promises);
