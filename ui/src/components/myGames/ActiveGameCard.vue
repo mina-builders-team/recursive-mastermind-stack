@@ -53,7 +53,7 @@ Join now as the Code Breaker 👇
       <div class="fs-12 color-snow-white game-id">
         <a
           class="link d-flex gap-1 align-items-center"
-          :href="`https://minascan.io/devnet/tx/${game?.cancelTransactionHash}?type=zk-tx`"
+          :href="`https://minascan.io/${MINA_NETWORK}/tx/${game?.cancelTransactionHash}?type=zk-tx`"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -99,6 +99,7 @@ defineProps({
     required: true,
   },
 });
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 const emit = defineEmits(['cancel']);
 const { cancelGame } = useZkAppStore();
 const { loading } = storeToRefs(useZkAppStore());

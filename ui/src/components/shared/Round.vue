@@ -29,7 +29,7 @@
           You may want to recheck your transactions status by
           <span class="text-underline"
             ><a
-              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
+              :href="`https://minascan.io/${MINA_NETWORK}/tx/${lastTurnTransactionHash}?type=zk-tx`"
               target="_blank"
               rel="noopener noreferrer"
               class="link"
@@ -101,6 +101,8 @@ import Clue from './Clue.vue';
 import { validateColorCombination } from '@/utils';
 import { useCustomMessage } from '@/composables/useCustomMessage';
 
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
+  
 const props = defineProps({
   loading: {
     type: Boolean,

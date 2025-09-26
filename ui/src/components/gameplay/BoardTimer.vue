@@ -38,7 +38,7 @@
           <span class="text-underline">
             <a
               class="link"
-              :href="`https://minascan.io/devnet/tx/${lastTurnTransactionHash}?type=zk-tx`"
+              :href="`https://minascan.io/${MINA_NETWORK}/tx/${lastTurnTransactionHash}?type=zk-tx`"
               target="_blank"
               rel="noopener noreferrer"
             >

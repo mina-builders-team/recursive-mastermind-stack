@@ -25,7 +25,7 @@
         <div v-if="!zkAppStates || cancelGameTxHash" class="link">
           <a
             class="link d-flex gap-1 align-items-center fs-16 fw-600"
-            :href="`https://minascan.io/devnet/tx/${cancelGameTxHash || game?.gameCreationTransactionHash}?type=zk-tx`"
+            :href="`https://minascan.io/${MINA_NETWORK}/tx/${cancelGameTxHash || game?.gameCreationTransactionHash}?type=zk-tx`"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -111,7 +111,7 @@ import { useRoute, useRouter } from 'vue-router';
 import ShareButton from '../shared/ShareButton.vue';
 import CopyToClipBoard from '../shared/CopyToClipBoard.vue';
 import { useCustomMessage } from '@/composables/useCustomMessage';
-
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 const {
   zkAppStates,
   game,

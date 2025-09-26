@@ -79,7 +79,7 @@
             </span>
             <a
               class="link d-flex gap-1 align-items-center"
-              :href="`https://minascan.io/devnet/tx/${acceptedGame?.lastAcceptTransactionHash}?type=zk-tx`"
+              :href="`https://minascan.io/${MINA_NETWORK}/tx/${acceptedGame?.lastAcceptTransactionHash}?type=zk-tx`"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -144,6 +144,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import DotsLoader from '../shared/DotsLoader.vue';
 dayjs.extend(relativeTime);
 
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 const {
   publicKeyBase58,
   error,
