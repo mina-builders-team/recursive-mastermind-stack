@@ -102,7 +102,7 @@ import { validateColorCombination } from '@/utils';
 import { useCustomMessage } from '@/composables/useCustomMessage';
 
 const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
-
+  
 const props = defineProps({
   loading: {
     type: Boolean,
