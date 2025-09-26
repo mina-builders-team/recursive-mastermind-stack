@@ -53,7 +53,7 @@
         <div class="d-flex align-items-center gap-2" v-if="finalTransaction">
           <a
             class="link d-flex gap-1 align-items-center"
-            :href="`https://minascan.io/devnet/tx/${finalTransaction}?type=zk-tx`"
+            :href="`https://minascan.io/${MINA_NETWORK}/tx/${finalTransaction}?type=zk-tx`"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -105,6 +105,7 @@ import { storeToRefs } from 'pinia';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { useCustomMessage } from '@/composables/useCustomMessage';
 import Timer from '../shared/Timer.vue';
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
 
 dayjs.extend(utc);
 

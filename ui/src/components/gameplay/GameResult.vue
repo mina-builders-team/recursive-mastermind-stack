@@ -125,7 +125,7 @@
         <a
           class="link d-flex gap-1 align-items-center"
           v-if="lastTransactionLink"
-          :href="`https://minascan.io/devnet/tx/${lastTransactionLink}?type=zk-tx`"
+          :href="`https://minascan.io/${MINA_NETWORK}/tx/${lastTransactionLink}?type=zk-tx`"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -175,6 +175,8 @@ import Timer from '../shared/Timer.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { storeToRefs } from 'pinia';
 import { useCustomMessage } from '@/composables/useCustomMessage';
+const MINA_NETWORK = import.meta.env.VITE_MINA_NETWORK;
+
 const props = defineProps({
   isWinner: {
     type: Boolean,

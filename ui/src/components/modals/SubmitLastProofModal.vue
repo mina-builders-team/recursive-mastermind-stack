@@ -64,7 +64,7 @@
             <span class="ms-1 text-underline"
               ><a
                 class="link d-flex gap-1 align-items-center"
-                :href="`https://minascan.io/devnet/tx/${submitGameTransactionHash}?type=zk-tx`"
+                :href="`https://minascan.io/${MINA_NETWORK}/tx/${submitGameTransactionHash}?type=zk-tx`"
                 target="_blank"
                 rel="noopener noreferrer"
                 >transaction.</a
