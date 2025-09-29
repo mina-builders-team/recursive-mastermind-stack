@@ -47,7 +47,10 @@ const state = {
 const functions = {
   setMinaActiveInstance: async () => {
     const network = Mina.Network({
-      networkId: 'mainnet',
+      networkId:
+        import.meta.env.VITE_MINA_NETWORK_URL === 'mainnet'
+          ? 'mainnet'
+          : undefined,
       mina: import.meta.env.VITE_MINA_NETWORK_URL,
     });
     Mina.setActiveInstance(network);

@@ -32,10 +32,12 @@ const REDIS_HOST = process.env.REDIS_HOST as string;
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const NETWORK_URL =
   process.env.MINA_NETWORK_URL || 'http://host.docker.internal:8080/graphql';
+const MINA_NETWORK =
+  process.env.MINA_NETWORK === 'mainnet' ? 'mainnet' : undefined;
 const SERVER_PUBLIC_KEY = process.env.SERVER_PUBLIC_KEY as string;
 const WORKER_QUEUE = process.env.WORKER_QUEUE || 'gameLifecycleQueue';
 
-const network = Mina.Network({ mina: NETWORK_URL });
+const network = Mina.Network({ mina: NETWORK_URL, networkId: MINA_NETWORK });
 Mina.setActiveInstance(network);
 const gameLifecycleQueue = new Queue('gameLifecycleQueue', {
   connection: { host: REDIS_HOST, port: REDIS_PORT, password: REDIS_PASSWORD },
