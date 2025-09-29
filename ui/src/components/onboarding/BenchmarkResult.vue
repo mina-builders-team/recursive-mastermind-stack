@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white w-520"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white benchmark-container"
   >
     <div class="fw-700 fs-24">One Last Thing!</div>
     <div class="fs-12 my-4">
@@ -114,4 +114,9 @@ const backToHome = () => {
   router.push({ name: 'home' });
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.benchmark-container {
+  width: 100% !important;
+  max-width: 520px !important;
+}
+</style>

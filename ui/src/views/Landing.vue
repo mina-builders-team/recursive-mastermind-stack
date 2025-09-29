@@ -1,6 +1,6 @@
 <template>
   <div
-    class="color-snow-white d-flex justify-content-between mt-5 pt-2 align-items-center"
+    class="color-snow-white d-flex justify-content-between mt-5 pt-2 align-items-center gap-2 flex-wrap"
   >
     <div>
       <div class="fw-600 fs-20">Double or Lose game for Masterminds</div>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white w-500"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white rules-container"
   >
     <div class="fs-24 fw-700 w-100 title mb-2">Mastermind Game Guide</div>
     <strong class="mb-2 fs-16">Roles:</strong>
@@ -115,5 +115,9 @@ const goToPlay = () => {
 }
 .label {
   width: 100px;
+}
+.rules-container {
+  width: 100%;
+  max-width: 500px;
 }
 </style>

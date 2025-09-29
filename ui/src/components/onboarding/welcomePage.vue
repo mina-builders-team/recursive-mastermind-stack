@@ -1,6 +1,6 @@
 <template>
   <div
-    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 w-400"
+    class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 welcome-container"
   >
     <div class="fw-700 fs-24 text-center">Welcome To Mastermind On Mina!</div>
     <div class="fs-14 color-snow-white">
@@ -31,4 +31,9 @@ const handleNextStep = () => {
   emit('next');
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.welcome-container {
+  width: 100%;
+  max-width: 400px;
+}
+</style>
