@@ -1,8 +1,8 @@
 <template>
-  <div class="w-100 h-100 d-flex flex-column align-items-center">
+  <div class="w-100 h-100 d-flex flex-column align-items-center mt-5">
     <WelcomePage v-if="step === 0" @next="handleNextStep" />
     <Rules v-if="step === 1" @next="handleNextStep" />
-    <div class="h-100 w-100 d-flex justify-content-center mt-5">
+    <div class="h-100 w-100 d-flex justify-content-center mt-3">
       <Tutorial
         :title="greenClue.title"
         :type="greenClue.type"
@@ -301,8 +301,8 @@ watch(
 <style lang="scss" scoped>
 .skip-tutorial {
   position: absolute;
-  right: 30px;
-  top: 30px;
+  right: 10px;
+  top: 10px;
   padding: 10px;
 }
 </style>

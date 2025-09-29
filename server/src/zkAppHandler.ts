@@ -25,6 +25,7 @@ dotenv.config();
  */
 export const setupContract = async () => {
   const network = Mina.Network({
+    networkId: process.env.MINA_NETWORK === 'mainnet' ? 'mainnet' : undefined,
     mina: process.env.MINA_NETWORK_URL as string,
     archive: process.env.MINA_ARCHIVE_URL as string,
   });
