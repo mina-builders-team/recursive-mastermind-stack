@@ -13,6 +13,7 @@
               :bgColor="secret.color"
               :index="index"
               :isFocusedOnMount="index === focusIndex"
+              :maxSelectableColors="props.maxSelectableColors"
               @input="handleSetSecretCode($event, index)"
               @focusNext="focusNextInput(index)"
               @focusPrev="focusPrevInput(index)"
@@ -66,6 +67,10 @@ const props = defineProps({
     default: false,
   },
   focusIndex: {
+    type: Number,
+    default: -1,
+  },
+  maxSelectableColors: {
     type: Number,
     default: -1,
   },
