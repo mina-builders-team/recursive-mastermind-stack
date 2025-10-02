@@ -360,10 +360,10 @@ export const getNextTitleInfo = (rank: number) => {
   return null;
 };
 
-export const generateRandomSecret = (): Array<number> => {
+export const generateRandomSecret = (maxDigit?: number): Array<number> => {
   const solution: Array<number> = [];
   while (solution.length < 4) {
-    const r = Math.floor(Math.random() * 8);
+    const r = Math.floor(Math.random() * (maxDigit ? maxDigit : 8));
     if (!solution.includes(r)) {
       solution.push(r);
     }

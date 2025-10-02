@@ -78,6 +78,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  maxSelectableColors: {
+    type: Number,
+    default: -1,
+  },
 });
 const setCaretToEnd = () => {
   const el = (inputRef.value as any)?.input as HTMLInputElement | undefined;
@@ -112,7 +116,11 @@ defineExpose({ focus });
 
 const handleInput = (lastValue: string) => {
   const value = lastValue.slice(-1);
-  const selectedColor = availableColors.find(
+  const allowedColors =
+    props.maxSelectableColors === -1
+      ? availableColors
+      : availableColors.slice(0, props.maxSelectableColors);
+  const selectedColor = allowedColors.find(
     (c) => c.value === parseInt(value, 10)
   );
   emit('input', selectedColor ? selectedColor : initialColor);
@@ -124,7 +132,7 @@ const handleInput = (lastValue: string) => {
   }
   if (!selectedColor && value) {
     ElMessage.error({
-      message: 'Please choose a combination of 4 unique digits between 0 and 7',
+      message: `Please choose a combination of 4 unique digits between 0 and ${props.maxSelectableColors === -1 ? 7 : props.maxSelectableColors - 1}`,
       duration: 3000,
     });
   }

@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center">
       <div>
         <div class="fs-5 fw-600 fs-16">Mini Puzzle</div>
-        <div class="fs-12">(Numbers are between 0-7)</div>
+        <div class="fs-12">(Numbers are between 0-3)</div>
       </div>
     </div>
     <div
@@ -20,6 +20,7 @@
           @change="handleSetColor($event, row)"
           :isCurrentRound="row === lastGuessIndex"
           :showBtn="false"
+          :maxSelectableColors="4"
         />
       </div>
       <div class="d-flex mt-3">
@@ -52,7 +53,7 @@ import {
 } from '@/utils';
 import { useCustomMessage } from '@/composables/useCustomMessage';
 const { showMessage } = useCustomMessage();
-const secret = ref<Array<number>>(generateRandomSecret());
+const secret = ref<Array<number>>(generateRandomSecret(4));
 const lastGuessIndex = ref(0);
 const guesses = ref<Array<AvailableColor[]>>(
   Array.from({ length: 3 }, () => Array.from({ length: 4 }, () => initialColor))
@@ -79,7 +80,7 @@ const submitGuess = () => {
   } else {
     showMessage({
       title: 'Invalid Combination',
-      description: message,
+      description: message?.replace('7','3'),
       type: 'error',
       duration: 3000,
       showClose: false,
@@ -87,7 +88,7 @@ const submitGuess = () => {
   }
 };
 const resetSecret = () => {
-  secret.value = generateRandomSecret();
+  secret.value = generateRandomSecret(4);
   guesses.value = Array.from({ length: 3 }, () =>
     Array.from({ length: 4 }, () => initialColor)
   );

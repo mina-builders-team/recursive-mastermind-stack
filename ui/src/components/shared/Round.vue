@@ -12,6 +12,7 @@
       @change="handleSetColor"
       :editOnly="editOnly"
       :focusIndex="focusIndex"
+      :maxSelectableColors="maxSelectableColors"
     />
     <div class="btn-container w-100 h-100" v-if="showBtn">
       <el-tooltip
@@ -151,7 +152,11 @@ const props = defineProps({
     required: false,
     default: '',
   },
-    focusIndex: {
+  focusIndex: {
+    type: Number,
+    default: -1,
+  },
+  maxSelectableColors: {
     type: Number,
     default: -1,
   },
