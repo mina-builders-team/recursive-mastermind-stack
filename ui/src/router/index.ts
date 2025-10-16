@@ -31,6 +31,20 @@ const routes: Array<RouteRecordRaw> = [
       import(/* webpackChunkName: "leaderboard" */ '@/views/Leaderboard.vue'),
   },
   {
+    path: '/tournament/:name',
+    name: 'tournamentRank',
+    component: () =>
+      import(
+        /* webpackChunkName: "tournamentRank" */ '@/views/TournamentRank.vue'
+      ),
+  },
+  {
+    path: '/announcement',
+    name: 'announcement',
+    component: () =>
+      import(/* webpackChunkName: "gameplay" */ '@/views/Announcement.vue'),
+  },
+  {
     path: '/:id',
     name: 'gameplay',
     component: () =>
@@ -44,6 +58,10 @@ const router = createRouter({
 });
 router.beforeEach(async (to, _from, next) => {
   const completedOnboarding = localStorage.getItem('completedOnboarding');
+  if (to.name === 'announcement') {
+    next();
+    return;
+  }
   if (
     (to.name !== 'onboarding' && !completedOnboarding) ||
     completedOnboarding === 'false'

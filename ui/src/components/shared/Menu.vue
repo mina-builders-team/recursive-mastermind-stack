@@ -88,6 +88,7 @@ const links = [
   { title: 'Learn', name: 'onboarding' },
   { title: 'Rank', name: 'leaderboard' },
   { title: 'Tutorial', name: 'tutorial' },
+  { title: 'Announcement', name: 'announcement' },
 ];
 
 const isOpen = ref(false);

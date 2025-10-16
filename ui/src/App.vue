@@ -8,7 +8,7 @@
           v-if="
             (!isOnValidChain || !publicKeyBase58) &&
             routeName &&
-            !['home', 'onboarding'].includes(routeName as string)
+            !['home', 'onboarding','announcement'].includes(routeName as string)
           "
         />
         <router-view v-else />
