@@ -3,15 +3,35 @@
     class="menu-container d-flex justify-content-between align-items-center w-100"
   >
     <img class="cursor-pointer" src="/logo.png" @click="redirectToLanding" />
-    <div class="d-none d-md-flex gap-4 align-items-center">
+
+    <!-- Desktop Menu -->
+    <div class="d-none d-md-flex gap-4 align-items-center position-relative">
       <span
-        class="fs-14 fw-600 cursor-pointer"
-        v-for="link in links"
+        v-for="link in linksToShow"
         :key="link.name"
-        @click="handleLinkClick(link)"
+        class="fs-14 fw-600 cursor-pointer"
+        :class="{ announcement: link.name === 'announcement' }"
+        @click="
+          isTournamentActive && link.name !== 'leaderboard'
+            ? handleLinkClick(link)
+            : toggleRankDropdown()
+        "
       >
         {{ link.title }}
       </span>
+
+      <div v-if="isRankOpen && isTournamentActive" class="rank-dropdown">
+        <div class="dropdown-item" @click="navigateTo('leaderboard')">
+          Global Leaderboard
+        </div>
+        <div
+          class="dropdown-item"
+          @click="navigateTo('tournamentRank', tournamentNAME)"
+        >
+          Game Night Leaderboard
+        </div>
+      </div>
+
       <Button
         class="w-100 h-100 btn-cta3 border-alpha-50-300-50"
         @click="handleConnect"
@@ -33,6 +53,7 @@
       </Button>
     </div>
 
+    <!-- Mobile Menu -->
     <div class="d-md-none">
       <button class="hamburger" @click="toggleMenu">
         <span :class="{ open: isOpen }"></span>
@@ -42,13 +63,35 @@
     </div>
     <transition name="slide">
       <div v-if="isOpen" class="mobile-menu">
-        <div
-          class="menu-item"
-          v-for="link in links"
-          :key="link.name"
-          @click="handleMobileClick(link)"
-        >
-          {{ link.title }}
+        <div v-for="link in linksToShow" :key="link.name">
+          <div
+            class="menu-item"
+            @click="
+              isTournamentActive && link.name !== 'leaderboard'
+                ? handleMobileClick(link)
+                : toggleMobileRankDropdown()
+            "
+          >
+            {{ link.title }}
+          </div>
+          <div
+            v-if="
+              isMobileRankOpen &&
+              link.name === 'leaderboard' &&
+              isTournamentActive
+            "
+            class="mobile-rank-dropdown"
+          >
+            <div class="dropdown-item" @click="navigateTo('leaderboard')">
+              Global Leaderboard
+            </div>
+            <div
+              class="dropdown-item"
+              @click="navigateTo('tournamentRank', tournamentNAME)"
+            >
+              Game Night Leaderboard
+            </div>
+          </div>
         </div>
         <Button
           class="w-100 btn-cta3 border-alpha-50-300-50 mt-3"
@@ -71,6 +114,7 @@
     </transition>
   </div>
 </template>
+
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { useZkAppStore } from '@/store/zkAppModule';
@@ -78,42 +122,98 @@ import { storeToRefs } from 'pinia';
 import { formatAddress } from '@/utils';
 import { useRouter } from 'vue-router';
 import Button from './Button.vue';
+
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const { connect } = useZkAppStore();
-
 const router = useRouter();
-const links = [
+
+// Tournament period logic
+const isInTournamentPeriod = () => {
+  const tournamentStart = import.meta.env.VITE_TOURNAMENT_START;
+  const tournamentEnd = import.meta.env.VITE_TOURNAMENT_END;
+  if (!tournamentStart || !tournamentEnd) return false;
+  const now = new Date().getTime();
+  const start = new Date(tournamentStart).getTime();
+  const end = new Date(tournamentEnd).getTime();
+  return now >= start && now <= end;
+};
+const isTournamentActive = ref(isInTournamentPeriod());
+
+// Announcement logic
+const isInAnnouncementPeriod = () => {
+  const announcementStart = import.meta.env.VITE_ANNOUNCEMENT_START_AT;
+  const announcementEnd = import.meta.env.VITE_ANNOUNCEMENT_END_AT;
+  if (!announcementStart || !announcementEnd) return false;
+  const now = new Date().getTime();
+  const start = new Date(announcementStart).getTime();
+  const end = new Date(announcementEnd).getTime();
+  return now >= start && now <= end;
+};
+const tournamentNAME = import.meta.env.VITE_TOURNAMENT_NAME;
+
+// Menu links
+const mainMenu = [
   { title: 'Play', name: 'lobby' },
   { title: 'MyGames', name: 'my-games' },
   { title: 'Learn', name: 'onboarding' },
   { title: 'Rank', name: 'leaderboard' },
   { title: 'Tutorial', name: 'tutorial' },
-  { title: 'Announcement', name: 'announcement' },
 ];
 
+const linksToShow = isInAnnouncementPeriod()
+  ? [...mainMenu, { title: 'Announcement', name: 'announcement' }]
+  : mainMenu;
+
+// State
 const isOpen = ref(false);
+const isRankOpen = ref(false);
+const isMobileRankOpen = ref(false);
+
+// Methods
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
+  isMobileRankOpen.value = false;
 };
+
+const toggleRankDropdown = () => {
+  if (isTournamentActive.value) isRankOpen.value = !isRankOpen.value;
+};
+
+const toggleMobileRankDropdown = () => {
+  if (isTournamentActive.value)
+    isMobileRankOpen.value = !isMobileRankOpen.value;
+};
+
 const handleLinkClick = (item: { title: string; name: string }) => {
   if (item.name === 'tutorial') {
     window.open('https://mastermind-demo.pages.dev/', '_blank');
   } else {
     router.push({ name: item.name });
   }
+  isRankOpen.value = false;
 };
+
 const handleMobileClick = (item: { title: string; name: string }) => {
   handleLinkClick(item);
   isOpen.value = false;
+  isMobileRankOpen.value = false;
 };
+
 const handleConnect = async () => {
   if (!publicKeyBase58.value) {
     await connect();
   }
   isOpen.value = false;
 };
+
 const redirectToLanding = () => {
   router.push({ name: 'home' });
+};
+
+const navigateTo = (routeName: string, name?: string) => {
+  router.push({ name: routeName, params: name ? { name } : undefined });
+  isRankOpen.value = false;
+  isMobileRankOpen.value = false;
 };
 </script>
 
@@ -129,6 +229,7 @@ const redirectToLanding = () => {
   padding: 0;
   cursor: pointer;
 }
+
 .hamburger span {
   display: block;
   height: 3px;
@@ -167,6 +268,31 @@ const redirectToLanding = () => {
 .menu-item:last-child {
   border-bottom: none;
 }
+.rank-dropdown {
+  position: absolute;
+  top: 30px;
+  background: black;
+  border-radius: 8px;
+  padding: 0.5rem 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+.mobile-rank-dropdown {
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
 
 .slide-enter-active,
 .slide-leave-active {
@@ -187,5 +313,19 @@ const redirectToLanding = () => {
 .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
+}
+.announcement {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 </style>

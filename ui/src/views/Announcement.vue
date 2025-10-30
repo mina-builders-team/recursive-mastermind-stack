@@ -4,18 +4,19 @@
             <div class="d-flex align-items-center gap-3">
                 <img src="/icons/M.png" width="50px" height="50px"></img>
                 <div>
-                    <div class="fw-700 fs-21 my-2">Mina Mastermind Nights</div>
-                    <div class="color-gray fs-16">Live community tournaments • MINA rewards</div>
+                    <div class="fw-700 fs-21 my-2">Mina Mastermind Game Night</div>
+                    <div class="color-gray fs-16">Live community event • MINA rewards</div>
                 </div>
             </div>
         </div>
         <div class="d-flex gap-5 content__container">
             <div class="d-flex flex-column gap-3">
                 <div class="default-border radius-10 bg-alpha-50-900-50 p-10 ">
-                    <div class="fw-700 fs-21 my-2">What is Mina Mastermind Nights?</div>
-                    <div>A scheduled, communal format for the Mastermind game on Mina — players join at the same time,
-                        compete in short sessions, earn points and climb the tournament leaderboard.
-
+                    <div class="fw-700 fs-21 my-2">What is Mina Mastermind Game Night?</div>
+                    <div>
+                        A scheduled community event for the Mastermind game on Mina — players join at the same
+                        time,
+                        compete, earn points, and climb the special game night leaderboard.
                     </div>
                 </div>
                 <div class="default-border radius-10 bg-alpha-50-900-50 p-10 ">
@@ -28,20 +29,23 @@
                             <div>Local: {{ sessionLocalStr }}</div>
                         </div>
                         <CountDown />
-
                     </div>
                 </div>
                 <div class="default-border radius-10 bg-alpha-50-900-50 p-10 ">
                     <div class="fw-700 fs-21 my-2">How it works</div>
                     <ul>
-                        <li>Players join and play during the 2–3 hour session window.</li>
-                        <li>After each game, points are added to both the global and tournament leaderboards.</li>
+                        <li>Players join and play during the 3-hour game night window.</li>
+                        <li>Players will create rooms or join an existing one by browsing the existing rooms.</li>
+                        <li>After each game, points are added to both the global and game night leaderboards.</li>
                         <li>Players also receive their normal game rewards upon winning.</li>
-                        <li>The top 3 players on the tournament leaderboard earn MINA rewards.</li>
+                        <li>The top 3 players on the game night leaderboard earn MINA rewards.</li>
                         <li>Note*: The global leaderboard is not used to determine winners.</li>
-                        <li>You can find the full points system here: <a class="color-snow-white fw-700"
+                        <li>
+                            You can find the full points system here:
+                            <a class="color-snow-white fw-700"
                                 href="https://yamancan.notion.site/Leaderboard-Titles-2317754aa3568011ab9ad2f46006ce87"
-                                target="_blank">Leaderboard Titles & Points System↗</a></li>
+                                target="_blank">Leaderboard Titles & Points System↗</a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -50,12 +54,12 @@
                     <div class="fw-700 fs-21 my-2">Prizes</div>
                     <div>
                         <ul>
-                            <li>🥇 1st Place: $100 worth of MINA — awarded to the top-ranked player on the tournament
-                                leaderboard.</li>
-                            <li>🥈 2nd Place: $50 worth of MINA — awarded to the second-highest scorer.</li>
-                            <li>🥉 3rd Place: $25 worth of MINA — awarded to the third-place finisher.</li>
+                            <li>🥇 1st Place: 1000 $MINA.</li>
+                            <li>🥈 2nd Place: 500 $MINA.</li>
+                            <li>🥉 3rd Place: 250 $MINA.</li>
                         </ul>
-                        <div>Rewards are distributed after the tournament concludes, based on the final leaderboard
+                        <div>
+                            Rewards are distributed after the game night concludes, based on the final leaderboard
                             snapshot.
                         </div>
                     </div>
@@ -70,31 +74,32 @@
                             <li class="cursor-pointer mb-2 fw-700">
                                 <a href="https://x.com/minaMastermind" target="_blank"
                                     class="color-snow-white text-decoration-none">
-
                                     <inline-svg width="20" height="20" src="/icons/x.svg"></inline-svg>
                                     Mina Mastermind
-
                                 </a>
                             </li>
-                            <li class="cursor-pointer  fw-700">
+                            <li class="cursor-pointer fw-700">
                                 <a href="https://x.com/minabuilders" target="_blank"
                                     class="color-snow-white text-decoration-none">
-
                                     <inline-svg width="20" height="20" src="/icons/x.svg"></inline-svg>
                                     Builders Team
-
                                 </a>
                             </li>
-
+                            <li class="cursor-pointer fw-700 my-2">
+                                <a href="https://t.me/mastermindmina" target="_blank"
+                                    class="color-snow-white text-decoration-none">
+                                    <inline-svg width="20" height="20" src="/icons/telegram.svg"></inline-svg>
+                                    <span class="ms-1">Mina Mastermind Channel</span> 
+                                </a>
+                            </li>
                         </ul>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import dayjs from 'dayjs'
@@ -107,15 +112,13 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(advancedFormat)
 
-//TODO:: update date from env
-
-const sessionStartUTC = dayjs.utc('2025-10-22T17:00:00Z')
+const TOURNAMENT_START = import.meta.env.VITE_TOURNAMENT_START
+const sessionStartUTC = dayjs.utc(TOURNAMENT_START)
 const sessionEndUTC = sessionStartUTC.add(3, 'hour')
 const sessionUTCStr = ref(`${sessionStartUTC.format('ddd DD MMM YYYY HH:mm')} — ${sessionEndUTC.format('HH:mm')} UTC`)
 const sessionLocalStr = ref(
     `${sessionStartUTC.local().format('ddd DD MMM YYYY HH:mm')} — ${sessionEndUTC.local().format('HH:mm')}`
 )
-
 </script>
 <style lang="scss" scoped>
 .card__container {

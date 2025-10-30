@@ -1,16 +1,19 @@
 <template>
   <MatrixBackground />
-  <div class="d-flex justify-content-center main-container">
+  <div v-if="!isTermsAccepted" class="px-2">
+    <Terms @accept="handleAcceptTerms" />
+
+  </div>
+
+  <div class="d-flex justify-content-center main-container" v-else>
     <div class="h-100 w-100">
       <Menu v-if="showMenu"></Menu>
       <div class="w-100 h-100">
-        <ConnectModal
-          v-if="
-            (!isOnValidChain || !publicKeyBase58) &&
-            routeName &&
-            !['home', 'onboarding','announcement'].includes(routeName as string)
-          "
-        />
+        <ConnectModal v-if="
+          (!isOnValidChain || !publicKeyBase58) &&
+          routeName &&
+          !['home', 'onboarding', 'announcement'].includes(routeName as string)
+        " />
         <router-view v-else />
       </div>
     </div>
@@ -24,6 +27,7 @@ import Menu from '@/components/shared/Menu.vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 import ConnectModal from '@/components/modals/ConnectModal.vue';
+import Terms from './components/modals/Terms.vue';
 const { setupZkApp } = useZkAppStore();
 const { publicKeyBase58, isOnValidChain } = storeToRefs(useZkAppStore());
 onMounted(async () => {
@@ -49,9 +53,14 @@ const removePastGames = () => {
     }
   }
 };
+
+const handleAcceptTerms = () => {
+  isTermsAccepted.value = true
+}
 const route = useRoute();
 const showMenu = ref(true);
 const routeName = computed(() => route.name);
+const isTermsAccepted = ref(localStorage.getItem('isTermsAccepted') === 'true')
 watch(
   () => route.name,
   () => {
@@ -63,7 +72,7 @@ watch(
   }
 );
 </script>
-<style scoped>
+<style scoped lang="scss">
 .main-container {
   font-size: 14px;
   padding: 5% 4%;
