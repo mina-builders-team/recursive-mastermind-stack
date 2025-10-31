@@ -2,7 +2,8 @@
     <div class="w-100 d-flex justify-content-center">
         <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 rules-container">
             <h4 class="w-100 d-flex justify-content-center py-3">TERMS AND CONDITIONS</h4>
-            <div class="fs-12 py-4"><span class="fw-600">IMPORTANT:</span> PLEASE READ THESE TERMS CAREFULLY BEFORE
+            <div class="fs-14 py-4 fw-600"><span class="fw-700">IMPORTANT:</span> PLEASE READ THESE TERMS CAREFULLY
+                BEFORE
                 PARTICIPATING
                 IN MINA MASTERMIND NIGHTS OR PLAYING MINA
                 MASTERMIND.
@@ -13,11 +14,11 @@
                 "your") and Mina Builders Team ("we," "us," "our," or "Organizer") governing your participation in Mina
                 Mastermind Nights events and use of the Mina Mastermind game platform.
             </p>
-            <p class="fs-12">
+            <p class="fs-16">
                 BY PARTICIPATING IN MINA MASTERMIND NIGHTS, CREATING A GAME ROOM, JOINING A GAME, OR OTHERWISE USING THE
                 PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THESE TERMS.
             </p>
-            <ol class="main-list">
+            <ol class="main-list fs-12">
                 <li>
                     <strong>Definitions</strong>
                     <ol style="margin-top: 8px;" class="list-decimal">
