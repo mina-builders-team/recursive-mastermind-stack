@@ -1,6 +1,7 @@
 <template>
     <div class="w-100 d-flex justify-content-center">
-        <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 rules-container">
+        <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 rules-container"
+            ref="rulesContainer">
             <h4 class="w-100 d-flex justify-content-center py-3">TERMS AND CONDITIONS</h4>
             <div class="fs-14 py-4 fw-600"><span class="fw-700">IMPORTANT:</span> PLEASE READ THESE TERMS CAREFULLY
                 BEFORE
@@ -850,23 +851,58 @@
                     class="btn-cta3 approve-btn color-snow-white" @click="handleAcceptTerms">Accept
                     & Continue</Button>
             </div>
+            <button class="scroll-btn" @click="scrollToBottom" v-if="showButton">
+                ⬇
+            </button>
+
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import Button from '../shared/Button.vue'
 
 const emit = defineEmits(['accept'])
 const isTermsChecked = ref(false)
 const isAgeConfirmed = ref(false)
+const rulesContainer = ref<HTMLDivElement | null>(null)
 
-const handleAcceptTerms = () => {
-    localStorage.setItem("isTermsAccepted", 'true')
-    emit("accept")
+const showButton = ref(true)
+
+const scrollToBottom = () => {
+    if (rulesContainer.value) {
+        rulesContainer.value.scrollTo({
+            top: rulesContainer.value.scrollHeight,
+            behavior: 'smooth'
+        })
+    }
 }
 
+const handleAcceptTerms = () => {
+    localStorage.setItem('isTermsAccepted', 'true')
+    emit('accept')
+}
+
+const handleScroll = () => {
+    const el = rulesContainer.value
+    if (!el) return
+
+    const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 100
+    showButton.value = !nearBottom
+}
+
+onMounted(() => {
+    if (rulesContainer.value) {
+        rulesContainer.value.addEventListener('scroll', handleScroll)
+    }
+})
+
+onUnmounted(() => {
+    if (rulesContainer.value) {
+        rulesContainer.value.removeEventListener('scroll', handleScroll)
+    }
+})
 </script>
 <style lang="scss" scoped>
 .approve-btn {
@@ -889,6 +925,46 @@ const handleAcceptTerms = () => {
     height: 100%;
     max-height: 600px;
     overflow-y: scroll;
+    position: relative;
+
+}
+
+.scroll-btn {
+    position: sticky;
+    bottom: 10px;
+    right: 10px;
+    background: $snow-white;
+    color: $gray;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: bounce 1.5s infinite;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-10px);
+    }
+
+    60% {
+        transform: translateY(-5px);
+    }
 }
 
 :deep(.el-checkbox__input.is-checked+.el-checkbox__label) {
