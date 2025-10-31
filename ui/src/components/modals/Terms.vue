@@ -1,6 +1,19 @@
 <template>
     <div class="w-100 d-flex justify-content-center">
-        <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 rules-container"
+        <div class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 welcome-container"
+            v-show="!showTerms">
+            <div class="fw-700 fs-21 mb-4 text-center">Welcome To Mina Mastermind!</div>
+            <div>
+                In order to play the game or participate in Mina Mastermind Game Night, you must read and accept our
+                Terms and Conditions.
+            </div>
+            <Button size="large" class=" radius-10 px-5 w-100 mt-4" @click="handleNextStep">
+                <span class="color-black fw-600 fs-16">Continue</span>
+            </Button>
+
+        </div>
+        <div v-show="showTerms"
+            class="default-border radius-10 bg-alpha-50-900-50 p-20 color-snow-white mt-5 rules-container"
             ref="rulesContainer">
             <h4 class="w-100 d-flex justify-content-center py-3">TERMS AND CONDITIONS</h4>
             <div class="fs-14 py-4 fw-600"><span class="fw-700">IMPORTANT:</span> PLEASE READ THESE TERMS CAREFULLY
@@ -869,7 +882,10 @@ const isAgeConfirmed = ref(false)
 const rulesContainer = ref<HTMLDivElement | null>(null)
 
 const showButton = ref(true)
-
+const showTerms = ref(false)
+const handleNextStep = () => {
+    showTerms.value = true
+}
 const scrollToBottom = () => {
     if (rulesContainer.value) {
         rulesContainer.value.scrollTo({
@@ -926,6 +942,12 @@ onUnmounted(() => {
     max-height: 600px;
     overflow-y: scroll;
     position: relative;
+
+}
+
+.welcome-container {
+    width: 100%;
+    max-width: 600px;
 
 }
 
