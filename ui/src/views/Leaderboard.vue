@@ -67,6 +67,13 @@
         </div>
       </div>
       <div
+          v-if="!isLoading && !leaderboardData?.players?.length"
+          class="bg-alpha-8-300-8 color-snow-white ps-3 py-3 d-flex justify-content-center"
+        >
+          <div class="fw-600">No players available at the moment.</div>
+      </div>
+
+      <div
         class="infinite-list"
         v-infinite-scroll="loadMorePlayer"
         :infinite-scroll-disabled="isLoading || reachedEnd"

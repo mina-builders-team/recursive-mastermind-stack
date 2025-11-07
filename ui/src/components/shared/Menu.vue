@@ -1,22 +1,15 @@
 <template>
-  <div
-    class="menu-container d-flex justify-content-between align-items-center w-100"
-  >
+  <div class="menu-container d-flex justify-content-between align-items-center w-100">
     <img class="cursor-pointer" src="/logo.png" @click="redirectToLanding" />
 
     <!-- Desktop Menu -->
     <div class="d-none d-md-flex gap-4 align-items-center position-relative">
-      <span
-        v-for="link in linksToShow"
-        :key="link.name"
-        class="fs-14 fw-600 cursor-pointer"
-        :class="{ announcement: link.name === 'announcement' }"
-        @click="
-          isTournamentActive && link.name !== 'leaderboard'
+      <span v-for="link in linksToShow" :key="link.name" class="fs-14 fw-600 cursor-pointer"
+        :class="{ announcement: link.name === 'announcement' }" @click="
+          !isTournamentActive || link.name !== 'leaderboard'
             ? handleLinkClick(link)
             : toggleRankDropdown()
-        "
-      >
+          ">
         {{ link.title }}
       </span>
 
@@ -24,29 +17,18 @@
         <div class="dropdown-item" @click="navigateTo('leaderboard')">
           Global Leaderboard
         </div>
-        <div
-          class="dropdown-item"
-          @click="navigateTo('tournamentRank', tournamentNAME)"
-        >
+        <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentNAME)">
           Game Night Leaderboard
         </div>
       </div>
 
-      <Button
-        class="w-100 h-100 btn-cta3 border-alpha-50-300-50"
-        @click="handleConnect"
-      >
+      <Button class="w-100 h-100 btn-cta3 border-alpha-50-300-50" @click="handleConnect">
         <div class="color-gray">
           <div class="d-flex align-items-center ps-2">
-            <inline-svg
-              src="/icons/wallet.svg"
-              class="me-1"
-              width="14"
-              height="14"
-            />
+            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
             <span v-if="publicKeyBase58">{{
               formatAddress(publicKeyBase58)
-            }}</span>
+              }}</span>
             <span v-else class="me-2">Connect</span>
           </div>
         </div>
@@ -64,49 +46,32 @@
     <transition name="slide">
       <div v-if="isOpen" class="mobile-menu">
         <div v-for="link in linksToShow" :key="link.name">
-          <div
-            class="menu-item"
-            @click="
-              isTournamentActive && link.name !== 'leaderboard'
-                ? handleMobileClick(link)
-                : toggleMobileRankDropdown()
-            "
-          >
+          <div class="menu-item" @click="
+            !isTournamentActive || link.name !== 'leaderboard'
+              ? handleMobileClick(link)
+              : toggleMobileRankDropdown()
+            ">
             {{ link.title }}
           </div>
-          <div
-            v-if="
-              isMobileRankOpen &&
-              link.name === 'leaderboard' &&
-              isTournamentActive
-            "
-            class="mobile-rank-dropdown"
-          >
+          <div v-if="
+            isMobileRankOpen &&
+            link.name === 'leaderboard' &&
+            isTournamentActive
+          " class="mobile-rank-dropdown">
             <div class="dropdown-item" @click="navigateTo('leaderboard')">
               Global Leaderboard
             </div>
-            <div
-              class="dropdown-item"
-              @click="navigateTo('tournamentRank', tournamentNAME)"
-            >
+            <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentNAME)">
               Game Night Leaderboard
             </div>
           </div>
         </div>
-        <Button
-          class="w-100 btn-cta3 border-alpha-50-300-50 mt-3"
-          @click="handleConnect"
-        >
+        <Button class="w-100 btn-cta3 border-alpha-50-300-50 mt-3" @click="handleConnect">
           <div class="color-gray text-center">
-            <inline-svg
-              src="/icons/wallet.svg"
-              class="me-1"
-              width="14"
-              height="14"
-            />
+            <inline-svg src="/icons/wallet.svg" class="me-1" width="14" height="14" />
             <span v-if="publicKeyBase58">{{
               formatAddress(publicKeyBase58)
-            }}</span>
+              }}</span>
             <span v-else>Connect</span>
           </div>
         </Button>
@@ -127,7 +92,7 @@ const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const { connect } = useZkAppStore();
 const router = useRouter();
 
-// Tournament period logic
+// TODO:: Implement a helper function
 const isInTournamentPeriod = () => {
   const tournamentStart = import.meta.env.VITE_TOURNAMENT_START;
   const tournamentEnd = import.meta.env.VITE_TOURNAMENT_END;
@@ -139,7 +104,6 @@ const isInTournamentPeriod = () => {
 };
 const isTournamentActive = ref(isInTournamentPeriod());
 
-// Announcement logic
 const isInAnnouncementPeriod = () => {
   const announcementStart = import.meta.env.VITE_ANNOUNCEMENT_START_AT;
   const announcementEnd = import.meta.env.VITE_ANNOUNCEMENT_END_AT;
@@ -151,7 +115,6 @@ const isInAnnouncementPeriod = () => {
 };
 const tournamentNAME = import.meta.env.VITE_TOURNAMENT_NAME;
 
-// Menu links
 const mainMenu = [
   { title: 'Play', name: 'lobby' },
   { title: 'MyGames', name: 'my-games' },
@@ -164,12 +127,10 @@ const linksToShow = isInAnnouncementPeriod()
   ? [...mainMenu, { title: 'Announcement', name: 'announcement' }]
   : mainMenu;
 
-// State
 const isOpen = ref(false);
 const isRankOpen = ref(false);
 const isMobileRankOpen = ref(false);
 
-// Methods
 const toggleMenu = () => {
   isOpen.value = !isOpen.value;
   isMobileRankOpen.value = false;
@@ -238,12 +199,15 @@ const navigateTo = (routeName: string, name?: string) => {
   border-radius: 2px;
   transition: all 0.3s ease;
 }
+
 .hamburger span.open:nth-child(1) {
   transform: rotate(45deg) translateY(7px);
 }
+
 .hamburger span.open:nth-child(2) {
   opacity: 0;
 }
+
 .hamburger span.open:nth-child(3) {
   transform: rotate(-45deg) translateY(-7px);
 }
@@ -260,14 +224,17 @@ const navigateTo = (routeName: string, name?: string) => {
   border-radius: 8px;
   z-index: 1000;
 }
+
 .menu-item {
   padding: 0.75rem 0;
   font-weight: 600;
   cursor: pointer;
 }
+
 .menu-item:last-child {
   border-bottom: none;
 }
+
 .rank-dropdown {
   position: absolute;
   top: 30px;
@@ -279,11 +246,13 @@ const navigateTo = (routeName: string, name?: string) => {
   flex-direction: column;
   z-index: 1000;
 }
+
 .mobile-rank-dropdown {
   padding-left: 1rem;
   display: flex;
   flex-direction: column;
 }
+
 .dropdown-item {
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -298,27 +267,33 @@ const navigateTo = (routeName: string, name?: string) => {
 .slide-leave-active {
   transition: all 0.3s ease;
 }
+
 .slide-enter-from {
   transform: translateX(100%);
   opacity: 0;
 }
+
 .slide-enter-to {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-leave-from {
   transform: translateX(0);
   opacity: 1;
 }
+
 .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
 }
+
 .announcement {
   animation: blink 1s infinite;
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 0.2;
