@@ -61,7 +61,9 @@ services:
       - '5540:5540'
     restart: unless-stopped
   worker-prod-lifecycle:
-    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
     profiles: ['prod']
     env_file:
       - worker/.env
@@ -74,7 +76,9 @@ services:
     restart: always
   worker-prod-verifier-1:
     profiles: ['prod']
-    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
     env_file:
       - worker/.env
     environment:
@@ -87,7 +91,9 @@ services:
   
   worker-prod-verifier-2:
     profiles: ['prod']
-    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
     env_file:
       - worker/.env
     environment:
@@ -99,11 +105,27 @@ services:
     restart: always  
   worker-prod-verifier-3:
     profiles: ['prod']
-    image: ghcr.io/mina-builders-team/mastermind-worker:latest
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
     env_file:
       - worker/.env
     environment:
       - name=verifier_worker_3
+      - WORKER_QUEUE=proofVerificationQueue
+    depends_on:
+      - redis
+      - db
+    restart: always  
+  worker-prod-verifier-4:
+    profiles: ['prod']
+    build:
+      context: .
+      dockerfile: worker/docker/dockerfile.prod
+    env_file:
+      - worker/.env
+    environment:
+      - name=verifier_worker_4
       - WORKER_QUEUE=proofVerificationQueue
     depends_on:
       - redis
