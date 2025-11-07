@@ -278,70 +278,92 @@ export async function updatePlayerStatsFromGame(game: IGame) {
     return today > lastDate;
   };
 
-  const codeBreakerStats = await Player.findOneAndUpdate(
-    { _id: game.codeBreaker },
-    {},
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
-  const codeMasterStats = await Player.findOneAndUpdate(
-    { _id: game.codeMaster },
-    {},
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
-  // Code Breaker Updates
+  const [breaker, master] = await Promise.all([
+    Player.findOneAndUpdate(
+      { _id: game.codeBreaker },
+      {},
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ),
+    Player.findOneAndUpdate(
+      { _id: game.codeMaster },
+      {},
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ),
+  ]);
+
+  // --- Code Breaker ---
   if (game.codeBreaker) {
-    const breaker = codeBreakerStats;
     breaker.gamesPlayed += 1;
+    let breakerPoints = 0;
+
     if (isFirstGame(breaker.lastGameDate)) {
-      breaker.totalScore += 25;
+      breakerPoints += 25;
       breaker.lastGameDate = new Date();
     }
+
     if (isWin(game.codeBreaker)) {
       breaker.winsAsCodeBreaker += 1;
       breaker.currentStreak += 1;
       breaker.maxStreak = Math.max(breaker.maxStreak, breaker.currentStreak);
-      if (breaker.currentStreak % 3 === 0) {
-        breaker.totalScore += 50;
-      }
+
+      if (breaker.currentStreak % 3 === 0) breakerPoints += 50;
+      breakerPoints += (MAX_ATTEMPTS - Math.floor(game.turnCount / 2) + 1) * 20;
+      if (game.turnCount <= 3) breakerPoints += 60;
+      if (game.turnCount === 15) breaker.crackedInLast = true;
       breaker.netRewards += game.rewardAmount;
-      breaker.totalScore +=
-        (MAX_ATTEMPTS - Math.floor(game.turnCount / 2) + 1) * 20;
-      if (game.turnCount <= 3) {
-        breaker.totalScore += 60;
-        breaker.crackedInFirst = true;
-      }
-      if (game.turnCount === 15) {
-        breaker.crackedInLast = true;
-      }
     } else {
       breaker.currentStreak = 0;
       breaker.netRewards -= game.rewardAmount;
     }
 
+    breaker.totalScore += breakerPoints;
+    await updateTournamentPoints(
+      breaker,
+      breakerPoints,
+      'breaker',
+      isWin(game.codeBreaker),
+      game.timestamp
+    );
+
     await updateBadges(breaker);
     await breaker.save();
   }
-  // Code Master Updates
-  const master = codeMasterStats;
-  master.gamesPlayed += 1;
-  master.createdGames += 1;
-  if (isFirstGame(master.lastGameDate)) {
-    master.totalScore += 25;
-    master.lastGameDate = new Date();
+
+  // --- Code Master ---
+  if (game.codeMaster) {
+    master.gamesPlayed += 1;
+    master.createdGames += 1;
+    let masterPoints = 0;
+
+    if (isFirstGame(master.lastGameDate)) {
+      masterPoints += 25;
+      master.lastGameDate = new Date();
+    }
+
+    if (isWin(game.codeMaster)) {
+      master.winsAsCodeMaster += 1;
+      masterPoints += 100 + Math.floor(game.turnCount / 2) * 5;
+      master.currentStreak += 1;
+      master.maxStreak = Math.max(master.maxStreak, master.currentStreak);
+      master.netRewards += game.rewardAmount;
+    } else {
+      masterPoints += (Math.floor(game.turnCount / 2) - 1) * 5;
+      master.currentStreak = 0;
+      master.netRewards -= game.rewardAmount;
+    }
+
+    master.totalScore += masterPoints;
+    await updateTournamentPoints(
+      master,
+      masterPoints,
+      'master',
+      isWin(game.codeMaster),
+      game.timestamp
+    );
+
+    await updateBadges(master);
+    await master.save();
   }
-  if (isWin(game.codeMaster)) {
-    master.winsAsCodeMaster += 1;
-    master.totalScore += 100 + Math.floor(game.turnCount / 2) * 5;
-    master.currentStreak += 1;
-    master.maxStreak = Math.max(master.maxStreak, master.currentStreak);
-    master.netRewards += game.rewardAmount;
-  } else {
-    master.totalScore += (Math.floor(game.turnCount / 2) - 1) * 5;
-    master.currentStreak = 0;
-    master.netRewards -= game.rewardAmount;
-  }
-  await updateBadges(master);
-  await master.save();
 }
 
 async function updateBadges(player: IPlayer) {
@@ -490,3 +512,59 @@ export const processReceivedProof = async (
     throw new Error(`Error when penalizing game ${job?.data?.gameId} : ${err}`);
   }
 };
+
+export function isInTournamentPeriod(timestamp: number): boolean {
+  const tournamentStart = process.env.TOURNAMENT_START;
+  const tournamentEnd = process.env.TOURNAMENT_END;
+  if (!tournamentEnd || !tournamentStart) return false;
+  const start = new Date(process.env.TOURNAMENT_START!).getTime();
+  const end = new Date(process.env.TOURNAMENT_END!).getTime();
+  return timestamp >= start && timestamp <= end;
+}
+
+export function getCurrentTournamentInfo() {
+  return {
+    name: process.env.TOURNAMENT_NAME!,
+    start: new Date(process.env.TOURNAMENT_START!),
+    end: new Date(process.env.TOURNAMENT_END!),
+    prizes: JSON.parse(process.env.TOURNAMENT_PRIZES || '[]'),
+  };
+}
+
+export async function updateTournamentPoints(
+  player: IPlayer,
+  points: number,
+  role: 'breaker' | 'master',
+  isWin: boolean,
+  gameEndTimestamp: number
+) {
+  if (!isInTournamentPeriod(gameEndTimestamp)) return;
+  const { name, start, end, prizes } = getCurrentTournamentInfo();
+  let winsAsCodeMaster = 0;
+  let winsAsCodeBreaker = 0;
+
+  if (isWin) {
+    if (role === 'breaker') winsAsCodeBreaker = 1;
+    else winsAsCodeMaster = 1;
+  }
+
+  let tournament = player.tournaments.find((t) => t.name === name);
+
+  if (!tournament) {
+    tournament = {
+      name,
+      start,
+      end,
+      prizes,
+      totalScore: points,
+      winsAsCodeBreaker: winsAsCodeBreaker,
+      winsAsCodeMaster: winsAsCodeMaster,
+    };
+    player.tournaments.push(tournament);
+  } else {
+    tournament.totalScore += points;
+    tournament.winsAsCodeMaster += winsAsCodeMaster;
+    tournament.winsAsCodeBreaker += winsAsCodeBreaker;
+  }
+  player.markModified('tournaments');
+}

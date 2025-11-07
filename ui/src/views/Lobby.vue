@@ -1,4 +1,5 @@
 <template>
+  <TournamentBanner v-if="isTournamentActive" />
   <div class="w-100 lobby-container mt-5">
     <div class="w-100 d-flex top-bar">
       <div class="d-flex align-items-center flex-1 gap-5">
@@ -162,12 +163,23 @@ import Missions from '@/components/lobby/Missions.vue';
 import CreateGameModal from '@/components/modals/CreateGameModal.vue';
 import JoinWithCodeModal from '@/components/modals/JoinWithCodeModal.vue';
 import Button from '@/components/shared/Button.vue';
+import TournamentBanner from '@/components/shared/TournamentBanner.vue';
 import { useZkAppStore } from '@/store/zkAppModule';
 import { Game } from '@/types';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 
+const isInTournamentPeriod = () => {
+  const tournamentStart = import.meta.env.VITE_TOURNAMENT_START;
+  const tournamentEnd = import.meta.env.VITE_TOURNAMENT_END;
+  if (!tournamentEnd || !tournamentStart) return false;
+  const now = new Date().getTime();
+  const start = new Date(tournamentStart).getTime();
+  const end = new Date(tournamentEnd).getTime();
+  return now >= start && now <= end;
+};
+const isTournamentActive = ref(isInTournamentPeriod());
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const showJoinWithCodeModal = ref(false);

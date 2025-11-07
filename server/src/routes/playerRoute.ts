@@ -3,6 +3,91 @@ import Player from '../models/Player.js';
 
 const router = Router();
 
+
+
+router.get("/leaderboard/tournament/:tournamentName/:userId", async (req: Request, res: Response) => {
+  const { tournamentName, userId } = req.params;
+  const limit = parseInt((req.query.limit as string) || "7", 10);
+  const page = parseInt((req.query.page as string) || "1", 10);
+  const skip = (page - 1) * limit;
+  const onlyPlayers = req.query.onlyPlayers === "true";
+
+  try {
+    const [players, totalPlayers] = await Promise.all([
+      Player.aggregate([
+        { $unwind: "$tournaments" },
+        { $match: { "tournaments.name": tournamentName } },
+        { $sort: { "tournaments.totalScore": -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 1,
+            "tournaments.totalScore": 1,
+            "tournaments.winsAsCodeBreaker": 1,
+            "tournaments.winsAsCodeMaster": 1,
+          },
+        },
+      ]),
+      Player.aggregate([
+        { $unwind: "$tournaments" },
+        { $match: { "tournaments.name": tournamentName } },
+        { $count: "count" },
+      ]),
+    ]);
+
+    const total = totalPlayers.length > 0 ? totalPlayers[0].count : 0;
+
+    if (onlyPlayers) {
+      res.status(200).json({ totalPlayers: total, players });
+      return
+    }
+
+    // Fetch user's stats in this tournament
+    const [userTournament] = await Player.aggregate([
+      { $match: { _id: userId } },
+      { $unwind: "$tournaments" },
+      { $match: { "tournaments.name": tournamentName } },
+      {
+        $project: {
+          _id: 1,
+          "tournaments.totalScore": 1,
+          "tournaments.winsAsCodeBreaker": 1,
+          "tournaments.winsAsCodeMaster": 1,
+        },
+      },
+    ]);
+
+    let userRank = null;
+    if (userTournament) {
+      const higherPlayers = await Player.aggregate([
+        { $unwind: "$tournaments" },
+        { $match: { "tournaments.name": tournamentName, "tournaments.totalScore": { $gt: userTournament.tournaments.totalScore } } },
+        { $count: "count" },
+      ]);
+      userRank = (higherPlayers[0]?.count || 0) + 1;
+    }
+
+    res.status(200).json({
+      totalPlayers: total,
+      players,
+      user: userTournament
+        ? {
+            _id: userTournament._id,
+            totalScore: userTournament.tournaments.totalScore,
+            winsAsCodeBreaker: userTournament.tournaments.winsAsCodeBreaker,
+            winsAsCodeMaster: userTournament.tournaments.winsAsCodeMaster,
+            rank: userRank,
+          }
+        : null,
+    });
+  } catch (err) {
+    console.error("Error fetching tournament leaderboard:", err);
+    res.status(500).json({ message: "Failed to fetch tournament leaderboard" });
+  }
+});
+
+
 router.get('/leaderboard/:userId', async (req: Request, res: Response) => {
   const userId = req.params.userId;
   const limit = parseInt((req.query.limit as string) || '7', 10);

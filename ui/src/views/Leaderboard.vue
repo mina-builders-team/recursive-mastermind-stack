@@ -1,6 +1,9 @@
 <template>
   <div class="mt-5 w-100">
-    <div class="fs-32 fw-700 mb-3">LEADERBOARD</div>
+    <div class="fs-32 fw-700 mb-3">
+      <span v-if="tournamentName">{{ tournamentName }}</span>
+      <span v-else>Leaderboard</span>
+    </div>
     <div
       v-if="leaderboardData?.user"
       class="d-flex w-100 justify-content-between p-3 radius-10 color-snow-white user-rank__container"
@@ -64,6 +67,13 @@
         </div>
       </div>
       <div
+          v-if="!isLoading && !leaderboardData?.players?.length"
+          class="bg-alpha-8-300-8 color-snow-white ps-3 py-3 d-flex justify-content-center"
+        >
+          <div class="fw-600">No players available at the moment.</div>
+      </div>
+
+      <div
         class="infinite-list"
         v-infinite-scroll="loadMorePlayer"
         :infinite-scroll-disabled="isLoading || reachedEnd"
@@ -71,7 +81,14 @@
         :infinite-scroll-distance="40"
       >
         <div v-for="(player, index) in leaderboardData?.players">
-          <PlayerCard :player="player" :index="index" />
+          <PlayerCard
+            :player="
+              tournamentName && player.tournaments
+                ? { ...player, ...player.tournaments }
+                : player
+            "
+            :index="index"
+          />
         </div>
       </div>
     </div>
@@ -86,9 +103,11 @@ import { getNextTitleInfo, getTitleByRank } from '@/utils';
 import axios from 'axios';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
-
+const route = useRoute();
+const tournamentName = route?.params?.name;
 const leaderboardData = ref<{
   user: Player & { rank: number };
   players: Array<Player>;
@@ -114,15 +133,17 @@ const loadMorePlayer = async () => {
   currentPage.value++;
   isLoading.value = false;
 };
+
+const apiUrl = tournamentName
+  ? `${SERVER_URL}/player/leaderboard/tournament/${tournamentName}/${publicKeyBase58.value}`
+  : `${SERVER_URL}/player/leaderboard/${publicKeyBase58.value}`;
 const getPlayers = async (onlyPlayers?: boolean) => {
   const query = new URLSearchParams({
     onlyPlayers: onlyPlayers ? 'true' : 'false',
     page: currentPage.value.toString(),
     limit: limit.value.toString(),
   });
-  const res = await axios.get(
-    `${SERVER_URL}/player/leaderboard/${publicKeyBase58.value}?${query.toString()}`
-  );
+  const res = await axios.get(`${apiUrl}?${query.toString()}`);
   if (res?.data) {
     if (onlyPlayers) {
       leaderboardData.value.players =
@@ -137,7 +158,7 @@ const getPlayers = async (onlyPlayers?: boolean) => {
 };
 const tweet = computed(() => {
   return {
-    message: `📊 Just checked my Mastermind leaderboard stats on @MinaProtocol:
+    message: `📊 Just checked my ${tournamentName ? tournamentName : ' Mastermind leaderboard '} stats on @MinaProtocol:
 🏅 Rank: ${leaderboardData.value?.user?.rank}
 🎖️ Title: ${getTitleByRank(leaderboardData.value?.user?.rank)?.title}
 🧠 Solved Codes: ${leaderboardData.value?.user?.winsAsCodeBreaker}

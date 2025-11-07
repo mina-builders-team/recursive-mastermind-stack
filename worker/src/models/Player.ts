@@ -1,5 +1,15 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface ITournamentStats {
+  name: string;
+  start: Date;
+  end: Date;
+  totalScore: number;
+  prizes: number[];
+  winsAsCodeBreaker: number;
+  winsAsCodeMaster: number;
+}
+
 export interface IPlayer extends Document {
   _id: string;
   gamesPlayed: number;
@@ -18,7 +28,18 @@ export interface IPlayer extends Document {
   crackedInFirst: boolean;
   crackedInLast: boolean;
   lastGameDate: Date;
+  tournaments: ITournamentStats[];
 }
+
+const TournamentStatsSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  start: { type: Date, required: true },
+  end: { type: Date, required: true },
+  prizes: { type: [Number], default: [] },
+  totalScore: { type: Number, default: 0 },
+  winsAsCodeBreaker: { type: Number, default: 0 },
+  winsAsCodeMaster: { type: Number, default: 0 },
+});
 
 const PlayerSchema = new Schema<IPlayer>(
   {
@@ -44,6 +65,7 @@ const PlayerSchema = new Schema<IPlayer>(
     },
 
     badges: { type: [String], default: [] },
+    tournaments: { type: [TournamentStatsSchema], default: [] },
   },
   { timestamps: true }
 );
