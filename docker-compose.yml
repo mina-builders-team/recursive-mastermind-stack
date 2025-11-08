@@ -17,7 +17,9 @@ services:
       - db    
     restart: unless-stopped
   server-prod:
-    image: ghcr.io/mina-builders-team/mastermind-server:latest
+    build:
+      context: .
+      dockerfile: server/docker/dockerfile.prod
     profiles: ['prod']
     ports:
       - '3000:3000'
