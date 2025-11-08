@@ -30,8 +30,9 @@ import duration from 'dayjs/plugin/duration'
 dayjs.extend(utc)
 dayjs.extend(duration)
 
+const TOURNAMENT_START = import.meta.env.VITE_TOURNAMENT_START
 
-const sessionUTC = dayjs.utc('2025-10-22T17:00:00Z')
+const sessionUTC = dayjs.utc(TOURNAMENT_START)
 
 
 const days = ref(0)
