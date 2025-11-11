@@ -1,7 +1,7 @@
 <template>
   <div class="mt-5 w-100">
     <div class="fs-32 fw-700 mb-3">
-      <span v-if="tournamentName">{{ tournamentName }}</span>
+      <span v-if="tournamentName">{{ displayedTournamentName }}</span>
       <span v-else>Leaderboard</span>
     </div>
     <div
@@ -107,7 +107,10 @@ import { useRoute } from 'vue-router';
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 const { publicKeyBase58 } = storeToRefs(useZkAppStore());
 const route = useRoute();
-const tournamentName = route?.params?.name;
+const tournamentName = route?.params?.name as string;
+const displayedTournamentName = computed(() => {
+  return tournamentName?.replace(/_/g, ' ')
+})
 const leaderboardData = ref<{
   user: Player & { rank: number };
   players: Array<Player>;
@@ -158,7 +161,7 @@ const getPlayers = async (onlyPlayers?: boolean) => {
 };
 const tweet = computed(() => {
   return {
-    message: `📊 Just checked my ${tournamentName ? tournamentName : ' Mastermind leaderboard '} stats on @MinaProtocol:
+    message: `📊 Just checked my ${tournamentName ? displayedTournamentName.value : ' Mastermind leaderboard '} stats on @MinaProtocol:
 🏅 Rank: ${leaderboardData.value?.user?.rank}
 🎖️ Title: ${getTitleByRank(leaderboardData.value?.user?.rank)?.title}
 🧠 Solved Codes: ${leaderboardData.value?.user?.winsAsCodeBreaker}

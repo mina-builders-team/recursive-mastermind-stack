@@ -1,7 +1,7 @@
 <template>
   <div class="banner-container p-2 radius-10 d-flex justify-content-center">
     <div>
-      <span class="fw-600 me-1">🏆 {{ tournamentNAME }} 🏆 is live!</span>
+      <span class="fw-600 me-1">🏆 {{ displayedTournamentName }} 🏆 is live!</span>
       <span>Compete until <strong>{{tournamentEnd}}</strong></span>
       <span class="fs-16">🎁 Win {{ maxPrize }} MINA !</span>
       <span
@@ -17,15 +17,19 @@
 import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { computed } from 'vue';
 dayjs.extend(utc);
 const tournamentEnd = dayjs.utc(import.meta.env.VITE_TOURNAMENT_END).format('MMMM D, YYYY HH:mm [UTC]');
-const tournamentNAME = import.meta.env.VITE_TOURNAMENT_NAME;
+const tournamentName = import.meta.env.VITE_TOURNAMENT_NAME;
+const displayedTournamentName = computed(() => {
+  return tournamentName?.replace(/_/g, ' ')
+})
 const maxPrize = import.meta.env.VITE_TOURNAMENT_MAX_PRIZE;
 const router = useRouter();
 const redirectToLeaderboard = () => {
   router.push({
     name: 'tournamentRank',
-    params: { name: tournamentNAME },
+    params: { name: tournamentName },
   });
 };
 </script>
