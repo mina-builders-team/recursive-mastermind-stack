@@ -17,7 +17,7 @@
         <div class="dropdown-item" @click="navigateTo('leaderboard')">
           Global Leaderboard
         </div>
-        <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentNAME)">
+        <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentName)">
           Game Night Leaderboard
         </div>
       </div>
@@ -61,7 +61,7 @@
             <div class="dropdown-item" @click="navigateTo('leaderboard')">
               Global Leaderboard
             </div>
-            <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentNAME)">
+            <div class="dropdown-item" @click="navigateTo('tournamentRank', tournamentName)">
               Game Night Leaderboard
             </div>
           </div>
@@ -113,7 +113,7 @@ const isInAnnouncementPeriod = () => {
   const end = new Date(announcementEnd).getTime();
   return now >= start && now <= end;
 };
-const tournamentNAME = import.meta.env.VITE_TOURNAMENT_NAME;
+const tournamentName = import.meta.env.VITE_TOURNAMENT_NAME;
 
 const mainMenu = [
   { title: 'Play', name: 'lobby' },
